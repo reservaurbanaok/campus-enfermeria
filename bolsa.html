@@ -559,34 +559,7 @@ button{cursor:pointer;font-family:inherit}
             <div class="sbi"><div class="sbd"></div><div class="sbt"><strong>Sello Campus ✦:</strong> Si sos alumno/a, tu perfil aparece destacado con sello dorado para los reclutadores.</div></div>
             <div class="sbi"><div class="sbd"></div><div class="sbt"><strong>Datos protegidos:</strong> Solo instituciones acreditadas acceden al directorio (clave institucional).</div></div>
           </div>
-          <div class="sbc">
-            <div class="sb-t" style="color:var(--gold)">⚙️ Tabla Supabase: <code style="color:var(--teal)">enfermeros</code></div>
-            <div class="alert-b"><span style="font-size:16px;flex-shrink:0">ℹ️</span><span>Creá esta tabla en tu proyecto Supabase:</span></div>
-            <div class="codebl">
-              <code><em>-- columna ----------- tipo</em></code>
-              <code>id <em>uuid PK auto</em></code>
-              <code>nombre <em>text not null</em></code>
-              <code>whatsapp <em>text not null</em></code>
-              <code>matricula <em>text not null</em></code>
-              <code>localidad <em>text not null</em></code>
-              <code>nivel <em>text not null</em></code>
-              <code>especialidad <em>text not null</em></code>
-              <code>disponibilidad <em>text[] (array)</em></code>
-              <code>equipamiento <em>text[] (array)</em></code>
-              <code>emergencias <em>text</em></code>
-              <code>bio <em>text</em></code>
-              <code>cv_url <em>text</em></code>
-              <code>es_campus <em>boolean default false</em></code>
-              <code>created_at <em>timestamptz now()</em></code>
-            </div>
-          </div>
-          <div class="sbc">
-            <div class="sb-t">🔐 Clave Institucional</div>
-            <div class="sbi"><div class="sbd"></div><div class="sbt">La clave demo es <strong style="color:var(--gold)">CAMPUS2025</strong>. Buscá en el JS la variable <code style="color:var(--teal)">INST_PASS</code> para cambiarla.</div></div>
-            <div class="sbi"><div class="sbd"></div><div class="sbt">Para producción, implementá autenticación con Supabase Auth y tokens por email institucional.</div></div>
-          </div>
-        </div>
-      </div>
+
     </div>
 
     <!-- TAB: STATS -->
