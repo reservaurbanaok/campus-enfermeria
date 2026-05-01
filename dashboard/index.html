@@ -521,6 +521,330 @@
   <div style="width: 100%; margin-bottom: 24px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
   <iframe width="100%" height="500" src="https://google.com" frameborder="0" style="border:0" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
 </div>
+    <!-- ══════════════════════════════════════════
+     TABLA DE GESTIÓN DE ALUMNOS
+     Insertar después de línea 523 (cierre del iframe de Looker)
+══════════════════════════════════════════ -->
+<style>
+  /* ── ALUMNOS TABLE ── */
+  .alumnos-section {
+    margin-bottom: 1.5rem;
+  }
+  .alumnos-toolbar {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .alumnos-search-wrap {
+    position: relative; flex: 1; max-width: 320px;
+  }
+  .alumnos-search-wrap svg {
+    position: absolute; left: 12px; top: 50%;
+    transform: translateY(-50%);
+    width: 15px; height: 15px;
+    color: var(--text-3); pointer-events: none;
+  }
+  .alumnos-search {
+    width: 100%; padding: 0.6rem 1rem 0.6rem 2.4rem;
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.83rem; font-family: var(--font-body);
+    color: var(--text-1); outline: none;
+    transition: border-color 0.2s;
+  }
+  .alumnos-search::placeholder { color: var(--text-3); }
+  .alumnos-search:focus { border-color: var(--accent); }
+  .alumnos-count {
+    font-size: 0.77rem; color: var(--text-3);
+    white-space: nowrap;
+  }
+  .alumnos-count strong { color: var(--text-1); font-weight: 600; }
+  .alumnos-table-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  .alumnos-table {
+    width: 100%; border-collapse: collapse;
+    min-width: 700px;
+  }
+  .alumnos-table thead th {
+    padding: 0.75rem 1rem;
+    font-size: 0.71rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text-3); text-align: left;
+    background: var(--bg-card2);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .alumnos-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .alumnos-table tbody tr:last-child { border-bottom: none; }
+  .alumnos-table tbody tr:hover { background: var(--bg-card2); }
+  .alumnos-table tbody td {
+    padding: 0.8rem 1rem;
+    font-size: 0.82rem; color: var(--text-2);
+    vertical-align: middle;
+  }
+  .alumno-name { font-weight: 600; color: var(--text-1); display: block; }
+  .alumno-email { font-size: 0.72rem; color: var(--text-3); margin-top: 2px; }
+  .estado-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 0.71rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .estado-inscripto  { background: rgba(22,163,74,0.15);  color: #4ade80; }
+  .estado-pendiente  { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .estado-deudor     { background: rgba(239,68,68,0.15);  color: #f87171; }
+  .estado-default    { background: var(--bg-card2);       color: var(--text-3); }
+  .monto-saldo-neg { color: #f87171; font-weight: 600; }
+  .monto-saldo-ok  { color: #4ade80; font-weight: 600; }
+  .alumnos-loading, .alumnos-empty {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--text-3); font-size: 0.85rem;
+  }
+  .alumnos-loading-spinner {
+    display: inline-block; width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin-bottom: 0.75rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .alumnos-error {
+    text-align: center; padding: 2rem 1rem;
+    color: #f87171; font-size: 0.82rem;
+  }
+</style>
+
+<section class="alumnos-section anim-in delay-8" aria-labelledby="alumnos-title">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title" id="alumnos-title">
+          <!-- ícono persona --> 
+          <svg style="width:15px;height:15px;vertical-align:-2px;margin-right:6px;fill:var(--accent)" viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+          Gestión de Alumnos
+        </div>
+        <div class="card-sub">Datos en tiempo real desde Google Sheets</div>
+      </div>
+      <button
+        onclick="fetchAlumnos()"
+        title="Actualizar datos"
+        style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--text-2);display:flex;align-items:center;gap:5px;font-size:0.78rem;font-family:var(--font-body);transition:all 0.18s"
+        onmouseover="this.style.background='var(--bg-card2)';this.style.color='var(--text-1)'"
+        onmouseout="this.style.background='transparent';this.style.color='var(--text-2)'"
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+        </svg>
+        Actualizar
+      </button>
+    </div>
+
+    <div class="alumnos-toolbar">
+      <div class="alumnos-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input
+          type="search"
+          class="alumnos-search"
+          id="alumnos-search"
+          placeholder="Buscar por nombre, DNI o email…"
+          oninput="filterAlumnos(this.value)"
+          aria-label="Buscar alumno"
+        />
+      </div>
+      <div class="alumnos-count" id="alumnos-count"></div>
+    </div>
+
+    <div class="alumnos-table-wrap">
+      <table class="alumnos-table" aria-label="Tabla de alumnos">
+        <thead>
+          <tr>
+            <th scope="col">Alumno / Email</th>
+            <th scope="col">DNI</th>
+            <th scope="col">Curso</th>
+            <th scope="col">Inscripción</th>
+            <th scope="col">Total</th>
+            <th scope="col">Pagado</th>
+            <th scope="col">Saldo</th>
+            <th scope="col">Estado</th>
+          </tr>
+        </thead>
+        <tbody id="alumnos-tbody">
+          <tr>
+            <td colspan="8">
+              <div class="alumnos-loading">
+                <div class="alumnos-loading-spinner"></div><br>
+                Cargando alumnos…
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ══════════════════════════════════════════
+   TABLA DE ALUMNOS — Google Sheets CSV
+   ⚠️ REEMPLAZÁ LA URL con la de tu Sheet publicada:
+   Archivo → Publicar en la web → Pestaña "GESTIÓN MAESTRA" → CSV
+══════════════════════════════════════════ */
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/TU_SHEET_ID/gviz/tq?tqx=out:csv&sheet=GESTI%C3%93N%20MAESTRA';
+
+// Índices de columnas (0-based). Ajustá según tu Sheet:
+const COL = {
+  nombre:      0,   // Col A: Nombre completo
+  email:       1,   // Col B: Email
+  dni:         2,   // Col C: DNI
+  curso:       3,   // Col D: Curso (viene del form)
+  fechaInscr:  4,   // Col E: Fecha de inscripción (Timestamp del form)
+  montoTotal:  8,   // Col I: Monto Total (manual)
+  montoPagado: 9,   // Col J: Monto Pagado (manual)
+  saldo:       10,  // Col K: Saldo Restante (fórmula)
+  estado:      11,  // Col L: Estado (desplegable)
+};
+
+let alumnosData = [];
+
+async function fetchAlumnos() {
+  const tbody = document.getElementById('alumnos-tbody');
+  tbody.innerHTML = `<tr><td colspan="8"><div class="alumnos-loading"><div class="alumnos-loading-spinner"></div><br>Actualizando…</div></td></tr>`;
+  document.getElementById('alumnos-count').textContent = '';
+
+  try {
+    // Cache-bust para forzar datos frescos
+    const url = SHEET_CSV_URL + '&cb=' + Date.now();
+    const res  = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    alumnosData = parseCSV(text).slice(1); // Salteamos encabezado
+    document.getElementById('alumnos-search').value = '';
+    renderAlumnos(alumnosData);
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="alumnos-error">
+      ⚠️ No se pudo cargar la hoja.<br>
+      <small>Verificá que la Sheet esté publicada como CSV y la URL sea correcta.</small>
+    </div></td></tr>`;
+    console.error('fetchAlumnos error:', err);
+  }
+}
+
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split('\n');
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; continue; }
+      if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    cols.push(cur.trim());
+    rows.push(cols);
+  }
+  return rows;
+}
+
+function renderAlumnos(rows) {
+  const tbody = document.getElementById('alumnos-tbody');
+  const count = document.getElementById('alumnos-count');
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="alumnos-empty">Sin alumnos registrados.</div></td></tr>`;
+    count.innerHTML = '';
+    return;
+  }
+
+  count.innerHTML = `<strong>${rows.length}</strong> alumno${rows.length !== 1 ? 's' : ''}`;
+
+  tbody.innerHTML = rows.map(r => {
+    const nombre     = r[COL.nombre]      || '—';
+    const email      = r[COL.email]       || '';
+    const dni        = r[COL.dni]         || '—';
+    const curso      = r[COL.curso]       || '—';
+    const fecha      = r[COL.fechaInscr]  || '';
+    const total      = r[COL.montoTotal]  || '';
+    const pagado     = r[COL.montoPagado] || '';
+    const saldo      = r[COL.saldo]       || '';
+    const estadoRaw  = (r[COL.estado] || '').toLowerCase().trim();
+
+    // Badge de estado
+    const estadoMap = {
+      inscripto: ['estado-inscripto', 'Inscripto'],
+      pendiente: ['estado-pendiente', 'Pendiente'],
+      deudor:    ['estado-deudor',    'Deudor'],
+    };
+    const [estadoClass, estadoLabel] = estadoMap[estadoRaw] || ['estado-default', r[COL.estado] || '—'];
+
+    // Color del saldo
+    const saldoNum = parseFloat(saldo.replace(/[^0-9.-]/g, ''));
+    const saldoClass = saldoNum > 0 ? 'monto-saldo-neg' : saldoNum === 0 && saldo ? 'monto-saldo-ok' : '';
+
+    // Fecha legible
+    const fechaFmt = fecha ? fecha.split(' ')[0] : '—';
+
+    return `
+      <tr>
+        <td>
+          <span class="alumno-name">${escH(nombre)}</span>
+          ${email ? `<span class="alumno-email">${escH(email)}</span>` : ''}
+        </td>
+        <td>${escH(dni)}</td>
+        <td>${escH(curso)}</td>
+        <td style="white-space:nowrap">${escH(fechaFmt)}</td>
+        <td>${total ? '$' + escH(total) : '—'}</td>
+        <td>${pagado ? '$' + escH(pagado) : '—'}</td>
+        <td class="${saldoClass}">${saldo ? '$' + escH(saldo) : '—'}</td>
+        <td><span class="estado-badge ${estadoClass}">${escH(estadoLabel)}</span></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterAlumnos(query) {
+  const q = query.toLowerCase().trim();
+  if (!q) { renderAlumnos(alumnosData); return; }
+  const filtered = alumnosData.filter(r => {
+    return (r[COL.nombre]  || '').toLowerCase().includes(q) ||
+           (r[COL.dni]     || '').toLowerCase().includes(q) ||
+           (r[COL.email]   || '').toLowerCase().includes(q);
+  });
+  renderAlumnos(filtered);
+}
+
+function escH(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Cargar automáticamente cuando el dashboard se desbloquea
+const _origInit = typeof initDashboard === 'function' ? initDashboard : null;
+if (_origInit) {
+  const __prevInit = initDashboard;
+  window.initDashboard = function() {
+    __prevInit();
+    fetchAlumnos();
+  };
+} else {
+  document.addEventListener('DOMContentLoaded', fetchAlumnos);
+}
+</script>
 
         <table class="dash-table" aria-label="Tabla de páginas más vistas">
           <thead>
