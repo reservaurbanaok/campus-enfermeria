@@ -1245,7 +1245,7 @@ button:hover .neon-icon-gold svg {
     <div style="text-align:center; margin-bottom:60px;" class="reveal">
       <div class="section-tag">Comenzá ahora</div>
       <h2 style="font-family:'Sora',sans-serif; font-size:clamp(1.8rem,3vw,2.8rem); font-weight:700; color:white; margin-bottom:16px;">Inscripción & Consultas</h2>
-      <p style="color:rgba(255,255,255,0.55); font-size:16px;">Completá el formulario y nos ponemos en contacto en menos de 24 horas.</p>
+      <p style="color:rgba(255,255,255,0.55); font-size:16px;">Completá el formulario de consulta y te contactamos en menos de 24 horas.<br/><span style="color:rgba(232,160,32,0.85); font-size:14px;">⚠️ Para inscribirte oficialmente, usá el botón "Inscribirme ahora" en tu curso y adjuntá el comprobante de pago.</span></p>
     </div>
 
     <!-- WhatsApp inscription option -->
@@ -1268,9 +1268,10 @@ button:hover .neon-icon-gold svg {
         <div style="width:52px; height:52px; background:rgba(0,212,212,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
           <svg width="26" height="26" fill="none" stroke="#00d4d4" viewBox="0 0 24 24" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         </div>
-        <div style="font-family:'Sora',sans-serif; font-weight:700; font-size:16px; color:white; margin-bottom:6px;">Completar el Formulario</div>
+        <div style="font-family:'Sora',sans-serif; font-weight:700; font-size:16px; color:white; margin-bottom:6px;">Consulta por este formulario</div>
         <div style="color:rgba(255,255,255,0.5); font-size:13px; line-height:1.5;">Dejá tus datos y te contactamos<br/>en menos de 24 hs.</div>
-        <div style="margin-top:16px; color:#00d4d4; font-size:12px; font-weight:600; letter-spacing:0.08em;">↓ COMPLETAR ABAJO</div>
+        <div style="margin-top:10px; background:rgba(232,160,32,0.12); border:1px solid rgba(232,160,32,0.35); border-radius:8px; padding:8px 12px; font-size:12px; color:#e8a020; line-height:1.5;">⚠️ Para confirmar tu inscripción debés completar el formulario oficial del curso y adjuntar el comprobante de pago.</div>
+        <div style="margin-top:12px; color:#00d4d4; font-size:12px; font-weight:600; letter-spacing:0.08em;">↓ COMPLETAR ABAJO</div>
       </div>
 
     </div>
@@ -1842,6 +1843,13 @@ button:hover .neon-icon-gold svg {
     // Enviar vía EmailJS usando los campos del formulario
     emailjs.sendForm('service_0aag4oc', 'template_aqzurkl', form)
       .then(function() {
+        // Registrar conversión en GA4
+        if (typeof gtag === 'function') {
+          gtag('event', 'form_submission', {
+            event_category: 'inscripcion',
+            event_label: 'Diplomatura 2026'
+          });
+        }
         // Éxito: ocultar formulario y mostrar mensaje de confirmación
         form.style.opacity = '0';
         form.style.transform = 'translateY(20px)';
@@ -1917,7 +1925,7 @@ button:hover .neon-icon-gold svg {
       <!-- Contact col -->
       <div>
         <div style="color:white; font-family:'Sora',sans-serif; font-weight:600; font-size:14px; letter-spacing:0.08em; margin-bottom:20px; text-transform:uppercase;">Contacto</div>
-        <a href="https://wa.me/542215522315?text=Hola%2C%20quiero%20información%20sobre%20la%20Diplomatura%20en%20Enfermería%20Escolar%202026 class="footer-link" style="color:white; display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+        <a href="https://wa.me/542215522315?text=Hola%2C%20quiero%20información%20sobre%20la%20Diplomatura%20en%20Enfermer%C3%ADa%20Escolar%202026" target="_blank" rel="noopener" class="footer-link" style="color:white; display:flex; align-items:center; gap:8px; margin-bottom:10px;">
           <svg width="14" height="14" fill="rgba(255,255,255,0.4)" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654z"/></svg>
           WhatsApp
         </a>
