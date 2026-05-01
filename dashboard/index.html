@@ -259,7 +259,7 @@ function alertas(data) {
 // ── FETCH ─────────────────────────────────────────────
 async function fetchData() {
   try {
-    const res = await fetch(CONFIG.API_URL);
+    const res = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(CONFIG.API_URL));
     if (!res.ok) throw new Error();
     const data = await res.json();
 
