@@ -1,179 +1,323 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard AEEPBA</title>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
 <style>
-body{margin:0;font-family:Arial;background:#060f1e;color:#fff}
-.container{max-width:1200px;margin:auto;padding:20px}
-.grid{display:grid;gap:15px}
-.grid-4{grid-template-columns:repeat(4,1fr)}
-.card{background:#111e35;padding:15px;border-radius:10px}
-.metric{font-size:24px;font-weight:bold}
-.alert{color:#f87171}
-input{width:100%;padding:8px;margin-bottom:10px;border-radius:6px;border:none;box-sizing:border-box}
-table{width:100%;border-collapse:collapse}
-th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.1)}
-.badge{padding:3px 8px;border-radius:20px;font-size:12px}
-.ok{background:#14532d;color:#4ade80}
-.warn{background:#78350f;color:#fbbf24}
-#loading{margin-bottom:10px;color:#8ba3c7}
+:root {
+  --bg: #060f1e;
+  --card: #111e35;
+  --card2: #0e1a2e;
+  --accent: #2563eb;
+  --accent2: #16a34a;
+  --accent3: #7c3aed;
+  --text: #e2eaf7;
+  --muted: #8ba3c7;
+  --border: rgba(255,255,255,0.07);
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --green: #4ade80;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-/* Lock screen */
-#lockScreen{
-  position:fixed;inset:0;background:#060f1e;
-  display:flex;align-items:center;justify-content:center;
-  flex-direction:column;z-index:9999;gap:12px;
+/* LOCK SCREEN */
+#lockScreen {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; z-index: 9999; gap: 14px;
 }
-#lockScreen h2{margin:0;font-size:1.3rem;}
-#lockScreen input{
-  width:260px;padding:10px 14px;
-  background:#111e35;border:1px solid rgba(255,255,255,0.15);
-  border-radius:8px;color:#fff;font-size:1rem;outline:none;
+#lockScreen .logo { font-size: 2rem; font-weight: 800; letter-spacing: -1px; color: var(--text); }
+#lockScreen .logo span { color: var(--accent); }
+#lockScreen p { color: var(--muted); font-size: .9rem; }
+#lockScreen input {
+  width: 280px; padding: 12px 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text); font-size: 1rem; outline: none;
 }
-#lockScreen input:focus{border-color:#2563eb;}
-#lockScreen input.error{border-color:#f87171;animation:shake .3s ease;}
-@keyframes shake{
-  0%,100%{transform:translateX(0)}
-  25%{transform:translateX(-8px)}
-  75%{transform:translateX(8px)}
+#lockScreen input:focus { border-color: var(--accent); }
+#lockScreen input.error { border-color: var(--red); animation: shake .3s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+#lockScreen button {
+  width: 280px; padding: 12px; border: none; border-radius: 10px;
+  background: var(--accent); color: #fff; font-size: 1rem; font-weight: 700;
+  cursor: pointer; transition: background .2s;
 }
-#lockScreen button{
-  width:260px;padding:10px;border:none;border-radius:8px;
-  background:#2563eb;color:#fff;font-size:1rem;font-weight:600;
-  cursor:pointer;transition:background .2s;
+#lockScreen button:hover { background: #1d4ed8; }
+#errorMsg { color: var(--red); font-size: .85rem; min-height: 1.2em; }
+
+/* APP */
+.container { max-width: 1300px; margin: auto; padding: 24px 20px; }
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+.header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -.5px; }
+.header h1 span { color: var(--accent); }
+.header .sub { color: var(--muted); font-size: .85rem; margin-top: 2px; }
+.badge-live { background: #14532d; color: var(--green); padding: 4px 12px; border-radius: 20px; font-size: .8rem; font-weight: 600; }
+
+/* SECTION TITLE */
+.section-title {
+  font-size: .7rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted);
+  margin: 28px 0 12px; padding-left: 4px;
+  border-left: 3px solid var(--accent); padding-left: 10px;
 }
-#lockScreen button:hover{background:#1d4ed8;}
-#errorMsg{color:#f87171;font-size:.85rem;margin:0;min-height:1.2em;}
+
+/* GRID */
+.grid { display: grid; gap: 14px; }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-2-1 { grid-template-columns: 2fr 1fr; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+@media(max-width:900px) {
+  .grid-4, .grid-3, .grid-2-1, .grid-2 { grid-template-columns: 1fr 1fr; }
+}
+@media(max-width:600px) {
+  .grid-4, .grid-3, .grid-2-1, .grid-2 { grid-template-columns: 1fr; }
+}
+
+/* CARDS */
+.card { background: var(--card); border-radius: 14px; padding: 18px; border: 1px solid var(--border); }
+.card.accent-left { border-left: 3px solid var(--accent); }
+.card.accent-green { border-left: 3px solid var(--accent2); }
+.card.accent-purple { border-left: 3px solid var(--accent3); }
+.card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 14px; color: var(--text); }
+
+/* METRIC CARDS */
+.metric-label { font-size: .78rem; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+.metric-value { font-size: 2rem; font-weight: 800; line-height: 1; }
+.metric-sub { font-size: .75rem; color: var(--muted); margin-top: 6px; }
+.metric-up { color: var(--green); }
+.metric-down { color: var(--red); }
+
+/* GA4 STAT CARDS */
+.ga4-stat { text-align: center; }
+.ga4-stat .metric-value { font-size: 2.2rem; color: var(--accent); }
+.ga4-stat.green .metric-value { color: var(--accent2); }
+.ga4-stat.purple .metric-value { color: var(--accent3); }
+
+/* TABLE */
+input[type=text], input:not([type]) {
+  width: 100%; padding: 10px 14px; margin-bottom: 12px;
+  border-radius: 8px; border: 1px solid var(--border);
+  background: var(--card2); color: var(--text); font-size: .9rem; outline: none;
+}
+input:focus { border-color: var(--accent); }
+table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+th { padding: 10px 8px; text-align: left; color: var(--muted); font-size: .75rem; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+td { padding: 10px 8px; border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(37,99,235,0.05); }
+.alert { color: var(--red); font-weight: 600; }
+.badge { padding: 3px 10px; border-radius: 20px; font-size: .75rem; font-weight: 600; }
+.ok { background: #14532d; color: var(--green); }
+.warn { background: #78350f; color: var(--yellow); }
+
+/* CHANNELS */
+.channel-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.channel-label { font-size: .82rem; color: var(--muted); width: 130px; flex-shrink: 0; }
+.channel-bar-wrap { flex: 1; background: var(--card2); border-radius: 4px; height: 8px; overflow: hidden; }
+.channel-bar { height: 100%; border-radius: 4px; transition: width .8s ease; }
+.channel-val { font-size: .82rem; font-weight: 700; width: 30px; text-align: right; }
+
+/* LOADING */
+.loading-text { color: var(--muted); font-size: .85rem; margin-bottom: 10px; }
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* STATUS BAR */
+.status-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: .8rem; color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 </style>
-
 </head>
 <body>
 
-<!-- 🔒 LOCK SCREEN -->
+<!-- LOCK SCREEN -->
 <div id="lockScreen">
-  <h2>🔒 Acceso privado</h2>
-  <input id="passwordInput" type="password" placeholder="Contraseña" />
+  <div class="logo">Campus <span>AEEPBA</span></div>
+  <p>Panel de gestión privado</p>
+  <input id="passwordInput" type="password" placeholder="Contraseña" autocomplete="current-password" />
   <button onclick="unlock()">Ingresar</button>
   <p id="errorMsg"></p>
 </div>
 
 <div class="container" id="app" style="display:none">
 
-<h1>Dashboard Operativo</h1>
-<p>Gestión en tiempo real</p>
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>Dashboard <span>Operativo</span></h1>
+      <div class="sub">Campus Profesional Enfermería · AEEPBA</div>
+    </div>
+    <span class="badge-live">● En vivo</span>
+  </div>
 
-<div class="grid grid-4">
-<div class="card"><div>Alumnos</div><div id="m_alumnos" class="metric">0</div></div>
-<div class="card"><div>Facturación</div><div id="m_total" class="metric">$0</div></div>
-<div class="card"><div>Cobrado</div><div id="m_cobrado" class="metric">$0</div></div>
-<div class="card"><div>Deuda</div><div id="m_deuda" class="metric">$0</div></div>
-</div>
+  <div class="status-bar">
+    <span class="dot"></span>
+    <span id="lastUpdate">Actualizando datos...</span>
+  </div>
 
-<br>
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 1 — ALUMNOS (Google Sheets)
+  ════════════════════════════════════════════════ -->
+  <div class="section-title">📋 Gestión de Alumnos</div>
 
-<div class="grid" style="grid-template-columns:2fr 1fr;">
-<div class="card">
-<h3>Cashflow</h3>
-<canvas id="chart"></canvas>
-</div>
-<div class="card">
-<h3>Alertas</h3>
-<div id="alertas"></div>
-</div>
-</div>
+  <div class="grid grid-4">
+    <div class="card accent-left">
+      <div class="metric-label">Total Alumnos</div>
+      <div id="m_alumnos" class="metric-value">—</div>
+      <div class="metric-sub">Inscriptos activos</div>
+    </div>
+    <div class="card accent-left">
+      <div class="metric-label">Facturación Total</div>
+      <div id="m_total" class="metric-value">—</div>
+      <div class="metric-sub">Monto total emitido</div>
+    </div>
+    <div class="card accent-green">
+      <div class="metric-label">Total Cobrado</div>
+      <div id="m_cobrado" class="metric-value">—</div>
+      <div class="metric-sub">Pagos recibidos</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red)">
+      <div class="metric-label">Deuda Pendiente</div>
+      <div id="m_deuda" class="metric-value">—</div>
+      <div class="metric-sub" id="m_deudores">—</div>
+    </div>
+  </div>
 
-<br>
+  <br>
 
-<div class="card">
-<h3>Base operativa</h3>
-<div id="loading">Cargando datos...</div>
-<input placeholder="Buscar alumno..." oninput="filterData(this.value)">
-<table>
-<thead>
-<tr>
-<th>Alumno</th><th>Curso</th><th>Total</th><th>Pagado</th><th>Saldo</th><th>Estado</th>
-</tr>
-</thead>
-<tbody id="tb"></tbody>
-</table>
-</div>
+  <div class="grid grid-2-1">
+    <div class="card">
+      <h3>Cashflow — Facturación vs Cobrado</h3>
+      <canvas id="chart" height="100"></canvas>
+    </div>
+    <div class="card">
+      <h3>⚠️ Alertas</h3>
+      <div id="alertas" style="color:var(--muted);font-size:.9rem;">Cargando...</div>
+    </div>
+  </div>
+
+  <br>
+
+  <div class="card">
+    <h3>Base Operativa de Alumnos</h3>
+    <div id="loading" class="loading-text"><span class="spinner"></span> Cargando datos...</div>
+    <input type="text" placeholder="🔍 Buscar alumno..." oninput="filterData(this.value)">
+    <table>
+      <thead>
+        <tr><th>Alumno</th><th>Curso</th><th>Total</th><th>Pagado</th><th>Saldo</th><th>Estado</th></tr>
+      </thead>
+      <tbody id="tb"></tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 2 — ANALYTICS (GA4)
+  ════════════════════════════════════════════════ -->
+  <div class="section-title">📊 Google Analytics — campusprofesionalenfermeria.com</div>
+
+  <div class="grid grid-3">
+    <div class="card ga4-stat">
+      <div class="metric-label">Usuarios Activos (7 días)</div>
+      <div id="ga_users" class="metric-value">—</div>
+      <div class="metric-sub">Visitantes únicos</div>
+    </div>
+    <div class="card ga4-stat green">
+      <div class="metric-label">Sesiones (7 días)</div>
+      <div id="ga_sessions" class="metric-value">—</div>
+      <div class="metric-sub">Visitas totales</div>
+    </div>
+    <div class="card ga4-stat purple">
+      <div class="metric-label">Páginas Vistas (7 días)</div>
+      <div id="ga_views" class="metric-value">—</div>
+      <div class="metric-sub">Vistas totales</div>
+    </div>
+  </div>
+
+  <br>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Fuentes de Tráfico</h3>
+      <div id="ga_channels" style="color:var(--muted);font-size:.85rem;">Cargando...</div>
+    </div>
+    <div class="card">
+      <h3>Distribución de Canales</h3>
+      <canvas id="ga_chart" height="160"></canvas>
+    </div>
+  </div>
 
 </div><!-- /app -->
 
 <script src="config.js"></script>
-
 <script>
-// ── AUTH ──────────────────────────────────────────────
-// Hash SHA-256 de "AEEPBA#2026"
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
 const PWD_HASH = "55535d546278fdbb792ec4809d4d11dca418ff23bd5faf16cad8430c20744acb";
 
 async function sha256(str) {
-  const buf = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(str)
-  );
-  return Array.from(new Uint8Array(buf))
-    .map(b => b.toString(16).padStart(2, "0"))
-    .join("");
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
 }
 
 async function unlock() {
   const input = document.getElementById("passwordInput");
   const hash  = await sha256(input.value);
-
   if (hash === PWD_HASH) {
     document.getElementById("lockScreen").style.display = "none";
     document.getElementById("app").style.display = "block";
-    fetchData();
+    startDashboard();
   } else {
     document.getElementById("errorMsg").innerText = "Contraseña incorrecta";
     input.classList.add("error");
     setTimeout(() => input.classList.remove("error"), 400);
-    input.value = "";
-    input.focus();
+    input.value = ""; input.focus();
   }
 }
+document.getElementById("passwordInput").addEventListener("keydown", e => { if (e.key === "Enter") unlock(); });
 
-// Enter en el campo de contraseña
-document.getElementById("passwordInput")
-  .addEventListener("keydown", e => { if (e.key === "Enter") unlock(); });
-
-// ── HELPERS ───────────────────────────────────────────
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
 let alumnos = [];
-let chart;
+let chartAlumnos, chartGA4;
 
 function escH(s) {
-  return String(s)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;");
+  return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
 }
 function moneda(n) {
   return "$" + Number(n||0).toLocaleString("es-AR");
 }
+function fmt(n) {
+  return Number(n||0).toLocaleString("es-AR");
+}
 
-// ── TABLA ─────────────────────────────────────────────
+// ══════════════════════════════════════════
+// ALUMNOS — SHEETS
+// ══════════════════════════════════════════
 function render(data) {
   const tb = document.getElementById("tb");
   tb.innerHTML = "";
+  if (!data.length) {
+    tb.innerHTML = `<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:20px">Sin resultados</td></tr>`;
+    return;
+  }
   data.forEach(a => {
     const total  = Number(a["Monto TOTAL"]  || 0);
     const pagado = Number(a["Monto PAGADO"] || 0);
     const saldo  = Number(a["Saldo"] || (total - pagado));
     tb.innerHTML += `
       <tr>
-        <td>${escH(a["Apellido y Nombre"])}</td>
+        <td><strong>${escH(a["Apellido y Nombre"])}</strong></td>
         <td>${escH(a["Curso"])}</td>
         <td>${moneda(total)}</td>
         <td>${moneda(pagado)}</td>
         <td class="${saldo > 0 ? "alert" : ""}">${moneda(saldo)}</td>
-        <td><span class="badge ${saldo <= 0 ? "ok" : "warn"}">${saldo <= 0 ? "inscripto" : "deudor"}</span></td>
+        <td><span class="badge ${saldo <= 0 ? "ok" : "warn"}">${saldo <= 0 ? "✓ Al día" : "⚠ Deudor"}</span></td>
       </tr>`;
   });
 }
@@ -183,109 +327,189 @@ function filterData(val) {
   render(alumnos.filter(a => (a["Apellido y Nombre"] || "").toLowerCase().includes(v)));
 }
 
-// ── MÉTRICAS ──────────────────────────────────────────
-function metrics(data) {
+function metricsAlumnos(data) {
   const total   = data.reduce((a,b) => a + Number(b["Monto TOTAL"]  || 0), 0);
   const cobrado = data.reduce((a,b) => a + Number(b["Monto PAGADO"] || 0), 0);
   const deuda   = total - cobrado;
+  const deudores = data.filter(a => Number(a["Saldo"] || (Number(a["Monto TOTAL"]||0) - Number(a["Monto PAGADO"]||0))) > 0).length;
 
-  document.getElementById("m_alumnos").innerText = data.length;
+  document.getElementById("m_alumnos").innerText = fmt(data.length);
   document.getElementById("m_total").innerText   = moneda(total);
   document.getElementById("m_cobrado").innerText = moneda(cobrado);
   document.getElementById("m_deuda").innerText   = moneda(deuda);
+  document.getElementById("m_deudores").innerText = `${deudores} alumno${deudores!==1?"s":""} con deuda`;
 
+  renderChartAlumnos(total, cobrado);
   return { total, cobrado };
 }
 
-// ── GRÁFICO ───────────────────────────────────────────
-function renderChart(total, cobrado) {
+function renderChartAlumnos(total, cobrado) {
   const ctx = document.getElementById("chart");
-
-  if (chart) {
-    chart.data.datasets[0].data = [total, cobrado];
-    chart.update();
-    return;
+  if (chartAlumnos) {
+    chartAlumnos.data.datasets[0].data = [total, cobrado, total - cobrado];
+    chartAlumnos.update(); return;
   }
-
-  chart = new Chart(ctx, {
+  chartAlumnos = new Chart(ctx, {
     type: "bar",
     data: {
-      labels: ["Facturación", "Cobrado"],
+      labels: ["Facturación", "Cobrado", "Deuda"],
       datasets: [{
-        data: [total, cobrado],
-        backgroundColor: ["#2563eb", "#16a34a"],
-        borderRadius: 6,
-        borderSkipped: false,
+        data: [total, cobrado, total - cobrado],
+        backgroundColor: ["#2563eb", "#16a34a", "#ef4444"],
+        borderRadius: 8, borderSkipped: false,
       }]
     },
     options: {
       responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => " " + moneda(ctx.parsed.y)
-          }
-        }
-      },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => " " + moneda(c.parsed.y) } } },
       scales: {
-        x: {
-          ticks: { color: "#8ba3c7" },
-          grid:  { color: "rgba(255,255,255,0.05)" },
-          border:{ display: false }
-        },
-        y: {
-          ticks: {
-            color: "#8ba3c7",
-            callback: v => moneda(v)
-          },
-          grid:  { color: "rgba(255,255,255,0.05)" },
-          border:{ display: false }
-        }
+        x: { ticks: { color: "#8ba3c7" }, grid: { color: "rgba(255,255,255,0.05)" }, border: { display: false } },
+        y: { ticks: { color: "#8ba3c7", callback: v => moneda(v) }, grid: { color: "rgba(255,255,255,0.05)" }, border: { display: false } }
       }
     }
   });
 }
 
-// ── ALERTAS ───────────────────────────────────────────
-function alertas(data) {
-  const d = data.filter(a => Number(a["Saldo"]) > 0);
-  document.getElementById("alertas").innerText =
-    d.length > 0
-      ? `⚠️ ${d.length} alumno${d.length > 1 ? "s" : ""} con deuda`
-      : "✔ Sin deudores";
+function alertasAlumnos(data) {
+  const d = data.filter(a => Number(a["Saldo"] || (Number(a["Monto TOTAL"]||0) - Number(a["Monto PAGADO"]||0))) > 0);
+  const el = document.getElementById("alertas");
+  if (d.length === 0) {
+    el.innerHTML = `<div style="color:var(--green);font-size:1.1rem;margin-bottom:8px">✔ Sin deudores</div><div style="color:var(--muted);font-size:.85rem">Todos los alumnos están al día.</div>`;
+  } else {
+    el.innerHTML = `<div style="color:var(--yellow);font-size:1.1rem;margin-bottom:10px">⚠️ ${d.length} alumno${d.length>1?"s":""} con deuda</div>` +
+      d.slice(0,5).map(a => `<div style="font-size:.82rem;color:var(--muted);margin-bottom:4px">• ${escH(a["Apellido y Nombre"])}: ${moneda(a["Saldo"]||0)}</div>`).join("") +
+      (d.length > 5 ? `<div style="font-size:.8rem;color:var(--muted);margin-top:4px">...y ${d.length-5} más</div>` : "");
+  }
 }
 
-// ── FETCH ─────────────────────────────────────────────
-async function fetchData() {
+async function fetchAlumnos() {
   try {
     const res = await fetch(CONFIG.API_URL);
     if (!res.ok) throw new Error();
     const data = await res.json();
-
     alumnos = data;
     render(alumnos);
-
-    const { total, cobrado } = metrics(alumnos);
-    renderChart(total, cobrado);
-    alertas(alumnos);
-
+    metricsAlumnos(alumnos);
+    alertasAlumnos(alumnos);
     document.getElementById("loading").style.display = "none";
-
   } catch {
-    document.getElementById("loading").innerText = "⚠️ Error cargando datos";
+    document.getElementById("loading").innerHTML = "⚠️ Error cargando datos de alumnos";
   }
 }
 
-// fetchData() se llama recién después del login exitoso
-// El intervalo arranca también después del login
-let intervalo;
-const _origFetch = fetchData;
-window.fetchData = function() {
-  _origFetch();
-  if (!intervalo) intervalo = setInterval(_origFetch, 30000);
+// ══════════════════════════════════════════
+// GA4
+// ══════════════════════════════════════════
+const CHANNEL_COLORS = {
+  "Organic Social": "#7c3aed",
+  "Direct": "#2563eb",
+  "Organic Search": "#16a34a",
+  "Paid Search": "#ea580c",
+  "Referral": "#0891b2",
+  "Email": "#db2777",
 };
-</script>
 
+function getColor(label) {
+  return CHANNEL_COLORS[label] || "#8ba3c7";
+}
+
+function renderGA4(data) {
+  // Totales
+  let totalUsers = 0, totalSessions = 0, totalViews = 0;
+  const channels = {};
+
+  if (data.rows) {
+    data.rows.forEach(row => {
+      const channel = row.dimensionValues[0].value;
+      const users    = parseInt(row.metricValues[0].value || 0);
+      const sessions = parseInt(row.metricValues[1].value || 0);
+      const views    = parseInt(row.metricValues[2].value || 0);
+      totalUsers    += users;
+      totalSessions += sessions;
+      totalViews    += views;
+      channels[channel] = (channels[channel] || 0) + sessions;
+    });
+  }
+
+  document.getElementById("ga_users").innerText    = fmt(totalUsers);
+  document.getElementById("ga_sessions").innerText = fmt(totalSessions);
+  document.getElementById("ga_views").innerText    = fmt(totalViews);
+
+  // Channels bar list
+  const maxVal = Math.max(...Object.values(channels), 1);
+  const chEl = document.getElementById("ga_channels");
+  chEl.innerHTML = Object.entries(channels)
+    .sort((a,b) => b[1]-a[1])
+    .map(([label, val]) => `
+      <div class="channel-row">
+        <div class="channel-label">${label}</div>
+        <div class="channel-bar-wrap">
+          <div class="channel-bar" style="width:${Math.round(val/maxVal*100)}%;background:${getColor(label)}"></div>
+        </div>
+        <div class="channel-val">${val}</div>
+      </div>`).join("") || `<div style="color:var(--muted)">Sin datos disponibles</div>`;
+
+  // Chart donut
+  renderGA4Chart(channels);
+}
+
+function renderGA4Chart(channels) {
+  const ctx = document.getElementById("ga_chart");
+  const labels = Object.keys(channels);
+  const values = Object.values(channels);
+  const colors = labels.map(l => getColor(l));
+
+  if (chartGA4) {
+    chartGA4.data.labels = labels;
+    chartGA4.data.datasets[0].data = values;
+    chartGA4.data.datasets[0].backgroundColor = colors;
+    chartGA4.update(); return;
+  }
+
+  chartGA4 = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels,
+      datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: "#111e35" }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "bottom", labels: { color: "#8ba3c7", font: { size: 11 }, padding: 12 } },
+        tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed} sesiones` } }
+      }
+    }
+  });
+}
+
+async function fetchGA4() {
+  if (!CONFIG.GA4_URL) return;
+  try {
+    const res = await fetch(CONFIG.GA4_URL);
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    renderGA4(data);
+  } catch(e) {
+    document.getElementById("ga_channels").innerHTML =
+      `<div style="color:var(--red);font-size:.85rem">⚠️ Error cargando Analytics. Verificá que la cuenta tenga acceso a la propiedad GA4.</div>`;
+  }
+}
+
+// ══════════════════════════════════════════
+// INICIO
+// ══════════════════════════════════════════
+function updateTimestamp() {
+  const now = new Date().toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" });
+  document.getElementById("lastUpdate").innerText = `Última actualización: ${now}`;
+}
+
+function startDashboard() {
+  fetchAlumnos();
+  fetchGA4();
+  updateTimestamp();
+  setInterval(() => { fetchAlumnos(); fetchGA4(); updateTimestamp(); }, 30000);
+}
+</script>
 </body>
 </html>
