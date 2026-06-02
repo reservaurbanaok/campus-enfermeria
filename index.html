@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <!-- Google tag (gtag.js) -->
@@ -764,7 +764,15 @@ button:hover .neon-icon-gold svg {
           <button class="btn-yellow" onclick="showCurso('acv')" type="button">VER CURSO</button>
         </div>
       </div>
-    <div class="curso-card reveal r6" onclick="showCurso('webinar-factores')">
+    <div class="curso-card reveal r6" onclick="showCurso('dolor-pediatria')">
+        <img class="curso-card-img" style="display:block;width:100%;height:195px;object-fit:cover;object-position:center 42%;margin:0;padding:0;" src="assets/curso-dolor-pediatria.png" alt="Curso Dolor en Pediatría"/>
+        <div class="curso-card-body">
+          <div class="curso-card-title">Curso Dolor en Pediatría</div>
+          <div class="curso-card-date">Inicio: 15 de julio de 2026</div>
+          <button class="btn-yellow" onclick="showCurso('dolor-pediatria')" type="button">VER CURSO</button>
+        </div>
+      </div>
+    <div class="curso-card reveal r7" onclick="showCurso('webinar-factores')">
         <img class="curso-card-img" style="display:block;width:100%;height:195px;object-fit:cover;object-position:center;margin:0;padding:0;" src="assets/webinar-factores-humanos.png" alt="Webinar Factores Humanos"/>
         <div class="curso-card-body">
           <div class="curso-card-title">Webinar: Factores Humanos para Guardias Seguras</div>
@@ -1913,6 +1921,140 @@ button:hover .neon-icon-gold svg {
           <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Ver Programa Completo (PDF)
         </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Curso Dolor en Pediatría -->
+<div id="detalle-dolor-pediatria" class="curso-detalle">
+  <button class="detalle-back" onclick="hideCurso()">← Volver a Cursos</button>
+  <h2 class="detalle-title">Curso Dolor en Pediatría</h2>
+  <p style="text-align:center;color:rgba(255,255,255,0.6);font-style:italic;margin-top:-32px;margin-bottom:48px;font-size:15px;">
+    Valoración, alivio y cuidado humanizado del dolor pediátrico
+  </p>
+
+  <div class="detalle-grid">
+    <div>
+      <div class="docente-block">
+        <div class="docente-avatar">CP</div>
+        <div>
+          <div class="docente-name">Campus Profesional para la Enfermería</div>
+          <div class="docente-role">Equipo docente especializado</div>
+          <div class="docente-mn">Formación 2026</div>
+        </div>
+      </div>
+
+      <h3 style="font-family:'Sora',sans-serif;color:white;font-size:18px;margin-bottom:16px;font-weight:700;">Contenidos del Programa</h3>
+      <div>
+        <div class="modulo-item">
+          <button class="modulo-btn" onclick="toggleMod(this)">
+            <div style="display:flex;align-items:center;"><div class="modulo-num">01</div>Fundamentos del Dolor Pediátrico</div>
+            <span class="modulo-icon">+</span>
+          </button>
+          <div class="modulo-content">
+            <div class="modulo-desc">Conceptos esenciales sobre dolor agudo, persistente y procedimental en niños, niñas y adolescentes. Impacto fisiológico, emocional y familiar del dolor no tratado.</div>
+          </div>
+        </div>
+        <div class="modulo-item">
+          <button class="modulo-btn" onclick="toggleMod(this)">
+            <div style="display:flex;align-items:center;"><div class="modulo-num">02</div>Ciencia y Neurocognición</div>
+            <span class="modulo-icon">+</span>
+          </button>
+          <div class="modulo-content">
+            <div class="modulo-desc">Bases neurobiológicas de la percepción del dolor. Desarrollo infantil, memoria del dolor, ansiedad anticipatoria y comunicación clínica adaptada a la edad.</div>
+          </div>
+        </div>
+        <div class="modulo-item">
+          <button class="modulo-btn" onclick="toggleMod(this)">
+            <div style="display:flex;align-items:center;"><div class="modulo-num">03</div>Valoración Clínica y Escalas</div>
+            <span class="modulo-icon">+</span>
+          </button>
+          <div class="modulo-content">
+            <div class="modulo-desc">Evaluación del dolor según etapa evolutiva, condición clínica y capacidad comunicacional. Uso de escalas, registro, seguimiento y criterios de alerta.</div>
+          </div>
+        </div>
+        <div class="modulo-item">
+          <button class="modulo-btn" onclick="toggleMod(this)">
+            <div style="display:flex;align-items:center;"><div class="modulo-num">04</div>Intervenciones de Enfermería</div>
+            <span class="modulo-icon">+</span>
+          </button>
+          <div class="modulo-content">
+            <div class="modulo-desc">Estrategias farmacológicas y no farmacológicas. Preparación para procedimientos, contención, participación familiar, confort, juego terapéutico y cuidado humanizado.</div>
+          </div>
+        </div>
+        <div class="modulo-item">
+          <button class="modulo-btn" onclick="toggleMod(this)">
+            <div style="display:flex;align-items:center;"><div class="modulo-num">05</div>Seguridad, Calidad y Responsabilidad Legal</div>
+            <span class="modulo-icon">+</span>
+          </button>
+          <div class="modulo-content">
+            <div class="modulo-desc">Buenas prácticas, comunicación segura, documentación clínica, trabajo interdisciplinario, ética del alivio del dolor y responsabilidades del equipo de salud.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="price-block">
+        <div class="price-row">
+          <span class="price-label">💰 Promoción vigente</span>
+          <span class="price-tag big">Consultar</span>
+        </div>
+        <div class="price-row">
+          <span class="price-label">📅 Planes de pago</span>
+          <span class="price-tag">Disponibles</span>
+        </div>
+        <div class="price-note">
+          Para confirmar valores, fechas y modalidad de pago, completá el formulario oficial de inscripción.
+        </div>
+      </div>
+
+      <a href="https://forms.gle/h6q7jsYfbeoBhkGv7" target="_blank" class="btn-inscribir">
+        Inscribirme ahora →
+      </a>
+    </div>
+
+    <div>
+      <div class="sidebar-card">
+        <div class="sidebar-title">Resumen del Programa</div>
+        <div class="prog-row">
+          <div class="prog-label"><span>Área</span><span>Pediatría</span></div>
+          <div class="prog-bar-bg"><div class="prog-bar-fill" data-width="100"></div></div>
+        </div>
+        <div class="prog-row">
+          <div class="prog-label"><span>Modalidad</span><span>Virtual</span></div>
+          <div class="prog-bar-bg"><div class="prog-bar-fill" data-width="100"></div></div>
+        </div>
+        <div class="prog-row">
+          <div class="prog-label"><span>Enfoque</span><span>Aplicación clínica</span></div>
+          <div class="prog-bar-bg"><div class="prog-bar-fill" data-width="100"></div></div>
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="check-item">
+          <svg width="18" height="18" fill="none" stroke="#00c8c8" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Valoración del dolor pediátrico con criterio clínico</span>
+        </div>
+        <div class="check-item">
+          <svg width="18" height="18" fill="none" stroke="#00c8c8" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Herramientas de cuidado humanizado</span>
+        </div>
+        <div class="check-item">
+          <svg width="18" height="18" fill="none" stroke="#00c8c8" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Seguridad, calidad y responsabilidad profesional</span>
+        </div>
+        <div class="check-item">
+          <svg width="18" height="18" fill="none" stroke="#00c8c8" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Certificación avalada por Instituto Ferrer</span>
+        </div>
+        <div class="sidebar-divider"></div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
+          <strong style="color:rgba(255,255,255,0.7);">Dirigido a:</strong><br>
+          • Licenciados/as en Enfermería<br>
+          • Enfermeros/as profesionales<br>
+          • Estudiantes avanzados de enfermería<br>
+          • Profesionales de salud vinculados al cuidado pediátrico
+        </div>
       </div>
     </div>
   </div>
