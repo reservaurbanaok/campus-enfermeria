@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Guía de acceso al Aula de Anestesia y Cirugía en NETROOM. Resolvé tu acceso de forma rápida y segura.">
+<title>Guía de Acceso · NETROOM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   GUÍA DE ACCESO A NETROOM
+   Design System: NETROOM (Casa Digital)
+   Identidad visual: negro, blanco y dorado sobrio
+   Tipografía: Cormorant Garamond + Manrope
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Design Tokens de NETROOM */
+  --carbon: #0d0d0f;
+  --carbon-soft: #17171b;
+  --panel: #1e1e24;
+  --line: #2c2c33;
+  --paper: #f5f2ec;
+  --paper-dim: #b9b4a9;
+  --gold: #c9a227;
+  --gold-soft: #a3841f;
+  --ok: #7fb069;
+  --warn: #c94f4f;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--carbon);
+  color: var(--paper);
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ═══ Topbar ═══ */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: var(--carbon);
+  z-index: 10;
+}
+
+.topbar-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  letter-spacing: .18em;
+  font-size: 1.1rem;
+}
+
+.btn-ghost {
+  background: none;
+  border: none;
+  color: var(--paper-dim);
+  font-family: 'Manrope', sans-serif;
+  font-size: .8rem;
+  letter-spacing: .08em;
+  cursor: pointer;
+  padding: .5rem;
+  text-decoration: none;
+  transition: color .2s;
+}
+
+.btn-ghost:hover,
+.btn-ghost:focus {
+  color: var(--paper);
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ═══ Hero ═══ */
+.hero {
+  text-align: center;
+  padding: 4rem 1.5rem 3rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.brand-mark {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: clamp(2.5rem, 8vw, 3.5rem);
+  letter-spacing: .12em;
+  margin-bottom: .75rem;
+}
+
+.gold-rule {
+  width: 72px;
+  height: 1px;
+  background: var(--gold);
+  margin: 1.5rem auto;
+}
+
+.section-eyebrow {
+  font-size: .7rem;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: .5rem;
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: clamp(1.7rem, 5vw, 2.4rem);
+  margin-bottom: 1rem;
+}
+
+.hero-copy {
+  color: var(--paper-dim);
+  margin-bottom: 2.5rem;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+/* ═══ Botones principales ═══ */
+.cta-group {
+  display: flex;
+  flex-direction: column;
+  gap: .85rem;
+  max-width: 420px;
+  margin: 0 auto 3rem;
+}
+
+.btn-gold {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: .85rem 2.4rem;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: .85rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-gold:hover,
+.btn-gold:focus {
+  background: var(--gold);
+  color: var(--carbon);
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.btn-gold.secondary {
+  border-color: var(--line);
+  color: var(--paper);
+}
+
+.btn-gold.secondary:hover,
+.btn-gold.secondary:focus {
+  background: var(--panel);
+  border-color: var(--gold-soft);
+  color: var(--gold);
+}
+
+/* ═══ FAQ Section ═══ */
+.faq-section {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.faq-intro {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.faq-intro h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  margin-bottom: 1rem;
+}
+
+.faq-intro p {
+  color: var(--paper-dim);
+  font-size: .95rem;
+}
+
+/* ═══ Acordeones ═══ */
+.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.accordion-item {
+  background: var(--carbon-soft);
+  border: 1px solid var(--line);
+  transition: border-color .2s;
+}
+
+.accordion-item.active {
+  border-color: var(--gold-soft);
+}
+
+.accordion-trigger {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  cursor: pointer;
+  font-family: 'Manrope', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: background .2s;
+  min-height: 68px;
+}
+
+.accordion-trigger:hover,
+.accordion-trigger:focus {
+  background: var(--panel);
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+.accordion-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  transition: all .3s;
+  color: var(--gold);
+}
+
+.accordion-item.active .accordion-icon {
+  transform: rotate(45deg);
+  background: var(--gold);
+  color: var(--carbon);
+  border-color: var(--gold);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .4s ease, padding .4s ease;
+}
+
+.accordion-item.active .accordion-content {
+  max-height: 3000px;
+  padding: 0 1.5rem 1.75rem;
+}
+
+.accordion-body {
+  color: var(--paper-dim);
+  line-height: 1.7;
+  font-size: .95rem;
+}
+
+.accordion-body h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 1.35rem;
+  color: var(--paper);
+  margin: 1.5rem 0 .75rem;
+}
+
+.accordion-body h3:first-child {
+  margin-top: .5rem;
+}
+
+.accordion-body p {
+  margin-bottom: 1rem;
+}
+
+.accordion-body strong {
+  color: var(--paper);
+  font-weight: 600;
+}
+
+.accordion-body a {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color .2s;
+}
+
+.accordion-body a:hover,
+.accordion-body a:focus {
+  border-bottom-color: var(--gold);
+}
+
+/* ═══ Listas de pasos ═══ */
+.steps-list {
+  list-style: none;
+  margin: 1.5rem 0;
+  padding: 0;
+}
+
+.steps-list li {
+  position: relative;
+  padding-left: 2.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.65;
+}
+
+.steps-list li::before {
+  content: attr(data-step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 1px solid var(--gold-soft);
+  color: var(--gold);
+  font-size: .8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ═══ Destacados ═══ */
+.highlight-box {
+  background: var(--panel);
+  border-left: 3px solid var(--gold);
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0;
+  font-size: .92rem;
+}
+
+.highlight-box.warning {
+  border-left-color: var(--warn);
+}
+
+.highlight-box.success {
+  border-left-color: var(--ok);
+}
+
+.highlight-box strong {
+  display: block;
+  margin-bottom: .5rem;
+  font-size: 1rem;
+  color: var(--paper);
+}
+
+/* ═══ Comparación visual ═══ */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.comparison-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.comparison-card strong {
+  display: block;
+  color: var(--gold);
+  font-size: .85rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: .75rem;
+}
+
+.comparison-card p {
+  font-size: .88rem;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+/* ═══ Tabs ═══ */
+.tabs {
+  margin: 1.5rem 0;
+}
+
+.tabs-nav {
+  display: flex;
+  gap: .5rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: .75rem 1.25rem;
+  font-family: 'Manrope', sans-serif;
+  font-size: .85rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .2s;
+  min-height: 44px;
+}
+
+.tab-button:hover,
+.tab-button:focus {
+  color: var(--paper);
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+.tab-button.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.tab-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.tab-content ul li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: .75rem;
+  line-height: 1.65;
+}
+
+.tab-content ul li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* ═══ Diagrama de flujo ═══ */
+.flow-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  font-size: .9rem;
+  font-weight: 500;
+}
+
+.flow-step::before {
+  content: "→";
+  color: var(--gold);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.flow-step:first-child::before {
+  content: "●";
+}
+
+/* ═══ Footer ═══ */
+.footer {
+  text-align: center;
+  padding: 3rem 1.5rem 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.footer-link {
+  display: inline-block;
+  margin: 0 auto;
+  font-size: .85rem;
+  color: var(--paper-dim);
+  text-decoration: none;
+  padding: .75rem 1.5rem;
+  border: 1px solid var(--line);
+  transition: all .2s;
+}
+
+.footer-link:hover,
+.footer-link:focus {
+  color: var(--gold);
+  border-color: var(--gold-soft);
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ═══ Responsive ═══ */
+@media (max-width: 560px) {
+  .btn-gold,
+  .btn-ghost,
+  .accordion-trigger,
+  .tab-button {
+    min-height: 48px;
+  }
+
+  .hero {
+    padding: 3rem 1.25rem 2rem;
+  }
+
+  .accordion-trigger {
+    padding: 1rem 1.25rem;
+    font-size: .95rem;
+  }
+
+  .accordion-item.active .accordion-content {
+    padding: 0 1.25rem 1.5rem;
+  }
+
+  .steps-list li {
+    padding-left: 2.25rem;
+  }
+
+  .comparison-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs-nav {
+    gap: .25rem;
+  }
+
+  .tab-button {
+    padding: .65rem 1rem;
+    font-size: .8rem;
+  }
+}
+
+@media (min-width: 561px) {
+  .cta-group {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .btn-gold {
+    flex: 1;
+    max-width: 240px;
+  }
+}
+
+/* ═══ Accesibilidad ═══ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ═══ Skip link ═══ */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--gold);
+  color: var(--carbon);
+  padding: .75rem 1.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+</style>
+</head>
+<body>
+
+<!-- Skip link para accesibilidad -->
+<a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+<!-- ══════════ TOPBAR ══════════ -->
+<header class="topbar">
+  <span class="topbar-brand">NETROOM</span>
+  <a href="https://campusprofesionalenfermeria.com/" class="btn-ghost">Campus Profesional</a>
+</header>
+
+<!-- ══════════ HERO ══════════ -->
+<main id="main-content">
+  <section class="hero">
+    <h1 class="brand-mark">GUÍA DE ACCESO</h1>
+    <div class="gold-rule"></div>
+    <p class="section-eyebrow">Aula de Anestesia y Cirugía</p>
+    <h2 class="section-title">Elegí qué necesitás resolver y te acompañamos paso a paso.</h2>
+    <p class="hero-copy">
+      Acceso al Aula de Anestesia y Cirugía para alumnos, docente y coordinadora.
+    </p>
+
+    <!-- CTAs principales -->
+    <div class="cta-group">
+      <a href="https://staging.netroomdigital.com/portal/mis-aulas.html" class="btn-gold">Ingresar a mis aulas</a>
+      <a href="https://campusprofesionalenfermeria.com/" class="btn-gold secondary">Ir al Campus Profesional</a>
+    </div>
+  </section>
+
+  <!-- ══════════ FAQ INTERACTIVO ══════════ -->
+  <section class="faq-section">
+    <div class="faq-intro">
+      <h2>¿Qué necesitás hacer?</h2>
+      <p>Seleccioná tu situación y te mostramos cómo resolverla.</p>
+    </div>
+
+    <div class="accordion" role="region" aria-label="Preguntas frecuentes de acceso">
+
+      <!-- ═══ 1. ES MI PRIMERA VEZ ═══ -->
+      <article class="accordion-item">
+        <button class="accordion-trigger" aria-expanded="false" aria-controls="faq-1">
+          <span>Es mi primera vez</span>
+          <span class="accordion-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="accordion-content" id="faq-1">
+          <div class="accordion-body">
+            <h3>Activá tu cuenta por primera vez</h3>
+            <p>
+              El enlace recibido por correo sirve para activar tu cuenta <strong>una sola vez</strong>.
+            </p>
+
+            <ul class="steps-list">
+              <li data-step="1">Abrí el correo enviado por NETROOM.</li>
+              <li data-step="2">Presioná el botón o enlace de invitación.</li>
+              <li data-step="3">Completá los datos solicitados.</li>
+              <li data-step="4">Creá una contraseña nueva para NETROOM.</li>
+              <li data-step="5">Ingresá al Aula de Anestesia y Cirugía.</li>
+            </ul>
+
+            <div class="highlight-box warning">
+              <strong>Importante</strong>
+              El enlace de invitación se utiliza una sola vez. Después de activar tu cuenta, ingresá siempre desde el Campus Profesional.
+            </div>
+
+            <h3>Recorrido de activación</h3>
+            <div class="flow-diagram">
+              <div class="flow-step">Correo de invitación</div>
+              <div class="flow-step">Activación de cuenta</div>
+              <div class="flow-step">NETROOM</div>
+              <div class="flow-step">Mis aulas</div>
+              <div class="flow-step">Anestesia y Cirugía</div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══ 2. QUIERO VOLVER A INGRESAR ═══ -->
+      <article class="accordion-item">
+        <button class="accordion-trigger" aria-expanded="false" aria-controls="faq-2">
+          <span>Quiero volver a ingresar</span>
+          <span class="accordion-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="accordion-content" id="faq-2">
+          <div class="accordion-body">
+            <h3>Ingreso habitual después de activar tu cuenta</h3>
+            <p>
+              Después de activar la cuenta, <strong>no es necesario volver a buscar el correo</strong>. Ingresá siempre desde el Campus Profesional.
+            </p>
+
+            <ul class="steps-list">
+              <li data-step="1">Ingresá en <a href="https://campusprofesionalenfermeria.com/" target="_blank" rel="noopener">campusprofesionalenfermeria.com</a></li>
+              <li data-step="2">Seleccioná <strong>INGRESA A TU AULA</strong></li>
+              <li data-step="3">Si tu sesión sigue activa, NETROOM abrirá Mis aulas directamente.</li>
+              <li data-step="4">Si aparece el login, ingresá con tu correo y tu contraseña de NETROOM.</li>
+              <li data-step="5">Seleccioná <strong>Anestesia y Cirugía</strong>.</li>
+            </ul>
+
+            <p style="margin-top: 1.5rem;">
+              <a href="https://staging.netroomdigital.com/portal/mis-aulas.html" class="btn-gold" style="display: inline-flex;">Ingresar ahora</a>
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══ 3. ¿QUÉ CONTRASEÑA DEBO UTILIZAR? ═══ -->
+      <article class="accordion-item">
+        <button class="accordion-trigger" aria-expanded="false" aria-controls="faq-3">
+          <span>¿Qué contraseña debo utilizar?</span>
+          <span class="accordion-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="accordion-content" id="faq-3">
+          <div class="accordion-body">
+            <h3>Usá tu contraseña de NETROOM</h3>
+            <p>
+              El <strong>correo electrónico</strong> funciona como nombre de usuario.<br>
+              La <strong>contraseña</strong> es una contraseña nueva, creada especialmente para NETROOM.
+            </p>
+
+            <div class="highlight-box warning">
+              <strong>No debés escribir ni compartir la contraseña personal de Gmail, Hotmail, Outlook u otro servicio de correo.</strong>
+            </div>
+
+            <h3>Comparación visual</h3>
+            <div class="comparison-grid">
+              <div class="comparison-card">
+                <strong>Correo electrónico</strong>
+                <p>Tu identificación en NETROOM.</p>
+              </div>
+              <div class="comparison-card">
+                <strong>Contraseña de NETROOM</strong>
+                <p>La llave que creaste para ingresar al aula.</p>
+              </div>
+              <div class="comparison-card">
+                <strong>Contraseña de tu correo</strong>
+                <p>Es privada. Nunca se utiliza ni se comparte en NETROOM.</p>
+              </div>
+            </div>
+
+            <div class="highlight-box success">
+              <strong>Recordá</strong>
+              Tu correo te identifica. Tu contraseña de NETROOM abre el aula. La contraseña de tu correo nunca se comparte.
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══ 4. OLVIDÉ MI CONTRASEÑA ═══ -->
+      <article class="accordion-item">
+        <button class="accordion-trigger" aria-expanded="false" aria-controls="faq-4">
+          <span>Olvidé mi contraseña</span>
+          <span class="accordion-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="accordion-content" id="faq-4">
+          <div class="accordion-body">
+            <h3>Recuperá tu contraseña de NETROOM</h3>
+
+            <ul class="steps-list">
+              <li data-step="1">Entrá desde el <a href="https://campusprofesionalenfermeria.com/" target="_blank" rel="noopener">Campus Profesional</a>.</li>
+              <li data-step="2">Seleccioná <strong>INGRESA A TU AULA</strong>.</li>
+              <li data-step="3">Presioná <strong>OLVIDÉ MI CONTRASEÑA</strong>.</li>
+              <li data-step="4">Escribí el correo con el que recibiste la invitación.</li>
+              <li data-step="5">Revisá tu bandeja de entrada (también Spam, Promociones o Correo no deseado).</li>
+              <li data-step="6">Creá una nueva contraseña para NETROOM.</li>
+            </ul>
+
+            <div class="highlight-box">
+              <strong>Revisá también las carpetas de Spam y Promociones</strong>
+              Si no recibís el correo en los próximos minutos, revisá tu carpeta de correo no deseado.
+            </div>
+
+            <p style="margin-top: 1.5rem;">
+              <a href="https://staging.netroomdigital.com/portal/mis-aulas.html" class="btn-gold" style="display: inline-flex;">Ir a NETROOM</a>
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══ 5. EL ENLACE YA FUE UTILIZADO ═══ -->
+      <article class="accordion-item">
+        <button class="accordion-trigger" aria-expanded="false" aria-controls="faq-5">
+          <span>El enlace ya fue utilizado</span>
+          <span class="accordion-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="accordion-content" id="faq-5">
+          <div class="accordion-body">
+            <h3>Tu cuenta ya está activada</h3>
+            <p>
+              Esto generalmente significa que <strong>la cuenta ya fue activada correctamente</strong>.
+            </p>
+            <p>
+              El enlace del correo no debe volver a utilizarse. Ahora ingresá normalmente desde el Campus Profesional.
+            </p>
+
+            <ul class="steps-list">
+              <li data-step="1">Entrá al <a href="https://campusprofesionalenfermeria.com/" target="_blank" rel="noopener">Campus Profesional</a>.</li>
+              <li data-step="2">Seleccioná <strong>INGRESA A TU AULA</strong>.</li>
+              <li data-step="3">Ingresá con tu correo y contraseña de NETROOM.</li>
+            </ul>
+
+            <div class="highlight-box success">
+              <strong>No necesitás crear otra cuenta</strong>
+              Tu cuenta ya existe y está activa. Ingresá con tu correo y contraseña de NETROOM.
+            </div>
+
+            <p style="margin-top: 1.5rem;">
+              <a href="https://staging.netroomdigital.com/portal/mis-aulas.html" class="btn-gold" style="display: inline-flex;">Ingresar normalmente</a>
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══ 6. EL ENLACE HA CADUCADO ═══ -->
+      <article class="accordion-item">
+        <button class="accordion-trigger" aria-expanded="false" aria-controls="faq-6">
+          <span>El enlace ha caducado</span>
+          <span class="accordion-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="accordion-content" id="faq-6">
+          <div class="accordion-body">
+            <h3>Solicitá una nueva invitación</h3>
+            <p>
+              Si el enlace venció antes de que la cuenta fuera activada, se necesita una nueva invitación.
+            </p>
+
+            <div class="highlight-box">
+              <strong>No es necesario crear otra cuenta</strong>
+              Simplemente necesitás un nuevo enlace de activación.
+            </div>
+
+            <p>
+              Comunicate con el equipo responsable del curso e indicá:
+            </p>
+            <ul>
+              <li>Nombre y apellido</li>
+              <li>Correo electrónico</li>
+              <li>Mensaje que recibiste (enlace caducado)</li>
+            </ul>
+
+            <div class="highlight-box warning">
+              <strong>Nunca envíes tu contraseña ni el enlace privado de invitación</strong>
+              El equipo de NETROOM nunca te pedirá tu contraseña por correo, teléfono o WhatsApp.
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══ 7. NO ENCUENTRO EL AULA ═══ -->
+      <article class="accordion-item">
+        <button class="accordion-trigger" aria-expanded="false" aria-controls="faq-7">
+          <span>No encuentro el Aula de Anestesia y Cirugía</span>
+          <span class="accordion-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="accordion-content" id="faq-7">
+          <div class="accordion-body">
+            <h3>Cómo encontrar tu aula</h3>
+            <p>
+              Después de ingresar a NETROOM, seguí este recorrido:
+            </p>
+
+            <div class="flow-diagram">
+              <div class="flow-step">Campus Profesional</div>
+              <div class="flow-step">INGRESA A TU AULA</div>
+              <div class="flow-step">NETROOM</div>
+              <div class="flow-step">Mis aulas</div>
+              <div class="flow-step">Anestesia y Cirugía</div>
+            </div>
+
+            <p>
+              El aula aparece como <strong>Diplomatura de Anestesia y Cirugía para Enfermería</strong> en tu panel de Mis aulas.
+            </p>
+
+            <h3>Si el aula no aparece</h3>
+            <p>
+              Si después de ingresar no aparece el Aula de Anestesia y Cirugía, comunicate con el equipo del curso e indicá:
+            </p>
+            <ul>
+              <li>Nombre y apellido</li>
+              <li>Correo electrónico utilizado</li>
+              <li>Captura de pantalla de tu panel "Mis aulas"</li>
+              <li>Mensaje exacto que aparece</li>
+            </ul>
+
+            <div class="highlight-box warning">
+              <strong>Nunca envíes tu contraseña ni el enlace privado de invitación</strong>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══ 8. CÓMO UTILIZAR NETROOM ═══ -->
+      <article class="accordion-item">
+        <button class="accordion-trigger" aria-expanded="false" aria-controls="faq-8">
+          <span>Cómo utilizar NETROOM</span>
+          <span class="accordion-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="accordion-content" id="faq-8">
+          <div class="accordion-body">
+            <h3>Mini visita guiada</h3>
+
+            <p><strong>MIS AULAS</strong><br>
+            Muestra los cursos disponibles para tu usuario.</p>
+
+            <p><strong>ANESTESIA Y CIRUGÍA</strong><br>
+            Abre el aula, sus módulos, clases, contenidos y actividades.</p>
+
+            <p><strong>INICIO</strong><br>
+            Permite volver al espacio principal del aula.</p>
+
+            <p><strong>VOLVER AL CURSO</strong><br>
+            Regresa al aula desde una clase o actividad.</p>
+
+            <p><strong>CERRAR SESIÓN</strong><br>
+            Utilizá especialmente en computadoras compartidas.</p>
+
+            <div class="highlight-box">
+              <strong>Recomendación</strong>
+              Para moverte dentro de NETROOM, utilizá preferentemente los botones internos de la plataforma.
+            </div>
+
+            <h3>Alumnos, docente y coordinadora</h3>
+
+            <div class="tabs">
+              <div class="tabs-nav" role="tablist">
+                <button class="tab-button active" role="tab" aria-selected="true" aria-controls="tab-alumnos" data-tab="alumnos">Alumnos</button>
+                <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-docente" data-tab="docente">Docente</button>
+                <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-coordinadora" data-tab="coordinadora">Coordinadora</button>
+              </div>
+
+              <div id="tab-alumnos" class="tab-content active" role="tabpanel">
+                <h3>Alumnos</h3>
+                <p>Podrán:</p>
+                <ul>
+                  <li>Consultar contenidos</li>
+                  <li>Recorrer módulos y clases</li>
+                  <li>Acceder a materiales</li>
+                  <li>Realizar actividades y evaluaciones habilitadas</li>
+                  <li>Consultar su progreso</li>
+                </ul>
+              </div>
+
+              <div id="tab-docente" class="tab-content" role="tabpanel">
+                <h3>Docente</h3>
+                <p><strong>Marlene Liporace</strong></p>
+                <p>Podrá:</p>
+                <ul>
+                  <li>Ingresar al Aula de Anestesia y Cirugía</li>
+                  <li>Consultar contenidos</li>
+                  <li>Acceder al listado de alumnos</li>
+                  <li>Revisar progreso y evaluaciones</li>
+                  <li>Utilizar las funciones docentes habilitadas</li>
+                </ul>
+              </div>
+
+              <div id="tab-coordinadora" class="tab-content" role="tabpanel">
+                <h3>Coordinadora</h3>
+                <p><strong>Natali Spallino</strong><br>
+                Correo: <a href="mailto:enfermeriaescolarargentina@gmail.com">enfermeriaescolarargentina@gmail.com</a></p>
+                <p>Podrá:</p>
+                <ul>
+                  <li>Ingresar al Aula de Anestesia y Cirugía</li>
+                  <li>Consultar alumnos y matrículas</li>
+                  <li>Revisar progreso</li>
+                  <li>Consultar evaluaciones</li>
+                  <li>Utilizar las funciones de coordinación habilitadas</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </div><!-- /accordion -->
+  </section>
+</main>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer class="footer">
+  <a href="#main-content" class="footer-link">↑ Volver al inicio de la guía</a>
+</footer>
+
+<!-- ══════════ JAVASCRIPT ══════════ -->
+<script>
+(function() {
+  'use strict';
+
+  // ═══ Acordeones ═══
+  const accordionItems = document.querySelectorAll('.accordion-item');
+
+  accordionItems.forEach(item => {
+    const trigger = item.querySelector('.accordion-trigger');
+    const content = item.querySelector('.accordion-content');
+
+    trigger.addEventListener('click', () => {
+      const isOpen = item.classList.contains('active');
+
+      // Cerrar todos
+      accordionItems.forEach(i => {
+        i.classList.remove('active');
+        i.querySelector('.accordion-trigger').setAttribute('aria-expanded', 'false');
+      });
+
+      // Abrir el clickeado si estaba cerrado
+      if (!isOpen) {
+        item.classList.add('active');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // ═══ Tabs ═══
+  const tabButtons = document.querySelectorAll('.tab-button');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const targetTab = button.dataset.tab;
+
+      // Remover active de todos
+      tabButtons.forEach(btn => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-selected', 'false');
+      });
+      tabContents.forEach(content => {
+        content.classList.remove('active');
+      });
+
+      // Activar el clickeado
+      button.classList.add('active');
+      button.setAttribute('aria-selected', 'true');
+      document.getElementById('tab-' + targetTab).classList.add('active');
+    });
+  });
+
+  // ═══ Navegación por teclado ═══
+  document.addEventListener('keydown', (e) => {
+    // ESC para cerrar acordeones
+    if (e.key === 'Escape') {
+      accordionItems.forEach(item => {
+        item.classList.remove('active');
+        item.querySelector('.accordion-trigger').setAttribute('aria-expanded', 'false');
+      });
+    }
+  });
+
+  // ═══ Scroll suave para el botón "volver arriba" ═══
+  const backToTopLink = document.querySelector('.footer-link');
+  if (backToTopLink) {
+    backToTopLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('main-content').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+      document.getElementById('main-content').focus();
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>
