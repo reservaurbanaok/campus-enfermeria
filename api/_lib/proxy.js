@@ -1,0 +1,3 @@
+const { requireSession } = require('./auth');
+async function proxy(req, res, upstream) { if (!requireSession(req, res)) return; try { const response = await fetch(upstream, { redirect: 'follow', headers: { Accept: 'application/json' } }); const body = await response.text(); res.statusCode = response.status; res.setHeader('Content-Type', response.headers.get('content-type') || 'application/json; charset=utf-8'); res.setHeader('Cache-Control', 'private, no-store'); res.end(body); } catch { res.statusCode = 502; res.setHeader('Cache-Control', 'private, no-store'); res.end(JSON.stringify({ error: 'upstream_unavailable' })); } }
+module.exports = proxy;

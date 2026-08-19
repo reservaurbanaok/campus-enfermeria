@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard AEEPBA</title>
+<script>
+if (["campusprofesionalenfermeria.com", "www.campusprofesionalenfermeria.com"].includes(location.hostname)) {
+  location.replace("https://campus-enfermeria.vercel.app/dashboard/index.html");
+}
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -257,17 +262,10 @@ tr:hover td { background: rgba(37,99,235,0.05); }
 // ══════════════════════════════════════════
 // AUTH
 // ══════════════════════════════════════════
-const PWD_HASH = "55535d546278fdbb792ec4809d4d11dca418ff23bd5faf16cad8430c20744acb";
-
-async function sha256(str) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
-}
-
 async function unlock() {
   const input = document.getElementById("passwordInput");
-  const hash  = await sha256(input.value);
-  if (hash === PWD_HASH) {
+  const res = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: input.value }) });
+  if (res.ok) {
     document.getElementById("lockScreen").style.display = "none";
     document.getElementById("app").style.display = "block";
     startDashboard();
@@ -279,6 +277,8 @@ async function unlock() {
   }
 }
 document.getElementById("passwordInput").addEventListener("keydown", e => { if (e.key === "Enter") unlock(); });
+
+fetch("/api/auth/status").then(r => r.json()).then(s => { if (s.authenticated) { document.getElementById("lockScreen").style.display = "none"; document.getElementById("app").style.display = "block"; startDashboard(); } });
 
 // ══════════════════════════════════════════
 // HELPERS
