@@ -85,7 +85,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color:
 }
 
 /* CARDS */
-.card { background: var(--card); border-radius: 14px; padding: 18px; border: 1px solid var(--border); }
+.card { background: var(--card); border-radius: 14px; padding: 18px; border: 1px solid var(--border); min-width: 0; }
 .card.accent-left { border-left: 3px solid var(--accent); }
 .card.accent-green { border-left: 3px solid var(--accent2); }
 .card.accent-purple { border-left: 3px solid var(--accent3); }
@@ -111,7 +111,8 @@ input[type=text], input:not([type]) {
   background: var(--card2); color: var(--text); font-size: .9rem; outline: none;
 }
 input:focus { border-color: var(--accent); }
-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.table-wrap { width: 100%; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .88rem; min-width: 600px; }
 th { padding: 10px 8px; text-align: left; color: var(--muted); font-size: .75rem; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
 td { padding: 10px 8px; border-bottom: 1px solid var(--border); }
 tr:last-child td { border-bottom: none; }
@@ -123,7 +124,7 @@ tr:hover td { background: rgba(37,99,235,0.05); }
 
 /* CHANNELS */
 .channel-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.channel-label { font-size: .82rem; color: var(--muted); width: 130px; flex-shrink: 0; }
+.channel-label { font-size: .82rem; color: var(--muted); width: 130px; flex-shrink: 0; overflow-wrap: anywhere; }
 .channel-bar-wrap { flex: 1; background: var(--card2); border-radius: 4px; height: 8px; overflow: hidden; }
 .channel-bar { height: 100%; border-radius: 4px; transition: width .8s ease; }
 .channel-val { font-size: .82rem; font-weight: 700; width: 30px; text-align: right; }
@@ -213,12 +214,12 @@ tr:hover td { background: rgba(37,99,235,0.05); }
     <h3>Base Operativa de Alumnos</h3>
     <div id="loading" class="loading-text"><span class="spinner"></span> Cargando datos...</div>
     <input type="text" placeholder="🔍 Buscar alumno..." oninput="filterData(this.value)">
-    <table>
+    <div class="table-wrap"><table>
       <thead>
         <tr><th>Alumno</th><th>Curso</th><th>Total</th><th>Pagado</th><th>Saldo</th><th>Estado</th></tr>
       </thead>
       <tbody id="tb"></tbody>
-    </table>
+    </table></div>
   </div>
 
   <!-- ═══════════════════════════════════════════════
