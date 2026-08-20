@@ -1,4 +1,4 @@
-window.CONFIG = { API_URL: "/api/dashboard/alumnos", GA4_URL: "/api/dashboard/ga4", LUCA_URL: "/api/dashboard/luca" };
+window.CONFIG = { API_URL: "/api/dashboard/alumnos", GA4_URL: "/api/dashboard/ga4", LUCA_URL: "/api/dashboard/luca", NETROOM_URL: "/api/dashboard/netroom" };
 
 (function initLucaDashboard() {
   function fmt(n) { return Number(n || 0).toLocaleString("es-AR"); }

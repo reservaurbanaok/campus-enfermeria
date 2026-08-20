@@ -293,8 +293,8 @@ tr:hover td { background: rgba(37,99,235,0.05); }
     <div class="section-title"><span class="world-kicker">03 · NETROOM</span></div>
     <h2>Qué ocurre después de la inscripción</h2>
     <div class="grid grid-2">
-      <div class="card shell-card"><div class="pending">Integración académica pendiente</div><div class="grid grid-2"><div class="metric-label">Alumnos matriculados</div><div class="metric-label">Activados</div><div class="metric-label">Activos últimos 7 días</div><div class="metric-label">Progreso promedio</div><div class="metric-label">Evaluaciones rendidas</div><div class="metric-label">Tasa de aprobación</div><div class="metric-label">Cursos completados</div><div class="metric-label">Alumnos sin actividad</div></div></div>
-      <div class="card shell-card"><h3>Embudo académico</h3><div class="funnel"><span>Inscripto</span><b>→</b><span>Activó acceso</span><b>→</b><span>Inició</span><b>→</b><span>Avanzó</span><b>→</b><span>Evaluó</span><b>→</b><span>Completó</span></div></div>
+      <div class="card shell-card"><div id="netroom_status" class="pending">Cargando NETROOM…</div><div class="grid grid-2"><div><div id="n_enrolled" class="metric-value">—</div><div class="metric-label">Alumnos matriculados</div></div><div><div id="n_activated" class="metric-value">—</div><div class="metric-label">Activados</div></div><div><div id="n_active7" class="metric-value">—</div><div class="metric-label">Activos últimos 7 días</div></div><div><div id="n_avg" class="metric-value">—</div><div class="metric-label">Progreso promedio</div></div><div><div id="n_evaluated" class="metric-value">—</div><div class="metric-label">Evaluaciones rendidas</div></div><div><div id="n_approval" class="metric-value">—</div><div class="metric-label">Tasa de aprobación</div></div><div><div id="n_completed" class="metric-value">—</div><div class="metric-label">Cursos completados</div></div><div><div id="n_inactive" class="metric-value">—</div><div class="metric-label">Alumnos sin actividad</div></div></div></div>
+      <div class="card shell-card"><h3>Embudo académico</h3><div class="funnel"><span><b id="f_enrolled">—</b> Inscripto</span><b>→</b><span><b id="f_activated">—</b> Activó acceso</span><b>→</b><span><b id="f_started">—</b> Inició</span><b>→</b><span><b id="f_progressed">—</b> Avanzó</span><b>→</b><span><b id="f_evaluated">—</b> Evaluó</span><b>→</b><span><b id="f_completed">—</b> Completó</span></div></div>
     </div>
   </section>
 
@@ -563,11 +563,24 @@ function updateTimestamp() {
   document.getElementById("lastUpdate").innerText = `Última actualización: ${now}`;
 }
 
+async function fetchNetroom() {
+  try {
+    const r = await fetch(CONFIG.NETROOM_URL); if (!r.ok) throw new Error();
+    const d = await r.json(), s = d.students, l = d.learning, a = d.assessments;
+    const v = { n_enrolled:s.enrolled, n_activated:s.activated, n_active7:s.active_7d, n_avg:`${l.average_progress_pct}%`, n_evaluated:a.evaluated, n_approval:`${a.approval_rate_pct}%`, n_completed:l.completed, n_inactive:s.inactive };
+    Object.entries(v).forEach(([id, value]) => document.getElementById(id).innerText = value);
+    const f = { f_enrolled:s.enrolled, f_activated:s.activated, f_started:l.started, f_progressed:l.progressed, f_evaluated:a.evaluated, f_completed:l.completed };
+    Object.entries(f).forEach(([id, value]) => document.getElementById(id).innerText = value);
+    document.getElementById('netroom_status').innerText = `Actualizado ${new Date(d.generated_at).toLocaleString('es-AR')}`;
+  } catch { document.getElementById('netroom_status').innerText = 'NETROOM temporalmente no disponible'; }
+}
+
 function startDashboard() {
   fetchAlumnos();
   fetchGA4();
+  fetchNetroom();
   updateTimestamp();
-  setInterval(() => { fetchAlumnos(); fetchGA4(); updateTimestamp(); }, 30000);
+  setInterval(() => { fetchAlumnos(); fetchGA4(); fetchNetroom(); updateTimestamp(); }, 30000);
 }
 </script>
 </body>
