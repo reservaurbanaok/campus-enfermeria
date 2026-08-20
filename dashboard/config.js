@@ -1,6 +1,6 @@
-window.CONFIG = { API_URL: "/api/dashboard/alumnos", GA4_URL: "/api/dashboard/ga4", LUCA_URL: "/api/dashboard/luca", NETROOM_URL: "/api/dashboard/netroom" };
-
-(function initLucaDashboard() {
+window.CONFIG = { API_URL: "/api/dashboard/alumnos", GA4_URL: "/api/dashboard/ga4", NETROOM_URL: "/api/dashboard/netroom" };
+/* Luca remains in Git history but is intentionally disabled at runtime. */
+/* (function initLucaDashboard() {
   function fmt(n) { return Number(n || 0).toLocaleString("es-AR"); }
   function escH(value) { return String(value || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;"); }
   function listRows(items, emptyText) {
@@ -55,4 +55,4 @@ window.CONFIG = { API_URL: "/api/dashboard/alumnos", GA4_URL: "/api/dashboard/ga
       setInterval(fetchLuca, 30000);
     };
   });
-})();
+})(); */

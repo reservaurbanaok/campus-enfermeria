@@ -77,6 +77,10 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color:
 .funnel b { color: var(--accent); }
 .subindex { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .subindex span { background: var(--card2); border-radius: 8px; color: var(--muted); padding: 10px; text-align: center; font-size: .8rem; }
+.intelligence-score { text-align: center; margin-bottom: 14px; }
+.intelligence-alert, .intelligence-insight { border-left: 3px solid var(--yellow); background: var(--card2); border-radius: 6px; padding: 10px; margin: 8px 0; color: var(--text); font-size: .86rem; }
+.intelligence-insight { border-left-color: var(--green); }
+.intelligence-alert small, .intelligence-insight small { display: block; color: var(--muted); margin-top: 5px; }
 @media(max-width:600px) { .subindex { grid-template-columns: 1fr 1fr; } }
 
 /* SECTION TITLE */
@@ -301,15 +305,22 @@ tr:hover td { background: rgba(37,99,235,0.05); }
   <section id="world-intelligence" class="world-heading">
     <div class="section-title"><span class="world-kicker">04 · INTELIGENCIA</span></div>
     <h2>Lo que los datos están diciendo</h2>
-    <div class="grid grid-2">
-      <div class="card shell-card"><h3>Campus Health Score</h3><div class="pending">Pendiente de activación</div><div class="subindex"><span>Negocio</span><span>Adquisición</span><span>Aprendizaje</span><span>Riesgo</span></div></div>
-      <div class="card shell-card"><h3>Centro de alertas</h3><div class="pending">No hay motor de inteligencia activado todavía</div><div class="subindex"><span>Comercial</span><span>Académica</span><span>Cobranza</span><span>Retención</span><span>Oportunidad</span></div></div>
+    <div class="card shell-card intelligence-score"><h3>Campus Health Score</h3><div id="health_score" class="metric-value">—</div><div id="health_status" class="pending">Calculando con fuentes certificadas…</div><div id="health_formula" class="metric-sub">Fórmula auditable disponible</div></div>
+    <div class="grid grid-4 intelligence-subindices">
+      <div class="card"><div class="metric-label">Negocio</div><div id="score_business" class="metric-value">—</div><div id="why_business" class="metric-sub">—</div></div>
+      <div class="card"><div class="metric-label">Adquisición</div><div id="score_acquisition" class="metric-value">—</div><div id="why_acquisition" class="metric-sub">Baseline histórico pendiente</div></div>
+      <div class="card"><div class="metric-label">Aprendizaje</div><div id="score_learning" class="metric-value">—</div><div id="why_learning" class="metric-sub">—</div></div>
+      <div class="card"><div class="metric-label">Riesgo</div><div id="score_risk" class="metric-value">—</div><div id="why_risk" class="metric-sub">—</div></div>
+    </div>
+    <div class="card shell-card"><h3>Centro de alertas e insights</h3><div id="intelligence_alerts" class="pending">Calculando…</div></div>
+    <div class="card shell-card"><div class="subindex"><span>Fuentes: Negocio</span><span>GA4</span><span>NETROOM</span><span>Reglas determinísticas</span></div>
     </div>
   </section>
 
 </div><!-- /app -->
 
 <script src="config.js"></script>
+<script src="intelligence.js"></script>
 <script>
 // ══════════════════════════════════════════
 // AUTH
@@ -450,6 +461,7 @@ async function fetchAlumnos() {
     render(alumnos);
     metricsAlumnos(alumnos);
     alertasAlumnos(alumnos);
+    updateIntelligence();
     document.getElementById("loading").style.display = "none";
   } catch {
     document.getElementById("loading").innerHTML = "⚠️ Error cargando datos de alumnos";
@@ -549,6 +561,7 @@ async function fetchGA4() {
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
     renderGA4(data);
+    updateIntelligence();
   } catch(e) {
     document.getElementById("ga_channels").innerHTML =
       `<div style="color:var(--red);font-size:.85rem">⚠️ Error cargando Analytics. Verificá que la cuenta tenga acceso a la propiedad GA4.</div>`;
@@ -567,12 +580,32 @@ async function fetchNetroom() {
   try {
     const r = await fetch(CONFIG.NETROOM_URL); if (!r.ok) throw new Error();
     const d = await r.json(), s = d.students, l = d.learning, a = d.assessments;
+    window.netroomData = { enrolled:s.enrolled, activated:s.activated, active_7d:s.active_7d, inactive:s.inactive, average_progress_pct:l.average_progress_pct, started:l.started, progressed:l.progressed, evaluated:a.evaluated, passed:a.passed, completed:l.completed };
     const v = { n_enrolled:s.enrolled, n_activated:s.activated, n_active7:s.active_7d, n_avg:`${l.average_progress_pct}%`, n_evaluated:a.evaluated, n_approval:`${a.approval_rate_pct}%`, n_completed:l.completed, n_inactive:s.inactive };
     Object.entries(v).forEach(([id, value]) => document.getElementById(id).innerText = value);
     const f = { f_enrolled:s.enrolled, f_activated:s.activated, f_started:l.started, f_progressed:l.progressed, f_evaluated:a.evaluated, f_completed:l.completed };
     Object.entries(f).forEach(([id, value]) => document.getElementById(id).innerText = value);
     document.getElementById('netroom_status').innerText = `Actualizado ${new Date(d.generated_at).toLocaleString('es-AR')}`;
+    updateIntelligence();
   } catch { document.getElementById('netroom_status').innerText = 'NETROOM temporalmente no disponible'; }
+}
+
+function updateIntelligence() {
+  if (!window.Intelligence || !window.netroomData || !alumnos.length) return;
+  const nums = alumnos.map(a => ({ billed:Number(a["Monto TOTAL"] || 0), paid:Number(a["Monto PAGADO"] || 0), debt:Number(a["Saldo"] || 0) }));
+  const business = { billed:nums.reduce((s,a)=>s+a.billed,0), paid:nums.reduce((s,a)=>s+a.paid,0), debtors:nums.filter(a=>a.debt>0).length, totalStudents:nums.length };
+  const result = Intelligence.build({ business, netroom:window.netroomData });
+  const scoreText = v => v == null ? "—" : `${v.toFixed(2)} / 100`;
+  document.getElementById('health_score').innerText = scoreText(result.health);
+  document.getElementById('health_status').innerText = result.health == null ? 'Datos insuficientes' : result.health >= 85 ? 'Sólido' : result.health >= 70 ? 'Saludable' : result.health >= 55 ? 'Atención' : result.health >= 40 ? 'Riesgo' : 'Crítico';
+  document.getElementById('health_formula').innerText = 'Promedio ponderado de dimensiones disponibles; Adquisición requiere baseline comparable.';
+  Object.entries(result.scores).forEach(([key,value]) => document.getElementById(`score_${key}`).innerText = scoreText(value));
+  document.getElementById('why_business').innerText = `Cobrado ${business.paid} / facturado ${business.billed}`;
+  document.getElementById('why_learning').innerText = `Activo ${((window.netroomData.active_7d/window.netroomData.enrolled)*100).toFixed(1)}%; progreso ${window.netroomData.average_progress_pct}%`;
+  document.getElementById('why_risk').innerText = `Inactividad ${((window.netroomData.inactive/window.netroomData.enrolled)*100).toFixed(1)}%`;
+  const alerts = result.alerts.map(a=>`<div class="intelligence-alert"><b>${a.severity} · ${a.category}</b><br>${a.text}<small>Fuente: ${a.source}</small></div>`).join('');
+  const insights = result.insights.map(i=>`<div class="intelligence-insight">✓ ${i.text}<small>Fuente: ${i.source}</small></div>`).join('');
+  document.getElementById('intelligence_alerts').innerHTML = alerts + insights || '<div style="color:var(--green)">Sin alertas activas</div>';
 }
 
 function startDashboard() {

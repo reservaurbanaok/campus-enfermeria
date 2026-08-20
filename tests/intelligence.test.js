@@ -1,0 +1,16 @@
+const assert = require('assert');
+const fs = require('fs');
+const vm = require('vm');
+const context = { window: {} };
+vm.runInNewContext(fs.readFileSync('dashboard/intelligence.js', 'utf8'), context);
+const I = context.window.Intelligence;
+assert.strictEqual(I.collectionRate(25, 50), 50);
+assert.strictEqual(I.collectionRate(0, 0), null);
+assert.strictEqual(I.learningScore({ enrolled: 34, active_7d: 7, average_progress_pct: 33.61, evaluated: 16, completed: 0 }), 27.06);
+assert.strictEqual(I.riskScore({ enrolled: 34, inactive: 27 }, 1, 34), 43.53);
+assert.strictEqual(I.healthScore({ business: 50, acquisition: null, learning: 40, risk: 60 }), 48.75);
+assert.strictEqual(I.healthScore({ business: 50, acquisition: null, learning: null, risk: 60 }), null);
+const result = I.build({ business: { paid: 25, billed: 50, debtors: 1, totalStudents: 1 }, netroom: { enrolled: 34, active_7d: 7, inactive: 27, average_progress_pct: 33.61, evaluated: 16, passed: 16, completed: 0 } });
+assert.strictEqual(result.alerts.length, 2);
+assert.strictEqual(result.insights[0].text, '16 de 16 alumnos que evaluaron aprobaron');
+console.log('intelligence formulas: PASS');
