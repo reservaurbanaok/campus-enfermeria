@@ -25,6 +25,7 @@ if (["campusprofesionalenfermeria.com", "www.campusprofesionalenfermeria.com"].i
   --yellow: #fbbf24;
   --green: #4ade80;
 }
+html { scroll-behavior: smooth; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
@@ -62,6 +63,21 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color:
 .badge-live { background: #14532d; color: var(--green); padding: 4px 12px; border-radius: 20px; font-size: .8rem; font-weight: 600; }
 .logout-button { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--muted); font-size: .8rem; font-weight: 600; cursor: pointer; }
 .logout-button:hover { color: var(--text); border-color: var(--accent); }
+.world-nav { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 10px; margin-bottom: 8px; scroll-behavior: smooth; }
+.world-nav a { flex: 0 0 auto; color: var(--muted); text-decoration: none; border: 1px solid var(--border); border-radius: 999px; padding: 8px 12px; font-size: .78rem; font-weight: 700; }
+.world-nav a:hover { color: var(--text); border-color: var(--accent); }
+.world-heading { scroll-margin-top: 16px; }
+.world-heading .world-kicker { color: var(--accent); font-size: .72rem; letter-spacing: 1.8px; font-weight: 800; text-transform: uppercase; }
+.world-heading h2 { font-size: 1.25rem; margin-top: 4px; }
+.world-heading p { color: var(--muted); font-size: .85rem; margin-top: 4px; }
+.shell-card { min-height: 150px; }
+.shell-card .pending { color: var(--yellow); font-weight: 700; margin-bottom: 12px; }
+.funnel { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; color: var(--muted); font-size: .8rem; }
+.funnel span { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+.funnel b { color: var(--accent); }
+.subindex { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.subindex span { background: var(--card2); border-radius: 8px; color: var(--muted); padding: 10px; text-align: center; font-size: .8rem; }
+@media(max-width:600px) { .subindex { grid-template-columns: 1fr 1fr; } }
 
 /* SECTION TITLE */
 .section-title {
@@ -156,11 +172,18 @@ tr:hover td { background: rgba(37,99,235,0.05); }
   <!-- HEADER -->
   <div class="header">
     <div>
-      <h1>Dashboard <span>Operativo</span></h1>
-      <div class="sub">Campus Profesional Enfermería · AEEPBA</div>
+      <h1>Campus Command <span>Center</span></h1>
+      <div class="sub">Campus Profesional Enfermería · Inteligencia Operativa</div>
     </div>
     <div style="display:flex;align-items:center;gap:10px"><span class="badge-live">● En vivo</span><button class="logout-button" type="button" onclick="logout()">Cerrar sesión</button></div>
   </div>
+
+  <nav class="world-nav" aria-label="Mundos del Campus Command Center">
+    <a href="#world-business">01 · NEGOCIO</a>
+    <a href="#world-acquisition">02 · ADQUISICIÓN</a>
+    <a href="#world-netroom">03 · NETROOM</a>
+    <a href="#world-intelligence">04 · INTELIGENCIA</a>
+  </nav>
 
   <div class="status-bar">
     <span class="dot"></span>
@@ -170,7 +193,9 @@ tr:hover td { background: rgba(37,99,235,0.05); }
   <!-- ═══════════════════════════════════════════════
        SECCIÓN 1 — ALUMNOS (Google Sheets)
   ════════════════════════════════════════════════ -->
-  <div class="section-title">📋 Gestión de Alumnos</div>
+  <section id="world-business" class="world-heading">
+  <div class="section-title"><span class="world-kicker">01 · NEGOCIO</span></div>
+  <h2>El pulso económico del Campus</h2>
 
   <div class="grid grid-4">
     <div class="card accent-left">
@@ -221,10 +246,14 @@ tr:hover td { background: rgba(37,99,235,0.05); }
       <tbody id="tb"></tbody>
     </table></div>
   </div>
+  </section>
 
   <!-- ═══════════════════════════════════════════════
        SECCIÓN 2 — ANALYTICS (GA4)
   ════════════════════════════════════════════════ -->
+  <section id="world-acquisition" class="world-heading">
+  <div class="section-title"><span class="world-kicker">02 · ADQUISICIÓN</span></div>
+  <h2>Cómo llega y qué quiere la demanda</h2>
   <div class="section-title">📊 Google Analytics — campusprofesionalenfermeria.com</div>
 
   <div class="grid grid-3">
@@ -257,6 +286,26 @@ tr:hover td { background: rgba(37,99,235,0.05); }
       <canvas id="ga_chart" height="160"></canvas>
     </div>
   </div>
+
+  </section>
+
+  <section id="world-netroom" class="world-heading">
+    <div class="section-title"><span class="world-kicker">03 · NETROOM</span></div>
+    <h2>Qué ocurre después de la inscripción</h2>
+    <div class="grid grid-2">
+      <div class="card shell-card"><div class="pending">Integración académica pendiente</div><div class="grid grid-2"><div class="metric-label">Alumnos matriculados</div><div class="metric-label">Activados</div><div class="metric-label">Activos últimos 7 días</div><div class="metric-label">Progreso promedio</div><div class="metric-label">Evaluaciones rendidas</div><div class="metric-label">Tasa de aprobación</div><div class="metric-label">Cursos completados</div><div class="metric-label">Alumnos sin actividad</div></div></div>
+      <div class="card shell-card"><h3>Embudo académico</h3><div class="funnel"><span>Inscripto</span><b>→</b><span>Activó acceso</span><b>→</b><span>Inició</span><b>→</b><span>Avanzó</span><b>→</b><span>Evaluó</span><b>→</b><span>Completó</span></div></div>
+    </div>
+  </section>
+
+  <section id="world-intelligence" class="world-heading">
+    <div class="section-title"><span class="world-kicker">04 · INTELIGENCIA</span></div>
+    <h2>Lo que los datos están diciendo</h2>
+    <div class="grid grid-2">
+      <div class="card shell-card"><h3>Campus Health Score</h3><div class="pending">Pendiente de activación</div><div class="subindex"><span>Negocio</span><span>Adquisición</span><span>Aprendizaje</span><span>Riesgo</span></div></div>
+      <div class="card shell-card"><h3>Centro de alertas</h3><div class="pending">No hay motor de inteligencia activado todavía</div><div class="subindex"><span>Comercial</span><span>Académica</span><span>Cobranza</span><span>Retención</span><span>Oportunidad</span></div></div>
+    </div>
+  </section>
 
 </div><!-- /app -->
 
