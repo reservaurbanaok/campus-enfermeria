@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Omega · Human Inbox</title>
+  <link rel="stylesheet" href="assets/omega-human-inbox.css">
+</head>
+<body>
+  <main class="shell">
+    <section id="login-view" class="login-card" aria-labelledby="login-title">
+      <div class="eyebrow">OMEGA · CAMPUS</div>
+      <h1 id="login-title">Human Inbox</h1>
+      <p class="muted">Acceso privado para operadores autorizados.</p>
+      <form id="login-form">
+        <label for="credential">Credencial de operador</label>
+        <input id="credential" name="credential" type="password" autocomplete="current-password" required>
+        <button class="primary" type="submit">Ingresar</button>
+        <p id="login-error" class="error" role="alert"></p>
+      </form>
+    </section>
+
+    <section id="inbox-view" class="inbox" hidden>
+      <header class="topbar">
+        <div><div class="eyebrow">OMEGA · CAMPUS</div><h1>Human Inbox</h1><p class="muted">Casos que requieren intervención humana</p></div>
+        <button id="refresh" class="secondary" type="button">Actualizar</button>
+      </header>
+      <p id="global-status" class="status" role="status"></p>
+      <div class="layout">
+        <section class="panel" aria-labelledby="cases-title">
+          <div class="panel-heading"><h2 id="cases-title">Casos activos</h2><span id="case-count" class="count">0</span></div>
+          <div id="case-list" class="case-list"><p class="muted">Cargando casos…</p></div>
+        </section>
+        <section class="panel detail" aria-labelledby="detail-title">
+          <div id="empty-detail" class="empty"><h2 id="detail-title">Seleccioná un caso</h2><p class="muted">El detalle sanitizado aparecerá aquí.</p></div>
+          <div id="detail-content" hidden>
+            <div class="detail-heading"><div><span id="detail-status" class="badge"></span><h2 id="detail-title-value"></h2></div><span id="detail-channel" class="channel"></span></div>
+            <dl class="facts">
+              <div><dt>Nombre permitido</dt><dd id="fact-name">—</dd></div>
+              <div><dt>Curso activo</dt><dd id="fact-course">—</dd></div>
+              <div><dt>Intención</dt><dd id="fact-intent">—</dd></div>
+              <div><dt>Motivo del handoff</dt><dd id="fact-reason">—</dd></div>
+              <div><dt>Próxima acción</dt><dd id="fact-next">—</dd></div>
+            </dl>
+            <div class="detail-section"><h3>Preguntas y respuestas</h3><div id="fact-qa" class="stack muted">—</div></div>
+            <div class="detail-section"><h3>Objeciones</h3><div id="fact-objections" class="stack muted">—</div></div>
+            <button id="claim" class="primary" type="button" hidden>TOMAR CASO</button>
+            <form id="resolve-form" class="resolve" hidden>
+              <h3>Resolver caso</h3>
+              <label for="resolution-summary">Resumen de resolución</label>
+              <textarea id="resolution-summary" rows="4" required></textarea>
+              <fieldset><legend>Próximo responsable</legend><label><input type="radio" name="next_owner" value="AI" checked> IA</label><label><input type="radio" name="next_owner" value="CLOSE"> Cerrar</label></fieldset>
+              <button class="primary" type="submit">RESOLVER</button>
+            </form>
+            <p id="detail-error" class="error" role="alert"></p>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <script src="assets/omega-human-inbox.js" defer></script>
+</body>
+</html>

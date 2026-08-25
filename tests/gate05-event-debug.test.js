@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const runtime=fs.readFileSync('assets/omega-concierge.js','utf8');
+assert(runtime.includes("track('handoff_created',{handoff_id:state.handoff_id,trigger_code:decision.trigger_code,channel:'campus_web',course_id:state.active_course||null})"));
+assert(runtime.includes('if(state.handoff_active&&state.handoff_context)return state.handoff_context'));
+assert(runtime.includes("new URLSearchParams(window.location.search).get('omega_debug')==='1'"));
+assert(runtime.includes("bridge.dataset.handoffActive='true'"));
+assert(runtime.includes('context:context'));
+assert(!runtime.includes("track('handoff_created',context)"));
+assert(!runtime.includes('raw_transcript'));
+assert(!runtime.includes('NETROOM_PRIVATE'));
+assert(runtime.includes("detail:payload.detail||null"));
+console.log('Gate 05 05.1D event/debug contract: PASS');

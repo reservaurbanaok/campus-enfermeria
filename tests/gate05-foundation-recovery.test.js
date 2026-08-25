@@ -1,0 +1,33 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const schema=JSON.parse(fs.readFileSync('schemas/omega-handoff-context-v1.json','utf8'));
+assert.equal(schema.properties.schema_version.const,'omega-handoff-context-v1');
+assert(schema.required.includes('handoff_id'));
+assert(schema.properties.excluded_data_domains.contains.const==='NETROOM_PRIVATE');
+function validateAgainstSchema(value){
+  if(!value||typeof value!=='object'||Array.isArray(value)) throw new Error('context must be an object');
+  for(const key of schema.required) if(!Object.hasOwn(value,key)) throw new Error(`missing ${key}`);
+  if(value.schema_version!==schema.properties.schema_version.const) throw new Error('invalid schema_version');
+  if(typeof value.handoff_id!=='string'||typeof value.conversation_id!=='string') throw new Error('invalid technical identity');
+  if(!Array.isArray(value.excluded_data_domains)||!value.excluded_data_domains.includes('NETROOM_PRIVATE')) throw new Error('NETROOM_PRIVATE must be excluded');
+  if(!Array.isArray(value.actions_taken)||value.actions_taken.some(a=>!a||typeof a.action_type!=='string'||typeof a.status!=='string'||typeof a.timestamp!=='string')) throw new Error('invalid actions_taken');
+  return true;
+}
+const source=fs.readFileSync('assets/omega-concierge.js','utf8');
+const match=source.match(/function shouldHandoff\(context\)\{[\s\S]*?\n  \}/);
+assert(match,'shouldHandoff must exist');
+const sandbox={}; vm.runInNewContext(`${match[0]}; this.result=shouldHandoff;`,sandbox);
+const policy=sandbox.result;
+const human=policy({query:'Quiero hablar con una persona'}); assert.equal(human.should_handoff,true); assert.equal(human.trigger_code,'USER_REQUESTED_HUMAN');
+const commercial=policy({query:'Necesito un convenio corporativo para mi empresa'}); assert.equal(commercial.should_handoff,true); assert.equal(commercial.trigger_code,'COMMERCIAL_EXCEPTION');
+assert.equal(policy({query:'¿Cuánto sale?'}).should_handoff,false);
+assert.equal(policy({query:'Me parece caro'}).should_handoff,false);
+assert.equal(policy({query:'Me quiero inscribir ahora'}).should_handoff,false);
+const valid={schema_version:'omega-handoff-context-v1',handoff_id:'h1',conversation_id:'c1',created_at:'2026-01-01T00:00:00.000Z',updated_at:'2026-01-01T00:00:00.000Z',anonymous_id:null,person_id_if_allowed:null,name_if_known:null,verified_identity_status:'unknown',contact_if_authorized:null,channel:'campus_web',channel_conversation_reference:null,adapter_metadata:{},detected_intent:null,active_course:null,profile_summary:null,commercial_intent_level:null,commercial_intent_confidence:null,questions_asked:[],relevant_answers:[],objections:[],unresolved_items:[],actions_taken:[],trigger_code:'USER_REQUESTED_HUMAN',handoff_reason_summary:'requested',required_human_capability:null,priority:'high',recommended_next_action:null,allowed_data_scope:[],excluded_data_domains:['NETROOM_PRIVATE'],consent_or_authorization_if_required:null,transcript_reference:null,source_references:[]};
+for(const key of schema.required) assert(Object.hasOwn(valid,key),`missing ${key}`);
+assert.equal(validateAgainstSchema(valid),true);
+assert.throws(()=>validateAgainstSchema({...valid,excluded_data_domains:[]}),/NETROOM_PRIVATE/);
+const missingUpdatedAt={...valid}; delete missingUpdatedAt.updated_at;
+assert.throws(()=>validateAgainstSchema(missingUpdatedAt),/missing updated_at/);
+console.log('Gate 05 05.1A-R foundation: PASS');

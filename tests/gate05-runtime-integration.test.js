@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const runtime=fs.readFileSync('assets/omega-concierge.js','utf8');
+const index=fs.readFileSync('index.html','utf8');
+assert(index.indexOf('handoff/omega-handoff-context.js')<index.indexOf('assets/omega-concierge.js'));
+assert(runtime.includes('shouldHandoff({query:q})'));
+assert(runtime.includes('window.omegaHandoffContext.buildHandoffContext'));
+assert(runtime.includes('if(state.handoff_active&&state.handoff_context)return state.handoff_context'));
+assert(runtime.includes("state.handoff_id=state.handoff_id||('handoff-'+state.conversation_id+'-'+Date.now())"));
+assert(runtime.includes("q.indexOf('cuánto cuesta')"));
+assert(runtime.includes("q.indexOf('caro')"));
+assert(runtime.includes("q.indexOf('inscrib')"));
+console.log('Gate 05 05.1C runtime integration contract: PASS');
