@@ -1,0 +1,144 @@
+{
+  "name": "GATE07 WF-04 WhatsApp Inbound Real Meta",
+  "nodes": [
+    {
+      "parameters": {"httpMethod": "POST", "path": "gate07/whatsapp/inbound/real", "responseMode": "lastNode", "options": {}},
+      "id": "gate07-wf04-webhook",
+      "name": "Meta Real Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "gate07-wf04-inbound"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const root = $json.body ?? $json;\nif (!root || root.object !== 'whatsapp_business_account' || !Array.isArray(root.entry)) throw new Error('malformed_meta_payload');\nconst events = [];\nfor (const entry of root.entry) {\n  for (const change of (entry.changes || [])) {\n    if (change.field !== 'messages' || !change.value || !change.value.metadata) continue;\n    const value = change.value;\n    const metadata = value.metadata;\n    const phone = String(metadata.phone_number_id || '');\n    if (phone !== '1061851020353611') throw new Error('wrong_phone_number_id');\n    const contacts = Object.fromEntries((value.contacts || []).map(c => [String(c.wa_id || ''), c]));\n    for (const status of (value.statuses || [])) {\n      if (!['sent', 'delivered', 'read', 'failed'].includes(status.status) || !status.id || !status.recipient_id || status.timestamp == null) throw new Error('malformed_status');\n      events.push({json: {kind: 'status', status: status.status, wamid: String(status.id), external_message_id: String(status.id), recipient_id: String(status.recipient_id), timestamp: String(status.timestamp), phone_number_id: phone, correlation_id: `${String(entry.id || 'entry')}:${String(status.id)}`}});\n    }\n    for (const message of (value.messages || [])) {\n      if (!message.id || !message.from || message.timestamp == null) throw new Error('malformed_message');\n      const base = {kind: 'message', external_message_id: String(message.id), external_actor_id: String(message.from), wa_id: String(contacts[String(message.from)]?.wa_id || message.from), message_type: String(message.type || 'unknown'), received_at: new Date(Number(message.timestamp) * 1000).toISOString(), correlation_id: `${String(entry.id || 'entry')}:${String(message.id)}`, phone_number_id: phone, display_phone_number: String(metadata.display_phone_number || '')};\n      if (message.type !== 'text') { events.push({json: {...base, kind: 'unsupported', response_text: 'Por ahora puedo procesar mensajes de texto. Escribime tu consulta en un mensaje de texto.'}}); continue; }\n      if (!message.text || typeof message.text.body !== 'string' || !message.text.body.trim()) throw new Error('empty_text');\n      events.push({json: {...base, kind: 'text', schema_version: 'OMEGA_CHANNEL_MESSAGE_V1', channel: 'whatsapp', message_type: 'text', text: message.text.body.trim().slice(0, 500), channel_metadata: {provider: 'meta_cloud_api', phone_number_id: phone}}});\n    }\n  }\n}\nif (!events.length) throw new Error('no_supported_event');\nreturn events;"
+      },
+      "id": "gate07-wf04-parse",
+      "name": "Parse Meta And Normalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {"conditions": {"options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2}, "conditions": [{"leftValue": "={{$json.kind}}", "rightValue": "status", "operator": {"type": "string", "operation": "equals"}}], "combinator": "and"}},
+      "id": "gate07-wf04-status-if",
+      "name": "Status Event?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [520, 0]
+    },
+    {
+      "parameters": {"method": "POST", "url": "http://n8n:5678/webhook/gate07/whatsapp/status/mock", "sendBody": true, "specifyBody": "json", "jsonBody": "={{JSON.stringify({body: {external_message_id: $json.external_message_id, status: $json.status, timestamp: $json.timestamp, correlation_id: $json.correlation_id, wamid: $json.wamid, recipient_id: $json.recipient_id}})}}", "options": {"timeout": 15000}},
+      "id": "gate07-wf04-to-wf02",
+      "name": "Route Status To WF02",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [780, -180]
+    },
+    {
+      "parameters": {"conditions": {"options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2}, "conditions": [{"leftValue": "={{$json.kind}}", "rightValue": "text", "operator": {"type": "string", "operation": "equals"}}], "combinator": "and"}},
+      "id": "gate07-wf04-text-if",
+      "name": "Text Message?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [780, 80]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const crypto = require('crypto');\nconst source = $json;\nconst payload = {schema_version: 'OMEGA_CHANNEL_MESSAGE_V1', channel: 'whatsapp', external_message_id: source.external_message_id, external_actor_id: source.external_actor_id, message_type: 'text', text: source.text, received_at: source.received_at, correlation_id: source.correlation_id, channel_metadata: {provider: 'meta_cloud_api', phone_number_id: source.phone_number_id}};\nconst body = JSON.stringify(payload);\nconst timestamp = String(Math.floor(Date.now() / 1000));\nconst nonce = crypto.randomUUID();\nconst secret = $env.OMEGA_CHANNEL_INGRESS_SECRET;\nif (!secret) throw new Error('omega_ingress_secret_missing');\nconst signature = crypto.createHmac('sha256', secret).update(`${timestamp}\\n${nonce}\\n${body}`).digest('hex');\nreturn [{json: {...source, omega_body: body, omega_headers: {'X-Omega-Service': 'n8n-whatsapp-staging', 'X-Omega-Timestamp': timestamp, 'X-Omega-Nonce': nonce, 'X-Omega-Signature': signature, 'X-Omega-Idempotency-Key': source.external_message_id}}}];"
+      },
+      "id": "gate07-wf04-sign-omega",
+      "name": "Sign OMEGA Channel Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1040, 0]
+    },
+    {
+      "parameters": {"method": "POST", "url": "={{$env.OMEGA_CHANNEL_INGRESS_URL}}", "sendHeaders": true, "headerParameters": {"parameters": [{"name": "X-Omega-Service", "value": "={{$json.omega_headers['X-Omega-Service']}}"}, {"name": "X-Omega-Timestamp", "value": "={{$json.omega_headers['X-Omega-Timestamp']}}"}, {"name": "X-Omega-Nonce", "value": "={{$json.omega_headers['X-Omega-Nonce']}}"}, {"name": "X-Omega-Signature", "value": "={{$json.omega_headers['X-Omega-Signature']}}"}, {"name": "X-Omega-Idempotency-Key", "value": "={{$json.omega_headers['X-Omega-Idempotency-Key']}}"}]}, "sendBody": true, "specifyBody": "raw", "contentType": "raw", "rawContentType": "application/json", "body": "={{$json.omega_body}}", "options": {"timeout": 15000}},
+      "id": "gate07-wf04-omega",
+      "name": "OMEGA Channel Ingress V1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1300, 0]
+    },
+    {
+      "parameters": {"mode": "runOnceForAllItems", "jsCode": "const source = $('Sign OMEGA Channel Request').item.json;\nconst result = $json;\nif (result.deduplicated === true) return [{json: {skip_outbound: true, external_message_id: source.external_message_id}}];\nconst text = result.response?.text;\nif (!result.ok || typeof text !== 'string' || !text) throw new Error('omega_response_invalid');\nreturn [{json: {skip_outbound: false, external_message_id: source.external_message_id, external_actor_id: source.external_actor_id, phone_number_id: source.phone_number_id, response_text: text}}];"},
+      "id": "gate07-wf04-response",
+      "name": "Prepare OMEGA Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 0]
+    },
+    {
+      "parameters": {"mode": "runOnceForAllItems", "jsCode": "if ($json.skip_outbound) return [{json: $json}];\nconst capture = $env.META_OUTBOUND_CAPTURE_URL;\nconst graphBase = $env.META_GRAPH_BASE_URL || 'https://graph.facebook.com';\nconst token = $env.META_ACCESS_TOKEN;\nconst base = capture || graphBase;\nif (!base || !token) throw new Error('meta_outbound_not_configured');\nconst path = `/v25.0/${$json.phone_number_id}/messages`;\nreturn [{json: {...$json, meta_request: {method: 'POST', url: base.replace(/\\/$/, '') + path, graph_url: `https://graph.facebook.com${path}`, headers: {Authorization: `Bearer ${token}`, 'Content-Type': 'application/json'}, body: {messaging_product: 'whatsapp', recipient_type: 'individual', to: $json.external_actor_id, type: 'text', text: {body: $json.response_text}}}}}];"},
+      "id": "gate07-wf04-outbound-build",
+      "name": "Build Intercepted Meta Outbound",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1820, 0]
+    },
+    {
+      "parameters": {"conditions": {"options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2}, "conditions": [{"leftValue": "={{$json.skip_outbound}}", "rightValue": "true", "operator": {"type": "boolean", "operation": "false"}}], "combinator": "and"}},
+      "id": "gate07-wf04-send-if",
+      "name": "Outbound Needed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2080, 0]
+    },
+    {
+      "parameters": {"method": "POST", "url": "={{$json.meta_request.url}}", "sendHeaders": true, "headerParameters": {"parameters": [{"name": "Authorization", "value": "={{$json.meta_request.headers.Authorization}}"}, {"name": "Content-Type", "value": "application/json"}]}, "sendBody": true, "specifyBody": "json", "jsonBody": "={{JSON.stringify($json.meta_request.body)}}", "options": {"timeout": 15000}},
+      "id": "gate07-wf04-meta-send",
+      "name": "Meta Outbound Capture Only",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2340, -80]
+    },
+    {
+      "parameters": {"mode": "runOnceForAllItems", "jsCode": "const body = $json;\nconst wamid = body.messages?.[0]?.id || body.wamid || null;\nreturn [{json: {status: 'outbound_intercepted', wamid, response_parsed: true}}];"},
+      "id": "gate07-wf04-meta-response",
+      "name": "Parse Meta Outbound Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2600, -80]
+    },
+    {
+      "parameters": {"mode": "runOnceForAllItems", "jsCode": "return [{json: {status: 'outbound_skipped', reason: 'duplicate_external_message_id'}}];"},
+      "id": "gate07-wf04-duplicate-response",
+      "name": "Duplicate No Outbound",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2340, 160]
+    },
+    {
+      "parameters": {"mode": "runOnceForAllItems", "jsCode": "return [{json: {skip_outbound: false, external_message_id: $json.external_message_id, external_actor_id: $json.external_actor_id, phone_number_id: $json.phone_number_id, response_text: $json.response_text}}];"},
+      "id": "gate07-wf04-unsupported",
+      "name": "Controlled Unsupported Message Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1040, 240]
+    }
+  ],
+  "connections": {
+    "Meta Real Webhook": {"main": [[{"node": "Parse Meta And Normalize", "type": "main", "index": 0}]]},
+    "Parse Meta And Normalize": {"main": [[{"node": "Status Event?", "type": "main", "index": 0}]]},
+    "Status Event?": {"main": [[{"node": "Route Status To WF02", "type": "main", "index": 0}], [{"node": "Text Message?", "type": "main", "index": 0}]]},
+    "Text Message?": {"main": [[{"node": "Sign OMEGA Channel Request", "type": "main", "index": 0}], [{"node": "Controlled Unsupported Message Reply", "type": "main", "index": 0}]]},
+    "Sign OMEGA Channel Request": {"main": [[{"node": "OMEGA Channel Ingress V1", "type": "main", "index": 0}]]},
+    "OMEGA Channel Ingress V1": {"main": [[{"node": "Prepare OMEGA Response", "type": "main", "index": 0}]]},
+    "Prepare OMEGA Response": {"main": [[{"node": "Build Intercepted Meta Outbound", "type": "main", "index": 0}]]},
+    "Controlled Unsupported Message Reply": {"main": [[{"node": "Build Intercepted Meta Outbound", "type": "main", "index": 0}]]},
+    "Build Intercepted Meta Outbound": {"main": [[{"node": "Outbound Needed?", "type": "main", "index": 0}]]},
+    "Outbound Needed?": {"main": [[{"node": "Meta Outbound Capture Only", "type": "main", "index": 0}], [{"node": "Duplicate No Outbound", "type": "main", "index": 0}]]},
+    "Meta Outbound Capture Only": {"main": [[{"node": "Parse Meta Outbound Response", "type": "main", "index": 0}]]}
+  },
+  "active": false,
+  "settings": {"executionOrder": "v1", "errorWorkflow": "gate07-wf03-v1"},
+  "versionId": "gate07-wf04-v1",
+  "meta": {"templateCredsSetupCompleted": true},
+  "tags": []
+}
+
+

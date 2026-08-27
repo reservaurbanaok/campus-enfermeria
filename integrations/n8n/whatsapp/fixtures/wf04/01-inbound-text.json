@@ -1,0 +1,3 @@
+{"object":"whatsapp_business_account","entry":[{"id":"WABA_SYNTHETIC_07C4","changes":[{"field":"messages","value":{"messaging_product":"whatsapp","metadata":{"display_phone_number":"+54 9 11 0000-0000","phone_number_id":"1061851020353611"},"contacts":[{"profile":{"name":"Synthetic Contact"},"wa_id":"5491100000000"}],"messages":[{"from":"5491100000000","id":"wamid.synthetic.001","timestamp":"1787756400","text":{"body":"Hola Omeguín"},"type":"text"}]}}]}]}
+
+

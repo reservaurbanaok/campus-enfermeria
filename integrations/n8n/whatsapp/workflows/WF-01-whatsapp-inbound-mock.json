@@ -1,0 +1,45 @@
+{
+  "name": "GATE07 WF-01 WhatsApp Inbound Mock",
+  "nodes": [
+    {
+      "parameters": {"httpMethod": "POST", "path": "gate07/whatsapp/inbound/mock", "responseMode": "lastNode", "options": {}},
+      "id": "gate07-wf01-webhook",
+      "name": "Mock Inbound Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "gate07-wf01-inbound"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://omega-mock:8787/v1/channel/ingress",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({schema_version: 'OMEGA_CHANNEL_MESSAGE_V1', channel: 'whatsapp', external_message_id: $json.body.external_message_id, sender: {external_id: $json.body.sender_identifier}, message: {type: $json.body.message_type || 'text', text: $json.body.text || null, content_ref: $json.body.content_reference || null}, occurred_at: $json.body.timestamp, correlation_id: $json.body.correlation_id}) }}",
+        "options": {}
+      },
+      "id": "gate07-wf01-omega",
+      "name": "OMEGA Staging Mock",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {"assignments": {"assignments": [{"id": "gate07-wf01-audit", "name": "adapter_audit", "value": "GATE07_WF01_MOCK", "type": "string"}]}, "options": {}},
+      "id": "gate07-wf01-audit",
+      "name": "Technical Audit",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [520, 0]
+    }
+  ],
+  "connections": {"Mock Inbound Webhook": {"main": [[{"node": "OMEGA Staging Mock", "type": "main", "index": 0}]]}, "OMEGA Staging Mock": {"main": [[{"node": "Technical Audit", "type": "main", "index": 0}]]}},
+  "active": false,
+  "settings": {"executionOrder": "v1"},
+  "versionId": "gate07-wf01-v1",
+  "meta": {"templateCredsSetupCompleted": true},
+  "tags": []
+}
+
+

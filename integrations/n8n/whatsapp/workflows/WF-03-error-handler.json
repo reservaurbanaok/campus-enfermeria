@@ -1,0 +1,15 @@
+{
+  "name": "GATE07 WF-03 Technical Error Handler",
+  "nodes": [
+    {"parameters": {}, "id": "gate07-wf03-trigger", "name": "Error Trigger", "type": "n8n-nodes-base.errorTrigger", "typeVersion": 1, "position": [0, 0]},
+    {"parameters": {"method": "POST", "url": "http://omega-mock:8787/v1/technical-errors", "sendBody": true, "specifyBody": "json", "jsonBody": "={{ JSON.stringify({schema_version: 'OMEGA_CHANNEL_TECHNICAL_ERROR_V1', error_code: $json.execution?.error?.message || 'workflow_error', correlation_id: $json.execution?.id || 'synthetic-error-correlation'}) }}", "options": {}}, "id": "gate07-wf03-audit", "name": "Technical Evidence Mock", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [280, 0]}
+  ],
+  "connections": {"Error Trigger": {"main": [[{"node": "Technical Evidence Mock", "type": "main", "index": 0}]]}},
+  "active": false,
+  "settings": {"executionOrder": "v1"},
+  "versionId": "gate07-wf03-v1",
+  "meta": {"templateCredsSetupCompleted": true},
+  "tags": []
+}
+
+

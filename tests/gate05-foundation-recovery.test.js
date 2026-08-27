@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const vm=require('node:vm');
+const core=require('../core/omega-concierge-core');
 const schema=JSON.parse(fs.readFileSync('schemas/omega-handoff-context-v1.json','utf8'));
 assert.equal(schema.properties.schema_version.const,'omega-handoff-context-v1');
 assert(schema.required.includes('handoff_id'));
@@ -14,11 +14,8 @@ function validateAgainstSchema(value){
   if(!Array.isArray(value.actions_taken)||value.actions_taken.some(a=>!a||typeof a.action_type!=='string'||typeof a.status!=='string'||typeof a.timestamp!=='string')) throw new Error('invalid actions_taken');
   return true;
 }
-const source=fs.readFileSync('assets/omega-concierge.js','utf8');
-const match=source.match(/function shouldHandoff\(context\)\{[\s\S]*?\n  \}/);
-assert(match,'shouldHandoff must exist');
-const sandbox={}; vm.runInNewContext(`${match[0]}; this.result=shouldHandoff;`,sandbox);
-const policy=sandbox.result;
+assert.equal(typeof core.shouldHandoff,'function','canonical shared shouldHandoff must exist');
+const policy=core.shouldHandoff;
 const human=policy({query:'Quiero hablar con una persona'}); assert.equal(human.should_handoff,true); assert.equal(human.trigger_code,'USER_REQUESTED_HUMAN');
 const commercial=policy({query:'Necesito un convenio corporativo para mi empresa'}); assert.equal(commercial.should_handoff,true); assert.equal(commercial.trigger_code,'COMMERCIAL_EXCEPTION');
 assert.equal(policy({query:'¿Cuánto sale?'}).should_handoff,false);

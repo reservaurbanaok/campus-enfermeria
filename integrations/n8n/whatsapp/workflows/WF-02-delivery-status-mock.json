@@ -1,0 +1,30 @@
+{
+  "name": "GATE07 WF-02 WhatsApp Delivery Status Mock",
+  "nodes": [
+    {
+      "parameters": {"httpMethod": "POST", "path": "gate07/whatsapp/status/mock", "responseMode": "lastNode", "options": {}},
+      "id": "gate07-wf02-webhook",
+      "name": "Mock Delivery Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "gate07-wf02-status"
+    },
+    {
+      "parameters": {"method": "POST", "url": "http://omega-mock:8787/v1/channel/status", "sendBody": true, "specifyBody": "json", "jsonBody": "={{ JSON.stringify({schema_version: 'OMEGA_CHANNEL_STATUS_V1', channel: 'whatsapp', external_message_id: $json.body.external_message_id, status: $json.body.status, occurred_at: $json.body.timestamp, correlation_id: $json.body.correlation_id}) }}", "options": {}},
+      "id": "gate07-wf02-omega",
+      "name": "OMEGA Delivery Audit Mock",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    }
+  ],
+  "connections": {"Mock Delivery Webhook": {"main": [[{"node": "OMEGA Delivery Audit Mock", "type": "main", "index": 0}]]}},
+  "active": false,
+  "settings": {"executionOrder": "v1"},
+  "versionId": "gate07-wf02-v1",
+  "meta": {"templateCredsSetupCompleted": true},
+  "tags": []
+}
+
+

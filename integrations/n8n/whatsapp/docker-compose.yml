@@ -1,0 +1,80 @@
+name: omega-gate07-n8n
+
+services:
+  omega-mock:
+    build:
+      context: ./mock_omega
+    environment:
+      OMEGA_MOCK_DB_PATH: /data/omega_mock.sqlite
+    volumes:
+      - omega_mock_data:/data
+    networks:
+      - gate07
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8787/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:1.123.5
+    environment:
+      N8N_HOST: 0.0.0.0
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      N8N_EDITOR_BASE_URL: http://localhost:5687/
+      WEBHOOK_URL: http://localhost:5687/
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?N8N_ENCRYPTION_KEY is required and must remain outside Git}
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:?N8N_BASIC_AUTH_USER is required and must remain outside Git}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:?N8N_BASIC_AUTH_PASSWORD is required and must remain outside Git}
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+      N8N_TEMPLATES_ENABLED: "false"
+      N8N_PUBLIC_API_DISABLED: "true"
+      DB_TYPE: sqlite
+      DB_SQLITE_DATABASE: /home/node/.n8n/database.sqlite
+      GENERIC_TIMEZONE: America/Argentina/Buenos_Aires
+      TZ: America/Argentina/Buenos_Aires
+      META_APP_SECRET: ${META_APP_SECRET:-}
+      OMEGA_CHANNEL_INGRESS_URL: ${OMEGA_CHANNEL_INGRESS_URL:-}
+      OMEGA_CHANNEL_INGRESS_SECRET: ${OMEGA_CHANNEL_INGRESS_SECRET:-}
+      META_ACCESS_TOKEN: ${META_ACCESS_TOKEN:-}
+      META_OUTBOUND_CAPTURE_URL: ${META_OUTBOUND_CAPTURE_URL:-}
+      META_GRAPH_BASE_URL: ${META_GRAPH_BASE_URL:-https://graph.facebook.com}
+      N8N_SECURE_COOKIE: "false"
+      EXECUTIONS_DATA_SAVE_ON_SUCCESS: none
+      EXECUTIONS_DATA_SAVE_ON_ERROR: all
+      EXECUTIONS_DATA_SAVE_ON_PROGRESS: "false"
+      EXECUTIONS_DATA_PRUNE: "true"
+      EXECUTIONS_DATA_MAX_AGE: 168
+    ports:
+      - "127.0.0.1:5687:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows:/workflows:ro
+    networks:
+      - gate07
+    depends_on:
+      omega-mock:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:5678/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+    restart: unless-stopped
+
+networks:
+  gate07:
+    name: omega-gate07-n8n
+
+volumes:
+  n8n_data:
+    name: omega-gate07-n8n-data
+  omega_mock_data:
+    name: omega-gate07-omega-mock-data
+
+
