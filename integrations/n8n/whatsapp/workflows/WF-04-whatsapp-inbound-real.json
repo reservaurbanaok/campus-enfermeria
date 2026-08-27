@@ -73,7 +73,7 @@
       "position": [1560, 0]
     },
     {
-      "parameters": {"mode": "runOnceForAllItems", "jsCode": "if ($json.skip_outbound) return [{json: $json}];\nconst capture = $env.META_OUTBOUND_CAPTURE_URL;\nconst graphBase = $env.META_GRAPH_BASE_URL || 'https://graph.facebook.com';\nconst token = $env.META_ACCESS_TOKEN;\nconst base = capture || graphBase;\nif (!base || !token) throw new Error('meta_outbound_not_configured');\nconst path = `/v25.0/${$json.phone_number_id}/messages`;\nreturn [{json: {...$json, meta_request: {method: 'POST', url: base.replace(/\\/$/, '') + path, graph_url: `https://graph.facebook.com${path}`, headers: {Authorization: `Bearer ${token}`, 'Content-Type': 'application/json'}, body: {messaging_product: 'whatsapp', recipient_type: 'individual', to: $json.external_actor_id, type: 'text', text: {body: $json.response_text}}}}}];"},
+      "parameters": {"mode": "runOnceForAllItems", "jsCode": "if ($json.skip_outbound) return [{json: $json}];\nconst capture = $env.META_OUTBOUND_CAPTURE_URL;\nconst graphBase = $env.META_GRAPH_BASE_URL || 'https://graph.facebook.com';\nconst token = $env.META_ACCESS_TOKEN;\nconst base = capture || graphBase;\nif (!base || !token) return [{json: {...$json, skip_outbound: true}}];\nconst path = `/v25.0/${$json.phone_number_id}/messages`;\nreturn [{json: {...$json, meta_request: {method: 'POST', url: base.replace(/\\/$/, '') + path, graph_url: `https://graph.facebook.com${path}`, headers: {Authorization: `Bearer ${token}`, 'Content-Type': 'application/json'}, body: {messaging_product: 'whatsapp', recipient_type: 'individual', to: $json.external_actor_id, type: 'text', text: {body: $json.response_text}}}}}];"},
       "id": "gate07-wf04-outbound-build",
       "name": "Build Intercepted Meta Outbound",
       "type": "n8n-nodes-base.code",
@@ -81,7 +81,7 @@
       "position": [1820, 0]
     },
     {
-      "parameters": {"conditions": {"options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2}, "conditions": [{"leftValue": "={{$json.skip_outbound}}", "rightValue": "true", "operator": {"type": "boolean", "operation": "false"}}], "combinator": "and"}},
+      "parameters": {"conditions": {"options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2}, "conditions": [{"leftValue": "={{$json.skip_outbound}}", "rightValue": true, "operator": {"type": "boolean", "operation": "false"}}], "combinator": "and"}},
       "id": "gate07-wf04-send-if",
       "name": "Outbound Needed?",
       "type": "n8n-nodes-base.if",
@@ -140,5 +140,3 @@
   "meta": {"templateCredsSetupCompleted": true},
   "tags": []
 }
-
-
