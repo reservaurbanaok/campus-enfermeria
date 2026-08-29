@@ -1,5 +1,21 @@
 # STATUS
 
+## Gate 11 — Final canonical closure — 2026-08-29
+
+`OMEGA_GATE_11_FINAL_CLOSURE = PASS` and `GATE_11 = CLOSED_PASS_FROZEN_CANONICAL`.
+The canonical PROD release is commit
+`5929746e559b80a0b35e29fac328a017ee8c6219` with immutable artifact
+`sha256:3f50502e8db1cf6460f02f1d4dc1c719ce3a0f7ccd537f435943e579ca395961`.
+STAGING candidate: `6269627e-fd49-4061-ab5f-3f2f3e8faf31`. PROD deployment:
+`2958706e-adfa-409e-b903-ecc06952c865` at
+`omega-campus-core-prod-production.up.railway.app`.
+
+The greenfield PROD PostgreSQL received the structure-only canonical
+`public.omega_handoffs` bootstrap from STAGING. The standard `pg` driver,
+handoff persistence/lifecycle, Commercial Intelligence, retention read,
+health and authentication boundaries passed. NETROOM remained untouched;
+Facebook remained out of scope.
+
 `OMEGA_GATE_04 = PASS` para validación local/STAGING del MVP acotado.
 
 No deploy a PROD. No merge a master. NETROOM fuera del alcance.

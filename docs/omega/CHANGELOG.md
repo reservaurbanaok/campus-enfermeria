@@ -1,5 +1,20 @@
 # Changelog canónico
 
+## 2026-08-29 — OMEGA CAMPUS CONCIERGE — GATE 11
+
+- Estado: `CLOSED_PASS_FROZEN_CANONICAL`
+- Release: `5929746e559b80a0b35e29fac328a017ee8c6219`
+- Artifact inmutable: `sha256:3f50502e8db1cf6460f02f1d4dc1c719ce3a0f7ccd537f435943e579ca395961`
+- STAGING candidate: `6269627e-fd49-4061-ab5f-3f2f3e8faf31`
+- PROD deployment: `2958706e-adfa-409e-b903-ecc06952c865`
+- PostgreSQL PROD dedicada: `PASS`
+- Driver estándar `pg`: `PASS`
+- Bootstrap canónico `public.omega_handoffs`: `PASS`
+- PROD smoke y handoff lifecycle: `PASS`
+- NETROOM reads/mutations: `0/0`
+- Facebook: `OUT_OF_SCOPE_BY_OWNER`
+- Freeze: `GATES_00_10 = FROZEN`, `GATE_11 = CLOSED_PASS_FROZEN_CANONICAL`
+
 ## 2026-08-24 — OMEGA CAMPUS CONCIERGE — GATE 04
 
 - Estado: `CLOSED_CANONICAL`
