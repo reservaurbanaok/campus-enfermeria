@@ -1,0 +1,10 @@
+.git/
+.codex/
+.env*
+node_modules/
+tests/
+docs/
+integrations/
+%SystemDrive%/
+**/__pycache__/
+**/*.log

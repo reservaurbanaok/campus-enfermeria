@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const { buildHandoffContext } = require('../../handoff/omega-handoff-context');
 const { createHandoff } = require('../../handoff/omega-handoff-persistence');
 const { createSession, respondToMessage } = require('../../core/omega-concierge-core');
+const { captureCanonicalEvents } = require('./commercial-event-store');
 
 const MAX_SKEW_SECONDS = 300;
 const MAX_BODY_BYTES = 64 * 1024;
@@ -87,6 +88,13 @@ function createIngressHandler(options = {}) {
     }
     const session = createSession({ conversation_id: conversationId(payload.external_actor_id), started: true });
     const result = respondToMessage(session, payload.text, { channel: 'whatsapp', channel_conversation_reference: hash(payload.external_actor_id).slice(0, 32), adapter_metadata: { provider: 'meta_cloud_api' }, handoff_id: `handoff-${idempotencyKey}` });
+    captureCanonicalEvents(result.events, {
+      channel: 'whatsapp',
+      conversation_id: session.conversation_id,
+      correlation_id: payload.correlation_id,
+      person_or_anonymous_id: `sha256:${hash(payload.external_actor_id)}`,
+      source: 'omega_channel_ingress',
+    });
     let handoff = null;
     if (result.handoff_input) {
       const context = buildHandoffContext({ ...result.handoff_input, channel: 'whatsapp', channel_conversation_reference: hash(payload.external_actor_id).slice(0, 32), adapter_metadata: { provider: 'meta_cloud_api' }, excluded_data_domains: ['NETROOM_PRIVATE'] }, result.handoff_decision, { handoff_id: result.handoff_id });
