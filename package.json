@@ -4,6 +4,6 @@
     "start": "node staging/campus-core-server.js"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.0.2"
+    "pg": "^8.16.3"
   }
 }
