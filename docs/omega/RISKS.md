@@ -125,6 +125,18 @@
 - La fuente es remota y cacheada por cinco minutos; los datos comerciales se
   consideran vigentes sólo dentro de la evidencia recuperada en runtime.
 
+## Instagram dispatch forensic repair — 2026-08-31
+
+- El sender Instagram tenía un límite local de 500 caracteres, incompatible
+  con algunas respuestas AGENT verificadas del catálogo; el rechazo ocurría
+  antes de credencial y Meta, y el ingress devolvía HTTP 200 sin explicitarlo.
+- El límite del sender quedó en 1000 y el replay local interceptado confirma
+  que una respuesta equivalente alcanza credencial y serialización. La prueba
+  real posterior sigue siendo necesaria para cerrar E2E; no se generó otro
+  canary en este movimiento.
+- La nueva observabilidad registra sólo metadata técnica y razones de salida;
+  no registra texto completo, token, secretos ni headers de credenciales.
+
 ## Gate 08 — Instagram durable token lifecycle — 2026-08-31
 
 - `expires_at` histórico no es una prueba de validez: la respuesta viva de

@@ -162,6 +162,19 @@ Commit: `41efbce73f0f0a32c12c7b6d1a4bfb220d3cd182`.
 Deployment: `d59fc301-2dac-4451-b906-b30ef7901a87`.
 Validation: 7 catalog items, Explore Options 5/5, and regressions PASS.
 
+## 2026-08-31 — Instagram dispatch forensic repair
+
+El canary real alcanzó `outbound_intent_created=true`, pero el sender no dejó
+registro outbound ni egress Meta. Un replay sanitizado equivalente confirmó el
+early exit `TEXT_LENGTH_OVER_LIMIT` / `invalid_instagram_text`: el sender
+reutilizaba un máximo local de 500 caracteres para respuestas AGENT mayores.
+Se agregó trace sanitizado y se elevó sólo el máximo del sender Instagram a
+1000. El replay con Meta interceptado pasa invocación, credencial y
+serialización; no hubo nuevo canary ni mutaciones Meta.
+
+Próximo paso exacto: desplegar esta reparación sólo a STAGING y ejecutar el
+replay interceptado; después autorizar un único canary real para cierre E2E.
+
 ## 2026-08-31 — Instagram durable token lifecycle repair
 
 La causa confirmada fue metadata local de expiración stale frente a una

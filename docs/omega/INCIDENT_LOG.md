@@ -189,3 +189,17 @@
 - Validation: lifecycle tests 11/11 PASS; no Meta, channel, WhatsApp, NETROOM
   or PROD mutation; no new Instagram canary sent. STAGING release validation
   and Owner OAuth reauthorization remain the next boundary.
+
+## 2026-08-31 — Instagram dispatch early exit
+
+- Symptom: the final real Instagram webhook completed the semantic agent and
+  returned HTTP 200, but no visible reply, `instagram_send_attempt`, or Meta
+  outbound status existed.
+- Confirmed boundary: `instagram_dispatch` before Meta Send API. A sanitized
+  replay with the same response contract showed `response_text_present=true`,
+  `should_send=true`, recipient present, and preflight exit
+  `TEXT_LENGTH_OVER_LIMIT` / `invalid_instagram_text` before credential
+  resolution and fetch.
+- Minimal fix: raise only the Instagram sender local text ceiling from 500 to
+  1000 characters and add sanitized dispatch lifecycle logs. Replay with Meta
+  intercepted passes; no real message was sent during repair.

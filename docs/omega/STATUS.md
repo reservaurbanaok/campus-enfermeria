@@ -358,6 +358,19 @@ se imprimen ni se exponen.
 El despliegue STAGING y la reautorización OAuth del Owner quedan pendientes de
 la validación de release; no se envió canary Instagram.
 
+## Instagram dispatch forensic repair — 2026-08-31
+
+La traza del canary final confirmó inbound, normalización, agente, Admissions,
+fuente oficial y grounding. El primer límite fallido fue el preflight local de
+Instagram outbound: el texto semántico estaba presente y debía enviarse, pero
+el sender rechazaba respuestas de más de 500 caracteres antes de resolver la
+credencial o llamar a Meta (`invalid_instagram_text`).
+
+Se agregó observabilidad sanitizada de decisión, presencia/longitud, receptor,
+resolución de credencial, invocación y salida. El cambio mínimo elevó sólo el
+techo del sender Instagram a 1000 caracteres. Replay interceptado: dispatch,
+credencial, serialización y sender PASS; no se envió tráfico Meta real.
+
 ## Gate 10 — onboarding + netroom_ready — 2026-08-28
 
 Se instrumentaron los dos siguientes eventos de lifecycle en el receptor

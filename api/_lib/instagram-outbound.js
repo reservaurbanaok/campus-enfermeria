@@ -1,9 +1,11 @@
 'use strict';
 
+const crypto = require('crypto');
+
 const DEFAULT_GRAPH_BASE = 'https://graph.instagram.com';
 const DEFAULT_GRAPH_VERSION = 'v25.0';
 const EXPECTED_IG_USER_ID = '17841433759878333';
-const MAX_TEXT_LENGTH = 500;
+const MAX_TEXT_LENGTH = 1000;
 const DEFAULT_TIMEOUT_MS = 10000;
 
 function safeString(value, maxLength = 240) {
@@ -13,6 +15,10 @@ function safeString(value, maxLength = 240) {
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, maxLength);
+}
+
+function dispatchRef(value) {
+  return crypto.createHash('sha256').update(String(value || '')).digest('hex').slice(0, 16);
 }
 
 function headerValue(headers, name) {
@@ -50,15 +56,19 @@ function createInstagramOutboundSender(options = {}) {
 
   return async function sendInstagramText(intent) {
     const correlationId = safeString(intent?.correlation_id, 120);
+    const ref = dispatchRef(correlationId);
     const businessUserId = String(intent?.ig_business_user_id || '').trim();
     const recipientId = String(intent?.recipient_id || '').trim();
     const messageText = String(intent?.text || '').trim();
-    if (intent?.channel !== 'instagram' || intent?.provider !== 'meta_instagram' || intent?.operation !== 'send_text') throw new Error('invalid_instagram_outbound_intent');
-    if (businessUserId !== expectedUserId || !/^\d+$/.test(businessUserId)) throw new Error('unexpected_instagram_business_user_id');
-    if (!/^\d+$/.test(recipientId) || recipientId === expectedUserId) throw new Error('invalid_instagram_recipient_id');
-    if (!messageText || messageText.length > MAX_TEXT_LENGTH) throw new Error('invalid_instagram_text');
+    console.log(JSON.stringify({ event: 'instagram_dispatch_entered', dispatch_ref: ref, channel_context: intent?.channel || null, response_text_present: Boolean(messageText), response_text_length: messageText.length, recipient_present: Boolean(recipientId) }));
+    if (intent?.channel !== 'instagram' || intent?.provider !== 'meta_instagram' || intent?.operation !== 'send_text') { console.log(JSON.stringify({ event: 'instagram_dispatch_exit_reason', dispatch_ref: ref, reason: 'RESPONSE_SHAPE_MISMATCH' })); throw new Error('invalid_instagram_outbound_intent'); }
+    if (businessUserId !== expectedUserId || !/^\d+$/.test(businessUserId)) { console.log(JSON.stringify({ event: 'instagram_dispatch_exit_reason', dispatch_ref: ref, reason: 'BUSINESS_ID_MISMATCH' })); throw new Error('unexpected_instagram_business_user_id'); }
+    if (!/^\d+$/.test(recipientId) || recipientId === expectedUserId) { console.log(JSON.stringify({ event: 'instagram_dispatch_exit_reason', dispatch_ref: ref, reason: 'RECIPIENT_MISSING_OR_INVALID' })); throw new Error('invalid_instagram_recipient_id'); }
+    if (!messageText || messageText.length > MAX_TEXT_LENGTH) { console.log(JSON.stringify({ event: 'instagram_dispatch_exit_reason', dispatch_ref: ref, reason: !messageText ? 'NO_TEXT' : 'TEXT_LENGTH_OVER_LIMIT' })); throw new Error('invalid_instagram_text'); }
     const token = String(await resolveAccessToken() || '').trim();
-    if (!token) throw new Error('instagram_outbound_token_unavailable');
+    console.log(JSON.stringify({ event: 'instagram_dispatch_credential_resolution', dispatch_ref: ref, credential_available: Boolean(token) }));
+    if (!token) { console.log(JSON.stringify({ event: 'instagram_dispatch_exit_reason', dispatch_ref: ref, reason: 'CREDENTIAL_UNAVAILABLE' })); throw new Error('instagram_outbound_token_unavailable'); }
+    console.log(JSON.stringify({ event: 'instagram_dispatch_sender_invoked', dispatch_ref: ref, sender_present: true }));
 
     const url = `${graphBase}/${graphVersion}/${encodeURIComponent(businessUserId)}/messages`;
     const startedAt = now();
@@ -92,10 +102,12 @@ function createInstagramOutboundSender(options = {}) {
         ...base,
       };
       console.log(JSON.stringify({ event: 'instagram_send_attempt', ...result }));
+      console.log(JSON.stringify({ event: 'instagram_dispatch_exit_reason', dispatch_ref: ref, reason: 'META_SEND_ACCEPTED' }));
       return result;
     } catch (error) {
       if (error?.outbound) {
         console.error(JSON.stringify({ event: 'instagram_send_failed', ...error.outbound }));
+        console.log(JSON.stringify({ event: 'instagram_dispatch_exit_reason', dispatch_ref: ref, reason: 'META_SEND_REJECTED' }));
         throw error;
       }
       const timedOut = error?.name === 'AbortError';
@@ -112,6 +124,7 @@ function createInstagramOutboundSender(options = {}) {
         latency_ms: Math.max(0, now() - startedAt),
       };
       console.error(JSON.stringify({ event: 'instagram_send_failed', ...normalizedError }));
+      console.log(JSON.stringify({ event: 'instagram_dispatch_exit_reason', dispatch_ref: ref, reason: timedOut ? 'META_SEND_TIMEOUT' : 'META_SEND_NETWORK_ERROR' }));
       const wrapped = new Error(timedOut ? 'instagram_send_timeout' : 'instagram_send_network_error');
       wrapped.outbound = normalizedError;
       throw wrapped;

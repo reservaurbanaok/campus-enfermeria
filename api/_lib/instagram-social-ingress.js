@@ -313,9 +313,26 @@ function createInstagramIngressHandler(options = {}) {
       }
       const response = canonicalResponse(message, coreResult, handoff);
       const intent = outboundIntent(response, event.instagram_user_id);
+      const dispatchRef = hash(message.correlation_id).slice(0, 16);
+      console.log(JSON.stringify({
+        event: 'instagram_dispatch_entered',
+        dispatch_ref: dispatchRef,
+        response_type: response.response_type || null,
+        response_text_present: typeof response.text === 'string' && Boolean(response.text.trim()),
+        response_text_length: typeof response.text === 'string' ? response.text.length : 0,
+        recipient_present: Boolean(response.destination?.external_id),
+        channel_context: response.channel || null,
+        handoff_state: response.handoff_state || 'none',
+      }));
+      console.log(JSON.stringify({
+        event: 'instagram_dispatch_should_send',
+        dispatch_ref: dispatchRef,
+        should_send: Boolean(intent),
+        decision: intent ? 'SEND' : 'NO_REPLY',
+      }));
       console.log(JSON.stringify({
         event: 'instagram_pipeline_pass',
-        correlation_ref: hash(message.correlation_id).slice(0, 16),
+        correlation_ref: dispatchRef,
         sender_ref: hash(message.sender.external_id).slice(0, 16),
         instagram_user_id: event.instagram_user_id,
         meta_webhook_received: true,
@@ -333,15 +350,20 @@ function createInstagramIngressHandler(options = {}) {
       const item = { accepted: true, classified: 'message', core_routed: true, response, outbound_intent: intent, outbound_result: null, deduplicated: false, trace: trace(message, response) };
       replay.set(key, { digest, response, output: item });
       if (intent && sendOutbound) {
+        console.log(JSON.stringify({ event: 'instagram_dispatch_sender_invoked', dispatch_ref: dispatchRef, sender_present: true }));
         try {
           item.outbound_result = await sendOutbound(intent);
+          console.log(JSON.stringify({ event: 'instagram_dispatch_exit_reason', dispatch_ref: dispatchRef, reason: item.outbound_result?.success === true ? 'SENDER_SUCCESS' : 'SENDER_RESULT_FAILURE' }));
         } catch (error) {
           item.outbound_result = error?.outbound || {
             success: false,
             error_code: 'instagram_outbound_failed',
             correlation_id: message.correlation_id,
           };
+          console.log(JSON.stringify({ event: 'instagram_dispatch_exit_reason', dispatch_ref: dispatchRef, reason: item.outbound_result.error_code || error?.message || 'SENDER_ERROR' }));
         }
+      } else {
+        console.log(JSON.stringify({ event: 'instagram_dispatch_exit_reason', dispatch_ref: dispatchRef, reason: intent ? 'SENDER_NOT_CONFIGURED' : 'SHOULD_RESPOND_FALSE' }));
       }
       output.push(item);
     }
