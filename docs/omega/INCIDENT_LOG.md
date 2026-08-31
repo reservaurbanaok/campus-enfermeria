@@ -1,5 +1,22 @@
 # Gate 08 incident log
 
+## 2026-08-31 — Gate 08 Instagram final canonical closure
+
+- Estado final: `CLOSED_PASS_FROZEN_CANONICAL`; regresión: `RESOLVED`.
+- Evidencia real: webhook, identity normalization, semantic agent,
+  `OMEGA_ADMISSIONS`, fuente oficial, grounding, preflight, credencial, sender
+  y Meta Send API PASS; HTTP `200` y `message_id` presente.
+- Causa corregida: el sender local rechazaba respuestas AGENT mayores de 500
+  caracteres (`TEXT_LENGTH_OVER_LIMIT`) antes de credencial/Meta.
+- Reparación mínima: techo local `1000` caracteres y observabilidad técnica
+  sanitizada. No se registran textos completos, tokens, secretos ni headers.
+- Ciclo vigente: token LONG_LIVED con persistencia cifrada, validación viva,
+  restore en startup y refresh automático según umbral de 10 días después de
+  24 h; mantenimiento cada 24 h.
+- Commit de cierre: `bbd3fa3ca035a0b81a2c2fe0d40a7d682e47195b`; rollback al padre
+  `479df646649351d9476d5c3c1cebaa3f4cc2c948`.
+- Mutaciones Meta, Instagram config, WhatsApp, NETROOM y PROD: `0`.
+
 ## 2026-08-28 — real Instagram canary webhook boundary
 
 - Scope: STAGING Instagram only. PROD, NETROOM, WhatsApp and WF04 unchanged.

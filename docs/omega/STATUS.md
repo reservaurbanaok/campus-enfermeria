@@ -1,5 +1,33 @@
 # STATUS
 
+## Gate 08 Instagram — final canonical closure — 2026-08-31
+
+Estado autoritativo vigente: `OMEGA_GATE_08_INSTAGRAM = CLOSED_PASS_FROZEN_CANONICAL`.
+La evidencia E2E real confirmó inbound, normalización, agente semántico,
+`OMEGA_ADMISSIONS`, fuente oficial, grounding, preflight de texto, credencial,
+sender Instagram y Meta Send API (`HTTP 200`, `message_id` presente).
+
+Cuenta canónica: `@campus.enfermeria` (`17841433759878333`). OAuth App:
+`4296194637360399`. El ciclo de credencial es
+`DURABLE_AUTO_REFRESH`: short-lived → intercambio LONG_LIVED → persistencia
+cifrada → validación viva → restore en startup → refresh con `<=10` días
+restantes. El mantenimiento periódico permanece activo cada 24 h y un restart
+ordinario no requiere OAuth del Owner.
+
+Historial de reparación: se corrigió el límite local del sender Instagram de
+500 a 1000 caracteres después de confirmar `TEXT_LENGTH_OVER_LIMIT`; se agregó
+observabilidad sanitizada de dispatch. La traza final produjo una respuesta de
+662 caracteres y Meta aceptó el envío.
+
+Commit verificado: `bbd3fa3ca035a0b81a2c2fe0d40a7d682e47195b`.
+Rollback: `479df646649351d9476d5c3c1cebaa3f4cc2c948` como commit padre y
+referencia de recuperación. No se modifican Meta, WhatsApp, Instagram config,
+OAuth, n8n, NETROOM ni PROD.
+
+`OMEGA_INSTAGRAM_REGRESSION = RESOLVED`.
+`FULL_OMEGA_AGENT_INSTAGRAM_ACTIVE = YES`.
+`SECOND_OAUTH_REQUIRED = NO`.
+
 ## Gate 11 — Final canonical closure — 2026-08-29
 
 `OMEGA_GATE_11_FINAL_CLOSURE = PASS` and `GATE_11 = CLOSED_PASS_FROZEN_CANONICAL`.

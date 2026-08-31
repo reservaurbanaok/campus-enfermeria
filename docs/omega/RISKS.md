@@ -118,6 +118,21 @@
 - El evaluador excluye términos genéricos como `salud` para evitar matches
   comerciales amplios; si persisten fits iguales, devuelve `HUMAN_REVIEW`.
 
+## Gate 08 Instagram — final canonical freeze — 2026-08-31
+
+- `CLOSED_PASS_FROZEN_CANONICAL` se basa en una traza real completa: Meta
+  inbound, agente semántico, Admissions, fuente oficial, grounding y outbound
+  aceptado por Meta con HTTP 200.
+- El sender conserva el límite local de 1000 caracteres; cualquier cambio
+  futuro requiere una regresión específica y no debe aumentarse a ciegas ante
+  un rechazo de Meta.
+- El credential record cifrado y su metadata de expiración permanecen fuera de
+  logs. El restore en startup y el mantenimiento de 24 h son guardas
+  obligatorias. Un restart ordinario no requiere OAuth.
+- Reapertura sólo ante evidencia nueva de regresión; no se realizan cambios en
+  Meta, WhatsApp, Instagram configuration, n8n, NETROOM o PROD como parte de
+  este cierre.
+
 ## Semantic quality patch — Explore Options — 2026-08-31
 
 - La extracción depende de la estructura pública `.curso-card-title`; si el

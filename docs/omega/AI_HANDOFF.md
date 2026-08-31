@@ -162,6 +162,23 @@ Commit: `41efbce73f0f0a32c12c7b6d1a4bfb220d3cd182`.
 Deployment: `d59fc301-2dac-4451-b906-b30ef7901a87`.
 Validation: 7 catalog items, Explore Options 5/5, and regressions PASS.
 
+## 2026-08-31 — Instagram Gate 08 final canonical closure
+
+Gate 08 Instagram queda `CLOSED_PASS_FROZEN_CANONICAL`. La única traza real
+posterior al fix recorrió inbound, identidad, agente semántico, Admissions,
+fuente oficial, grounding, preflight de 662 caracteres, credencial, sender y
+Meta Send API; Meta respondió HTTP 200 con `message_id`.
+
+La configuración canónica queda congelada para `@campus.enfermeria`, User ID
+`17841433759878333`, OAuth App `4296194637360399`. El token es LONG_LIVED y el
+ciclo es `DURABLE_AUTO_REFRESH`, con restore en startup y mantenimiento cada
+24 h; no se requiere segundo OAuth en reinicios ordinarios.
+
+El commit de cierre es `bbd3fa3ca035a0b81a2c2fe0d40a7d682e47195b`; su padre
+`479df646649351d9476d5c3c1cebaa3f4cc2c948` queda como rollback. No se hicieron
+mutaciones Meta, Instagram config, WhatsApp, NETROOM ni PROD. No enviar otro
+canary.
+
 ## 2026-08-31 — Instagram dispatch forensic repair
 
 El canary real alcanzó `outbound_intent_created=true`, pero el sender no dejó

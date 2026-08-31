@@ -1,5 +1,21 @@
 # Changelog canónico
 
+## 2026-08-31 — Gate 08 Instagram final canonical closure
+
+- Estado: `CLOSED_PASS_FROZEN_CANONICAL`
+- Cuenta: `@campus.enfermeria` / User ID `17841433759878333`
+- OAuth App: `4296194637360399`
+- E2E real: inbound, agente, Admissions, fuente oficial, grounding, outbound y
+  Meta Send API PASS; HTTP `200` y `message_id` presente
+- Ciclo de credencial: `DURABLE_AUTO_REFRESH`, LONG_LIVED, restore startup y
+  mantenimiento periódico cada 24 h
+- Reparación final: límite local del sender `500 → 1000` caracteres; trazas de
+  dispatch sanitizadas; respuesta verificada de 662 caracteres
+- Commit: `bbd3fa3ca035a0b81a2c2fe0d40a7d682e47195b`
+- Rollback: commit padre `479df646649351d9476d5c3c1cebaa3f4cc2c948`
+- Mutaciones Meta/Instagram/WhatsApp/NETROOM/PROD: `0`
+- Sin segundo canary y sin segundo OAuth
+
 ## 2026-08-29 — OMEGA CAMPUS CONCIERGE — GATE 11
 
 - Estado: `CLOSED_PASS_FROZEN_CANONICAL`
