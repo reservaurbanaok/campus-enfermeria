@@ -335,6 +335,29 @@ without NETROOM reads or mutations.
 `NETROOM_MUTATIONS = 0`.
 `PROD_MUTATIONS = 0`.
 
+## Gate 08 — Instagram durable token lifecycle repair — 2026-08-31
+
+La regresión se aisló en la credencial outbound: el ciphertext existente se
+descifraba, pero la validación viva de Meta devolvía OAuthException 190 aunque
+`expires_at` local todavía pareciera vigente. El callback ahora intercambia el
+short-lived token por un token LONG_LIVED usando el endpoint oficial y persiste
+el `expires_in` real de Meta, junto con `issued_at`, `expires_at` y
+`last_validated_at`.
+
+El arranque valida `/me` en vivo antes de habilitar la sesión. Después de 24 h,
+un token con 10 días o menos intenta `refresh_access_token`; el reemplazo se
+valida antes de persistirse y el registro anterior queda preservado ante un
+fallo. El mismo proceso ejecuta mantenimiento cada 24 h. Las credenciales no
+se imprimen ni se exponen.
+
+`DURABLE_TOKEN_LIFECYCLE = PASS` en pruebas sintéticas 11/11.
+`META_MUTATIONS = 0`.
+`WHATSAPP_MUTATIONS = 0`.
+`NETROOM_MUTATIONS = 0`.
+`PROD_MUTATIONS = 0`.
+El despliegue STAGING y la reautorización OAuth del Owner quedan pendientes de
+la validación de release; no se envió canary Instagram.
+
 ## Gate 10 — onboarding + netroom_ready — 2026-08-28
 
 Se instrumentaron los dos siguientes eventos de lifecycle en el receptor

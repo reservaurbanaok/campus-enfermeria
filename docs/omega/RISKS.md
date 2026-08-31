@@ -124,3 +124,17 @@
   sitio cambia esa estructura, el guard debe degradar a `INSUFFICIENT`.
 - La fuente es remota y cacheada por cinco minutos; los datos comerciales se
   consideran vigentes sólo dentro de la evidencia recuperada en runtime.
+
+## Gate 08 — Instagram durable token lifecycle — 2026-08-31
+
+- `expires_at` histórico no es una prueba de validez: la respuesta viva de
+  Meta es autoritativa y una OAuthException 190 deja la credencial como
+  `INVALID_REAUTH_REQUIRED`, preservando la fila cifrada para rollback.
+- El refresh sólo aplica a credenciales `LONG_LIVED` con edad de al menos 24 h
+  y 10 días o menos restantes. Un fallo de refresh conserva el credential
+  record anterior y no genera tráfico outbound adicional.
+- La nueva fila agrega metadata de ciclo de vida; las filas legacy quedan sin
+  refresh automático hasta una nueva autorización OAuth válida.
+- El maintenance timer vive en el proceso STAGING y es best-effort; un reinicio
+  vuelve a ejecutar la validación viva en el arranque. PROD, Meta, WhatsApp,
+  n8n y NETROOM permanecen fuera de alcance.

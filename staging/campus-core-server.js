@@ -67,6 +67,7 @@ const server = http.createServer((req, res) => {
 
 async function start() {
   await instagramOAuthHandler.restoreCredentialOnBoot();
+  instagramOAuthHandler.startCredentialMaintenance();
   server.listen(port, '0.0.0.0');
 }
 

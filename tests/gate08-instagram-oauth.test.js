@@ -46,6 +46,11 @@ async function run() {
       status: 200,
       async json() { return { access_token: TOKEN, user_id: USER_ID, expires_in: 5184000 }; },
     };
+    if (url.startsWith('https://graph.instagram.com/access_token?')) return {
+      ok: true,
+      status: 200,
+      async json() { return { access_token: TOKEN, token_type: 'bearer', expires_in: 5184000 }; },
+    };
     if (url.includes('/me?')) return {
       ok: true,
       status: 200,
@@ -101,6 +106,10 @@ async function run() {
   assert.equal(storedCredential.token_ciphertext.includes(TOKEN), false);
   assert.equal(storedCredential.token_iv.length > 0, true);
   assert.equal(storedCredential.token_auth_tag.length > 0, true);
+  assert.equal(storedCredential.token_kind, 'LONG_LIVED');
+  assert.equal(storedCredential.expires_in, 5184000);
+  assert.equal(storedCredential.issued_at, new Date(currentTime).toISOString());
+  assert.equal(storedCredential.last_validated_at, new Date(currentTime).toISOString());
   assert.equal(calls.filter((call) => call.authorization === `Bearer ${TOKEN}`).length, 2);
   assert.equal(callbackRes.headers['Set-Cookie'].length, 1);
   assert.match(callbackRes.headers['Set-Cookie'][0], /omega_gate08_ig_oauth_session=/);
@@ -186,6 +195,11 @@ async function run() {
       ok: true,
       status: 200,
       async json() { return { access_token: TOKEN, user_id: USER_ID, expires_in: 5184000 }; },
+    };
+    if (url.startsWith('https://graph.instagram.com/access_token?')) return {
+      ok: true,
+      status: 200,
+      async json() { return { access_token: TOKEN, token_type: 'bearer', expires_in: 5184000 }; },
     };
     if (url.includes('/me?')) return {
       ok: true,

@@ -161,3 +161,18 @@ expands catalog-intent matching, and removes only unbalanced WhatsApp markers.
 Commit: `41efbce73f0f0a32c12c7b6d1a4bfb220d3cd182`.
 Deployment: `d59fc301-2dac-4451-b906-b30ef7901a87`.
 Validation: 7 catalog items, Explore Options 5/5, and regressions PASS.
+
+## 2026-08-31 — Instagram durable token lifecycle repair
+
+La causa confirmada fue metadata local de expiración stale frente a una
+credencial Instagram efectivamente expirada (`OAuthException 190`). Se agregó
+al Gate 08 existente el intercambio server-side a LONG_LIVED, persistencia
+encrypted con `issued_at`/`expires_in`/`expires_at`/`last_validated_at`,
+validación viva de `/me`, refresh a <=10 días después de 24 h y mantenimiento
+24 h dentro de `staging/campus-core-server.js`.
+
+Tests de ciclo de vida: 11/11 PASS. El callback usa el token LONG_LIVED para
+validar identidad y suscripción; no se expone ningún secreto. Próximo paso
+exacto: ejecutar la validación de release STAGING y generar la única URL OAuth
+canónica para reautorizar `campus.enfermeria`; no enviar canary hasta que el
+Owner complete OAuth y la máquina quede READY.

@@ -173,3 +173,19 @@
 - Evidence: 7 catalog items; STAGING deployment
   `d59fc301-2dac-4451-b906-b30ef7901a87`; Explore Options 5/5 and regressions
   PASS. No channel, Meta, NETROOM or PROD mutation.
+
+## 2026-08-31 — Instagram outbound credential lifecycle regression
+
+- Symptom: inbound, identity normalization and OMEGA Core passed, but the
+  outbound credential was unavailable after a real Instagram event.
+- Evidence: encrypted record decrypted, local expiry metadata looked valid,
+  and live profile validation returned HTTP 401 OAuthException 190. The
+  effective persisted app/user/profile context remained canonical.
+- Repair: the existing Gate 08 callback now performs the official short-lived
+  to LONG_LIVED exchange, validates the long-lived token before persistence,
+  records Meta's real expiry metadata, performs live startup validation and
+  refreshes only at the approved threshold. The old encrypted record remains
+  intact until the replacement is validated and written.
+- Validation: lifecycle tests 11/11 PASS; no Meta, channel, WhatsApp, NETROOM
+  or PROD mutation; no new Instagram canary sent. STAGING release validation
+  and Owner OAuth reauthorization remain the next boundary.

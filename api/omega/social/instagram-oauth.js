@@ -15,7 +15,9 @@ const SESSION_COOKIE = 'omega_gate08_ig_oauth_session';
 const STATE_TABLE = 'omega_gate08_instagram_oauth_states';
 const CREDENTIAL_TABLE = 'omega_gate08_instagram_credentials';
 const STATE_MAX_AGE = 600;
-const CREDENTIAL_REFRESH_WINDOW = 7 * 24 * 60 * 60 * 1000;
+const CREDENTIAL_VALIDATION_INTERVAL = 24 * 60 * 60 * 1000;
+const CREDENTIAL_REFRESH_THRESHOLD_DAYS = 10;
+const CREDENTIAL_REFRESH_THRESHOLD_MS = CREDENTIAL_REFRESH_THRESHOLD_DAYS * 24 * 60 * 60 * 1000;
 const MAX_BODY_BYTES = 32 * 1024;
 
 function json(res, status, body) {
@@ -146,9 +148,17 @@ async function ensureCredentialTable(database) {
       scopes TEXT NOT NULL,
       created_at TIMESTAMPTZ NOT NULL,
       updated_at TIMESTAMPTZ NOT NULL,
-      expires_at TIMESTAMPTZ
+      expires_at TIMESTAMPTZ,
+      token_kind TEXT,
+      issued_at TIMESTAMPTZ,
+      expires_in INTEGER,
+      last_validated_at TIMESTAMPTZ
     )
   `);
+  await database.query(`ALTER TABLE ${CREDENTIAL_TABLE} ADD COLUMN IF NOT EXISTS token_kind TEXT`);
+  await database.query(`ALTER TABLE ${CREDENTIAL_TABLE} ADD COLUMN IF NOT EXISTS issued_at TIMESTAMPTZ`);
+  await database.query(`ALTER TABLE ${CREDENTIAL_TABLE} ADD COLUMN IF NOT EXISTS expires_in INTEGER`);
+  await database.query(`ALTER TABLE ${CREDENTIAL_TABLE} ADD COLUMN IF NOT EXISTS last_validated_at TIMESTAMPTZ`);
 }
 
 function setCookie(res, name, value, options = {}) {
@@ -222,6 +232,23 @@ async function exchangeCode(code, cfg, fetchImpl) {
   return data;
 }
 
+async function exchangeLongLivedToken(shortLivedToken, cfg, fetchImpl) {
+  const url = new URL(`${cfg.graphBase}/access_token`);
+  url.searchParams.set('grant_type', 'ig_exchange_token');
+  url.searchParams.set('client_secret', cfg.appSecret);
+  url.searchParams.set('access_token', String(shortLivedToken));
+  const response = await fetchImpl(url, { method: 'GET' });
+  const data = await readJson(response);
+  if (!response.ok || !data?.access_token || !Number.isFinite(Number(data.expires_in)) || Number(data.expires_in) <= 0) {
+    throw new Error('long_lived_token_exchange_failed');
+  }
+  return {
+    access_token: String(data.access_token),
+    token_type: data.token_type || 'bearer',
+    expires_in: Number(data.expires_in),
+  };
+}
+
 async function readProfile(token, cfg, fetchImpl) {
   const url = new URL(`${cfg.graphBase}/${cfg.graphVersion}/me`);
   url.searchParams.set('fields', 'id,user_id,username,account_type');
@@ -285,6 +312,8 @@ function createInstagramOAuthHandler(options = {}) {
   let databasePromise;
   let stateTablePromise;
   let credentialTablePromise;
+  let maintenanceTimer = null;
+  let maintenanceInFlight = false;
 
   function getDatabase() {
     if (options.database) return Promise.resolve(options.database);
@@ -314,10 +343,14 @@ function createInstagramOAuthHandler(options = {}) {
     try { await credentialTablePromise; return true; } catch { return false; }
   }
 
-  async function saveCredential(profile, token, scopes, expiresIn, currentTime) {
+  async function saveCredential(profile, token, scopes, expiresIn, currentTime, metadata = {}) {
     const encrypted = encryptCredential(token, randomBytes);
-    const expiresAt = Number.isFinite(Number(expiresIn)) && Number(expiresIn) > 0
-      ? new Date(currentTime + Number(expiresIn) * 1000).toISOString()
+    const normalizedExpiresIn = Number.isFinite(Number(expiresIn)) && Number(expiresIn) > 0
+      ? Math.floor(Number(expiresIn))
+      : null;
+    const issuedAt = Number.isFinite(Number(metadata.issuedAt)) ? Number(metadata.issuedAt) : currentTime;
+    const expiresAt = normalizedExpiresIn !== null
+      ? new Date(issuedAt + normalizedExpiresIn * 1000).toISOString()
       : null;
     const cfg = config();
     const record = {
@@ -329,9 +362,13 @@ function createInstagramOAuthHandler(options = {}) {
       token_iv: encrypted.iv,
       token_auth_tag: encrypted.authTag,
       scopes: JSON.stringify(scopes),
-      created_at: new Date(currentTime).toISOString(),
+      created_at: metadata.createdAt || new Date(currentTime).toISOString(),
       updated_at: new Date(currentTime).toISOString(),
       expires_at: expiresAt,
+      token_kind: metadata.tokenKind || 'LONG_LIVED',
+      issued_at: new Date(issuedAt).toISOString(),
+      expires_in: normalizedExpiresIn,
+      last_validated_at: new Date(Number.isFinite(Number(metadata.lastValidatedAt)) ? Number(metadata.lastValidatedAt) : currentTime).toISOString(),
     };
     if (credentialStore) {
       credentialStore.set(profile.userId, record);
@@ -341,8 +378,8 @@ function createInstagramOAuthHandler(options = {}) {
     const database = await getDatabase();
     await database.query(`
       INSERT INTO ${CREDENTIAL_TABLE}
-        (instagram_user_id, app_id, parent_app_id, username, token_ciphertext, token_iv, token_auth_tag, scopes, created_at, updated_at, expires_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        (instagram_user_id, app_id, parent_app_id, username, token_ciphertext, token_iv, token_auth_tag, scopes, created_at, updated_at, expires_at, token_kind, issued_at, expires_in, last_validated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       ON CONFLICT (instagram_user_id) DO UPDATE SET
         app_id = EXCLUDED.app_id,
         parent_app_id = EXCLUDED.parent_app_id,
@@ -352,7 +389,11 @@ function createInstagramOAuthHandler(options = {}) {
         token_auth_tag = EXCLUDED.token_auth_tag,
         scopes = EXCLUDED.scopes,
         updated_at = EXCLUDED.updated_at,
-        expires_at = EXCLUDED.expires_at
+        expires_at = EXCLUDED.expires_at,
+        token_kind = EXCLUDED.token_kind,
+        issued_at = EXCLUDED.issued_at,
+        expires_in = EXCLUDED.expires_in,
+        last_validated_at = EXCLUDED.last_validated_at
     `, [
       record.instagram_user_id,
       record.app_id,
@@ -365,8 +406,26 @@ function createInstagramOAuthHandler(options = {}) {
       record.created_at,
       record.updated_at,
       record.expires_at,
+      record.token_kind,
+      record.issued_at,
+      record.expires_in,
+      record.last_validated_at,
     ]);
     return record;
+  }
+
+  async function markValidated(record, currentTime) {
+    const validatedAt = new Date(currentTime).toISOString();
+    if (credentialStore) {
+      credentialStore.set(record.instagram_user_id, { ...record, last_validated_at: validatedAt });
+      return;
+    }
+    if (!await prepareCredentialStorage()) throw new Error('credential_storage_unavailable');
+    const database = await getDatabase();
+    await database.query(
+      `UPDATE ${CREDENTIAL_TABLE} SET last_validated_at = $2, updated_at = $2 WHERE instagram_user_id = $1`,
+      [record.instagram_user_id, validatedAt],
+    );
   }
 
   async function loadCredential(expectedUserId) {
@@ -374,7 +433,7 @@ function createInstagramOAuthHandler(options = {}) {
     if (credentialStore) return credentialStore.get(expectedUserId) || null;
     const database = await getDatabase();
     const result = await database.query(
-      `SELECT instagram_user_id, app_id, parent_app_id, username, token_ciphertext, token_iv, token_auth_tag, scopes, created_at, updated_at, expires_at FROM ${CREDENTIAL_TABLE} WHERE instagram_user_id = $1 LIMIT 1`,
+      `SELECT instagram_user_id, app_id, parent_app_id, username, token_ciphertext, token_iv, token_auth_tag, scopes, created_at, updated_at, expires_at, token_kind, issued_at, expires_in, last_validated_at FROM ${CREDENTIAL_TABLE} WHERE instagram_user_id = $1 LIMIT 1`,
       [expectedUserId],
     );
     return result?.rows?.[0] || null;
@@ -383,6 +442,7 @@ function createInstagramOAuthHandler(options = {}) {
   async function restoreCredentialOnBoot() {
     const cfg = config();
     if (!credentialKey()) return { restored: false, reason: 'credential_encryption_unavailable' };
+    const currentTime = now();
     try {
       const record = await loadCredential(cfg.expectedUserId);
       if (!record) return { restored: false, reason: 'credential_not_stored' };
@@ -392,37 +452,103 @@ function createInstagramOAuthHandler(options = {}) {
       let storedScopes;
       try { storedScopes = JSON.parse(String(record.scopes || '[]')); } catch { throw new Error('credential_scope_metadata_invalid'); }
       if (!Array.isArray(storedScopes) || !REQUIRED_SCOPES.every((scope) => storedScopes.includes(scope))) throw new Error('credential_scope_metadata_invalid');
-      let token = decryptCredential(record);
-      let expiresIn = null;
-      const expiresAtMs = record.expires_at ? Date.parse(record.expires_at) : NaN;
-      if (Number.isFinite(expiresAtMs) && expiresAtMs - now() <= CREDENTIAL_REFRESH_WINDOW) {
+      const originalToken = decryptCredential(record);
+      const issuedAtMs = Date.parse(record.issued_at || record.created_at || '');
+      const expiresAtMs = Date.parse(record.expires_at || '');
+      const ageMs = Number.isFinite(issuedAtMs) ? Math.max(0, currentTime - issuedAtMs) : null;
+      const remainingMs = Number.isFinite(expiresAtMs) ? expiresAtMs - currentTime : null;
+      const tokenKind = String(record.token_kind || 'LEGACY');
+      const daysRemaining = remainingMs === null ? null : Math.floor(remainingMs / (24 * 60 * 60 * 1000));
+      const refreshEligible = tokenKind === 'LONG_LIVED'
+        && ageMs !== null
+        && ageMs >= CREDENTIAL_VALIDATION_INTERVAL
+        && remainingMs !== null
+        && remainingMs >= 0
+        && remainingMs <= CREDENTIAL_REFRESH_THRESHOLD_MS;
+      let token = originalToken;
+      let expiresIn = Number.isFinite(Number(record.expires_in)) ? Number(record.expires_in) : null;
+      let issuedAt = issuedAtMs;
+      let refreshAttempted = false;
+      let refreshResult = 'NOT_ELIGIBLE';
+      const lifecycle = {
+        instagram_token_kind: tokenKind,
+        instagram_token_valid: false,
+        instagram_token_issued_at: Number.isFinite(issuedAtMs) ? new Date(issuedAtMs).toISOString() : null,
+        instagram_token_expires_at: Number.isFinite(expiresAtMs) ? new Date(expiresAtMs).toISOString() : null,
+        instagram_token_days_remaining: daysRemaining,
+        instagram_token_last_validated_at: record.last_validated_at || null,
+        instagram_token_refresh_eligible: refreshEligible,
+        instagram_token_refresh_attempted: false,
+        instagram_token_refresh_result: refreshResult,
+      };
+      const profile = await readProfile(token, cfg, fetchImpl);
+      lifecycle.instagram_token_valid = true;
+      if (refreshEligible) {
+        refreshAttempted = true;
+        lifecycle.instagram_token_refresh_attempted = true;
         try {
           const refreshed = await refreshAccessToken(token, cfg, fetchImpl);
           token = String(refreshed.access_token);
-          expiresIn = refreshed.expires_in;
+          expiresIn = Number(refreshed.expires_in);
+          issuedAt = currentTime;
+          refreshResult = 'PASS';
+          lifecycle.instagram_token_refresh_result = refreshResult;
+          lifecycle.instagram_token_kind = 'LONG_LIVED';
+          lifecycle.instagram_token_issued_at = new Date(issuedAt).toISOString();
+          lifecycle.instagram_token_expires_at = new Date(currentTime + expiresIn * 1000).toISOString();
+          lifecycle.instagram_token_days_remaining = Math.floor(expiresIn / (24 * 60 * 60));
+          lifecycle.instagram_token_last_validated_at = new Date(currentTime).toISOString();
+          const refreshedProfile = await readProfile(token, cfg, fetchImpl);
+          if (refreshedProfile.userId !== profile.userId || refreshedProfile.username !== profile.username) throw new Error('unexpected_instagram_account');
         } catch (error) {
-          if (expiresAtMs <= now()) throw error;
+          refreshResult = 'FAIL';
+          lifecycle.instagram_token_refresh_result = refreshResult;
+          logEvent('instagram_credential_refresh_failed', { code: error?.message || 'credential_refresh_failed', ...lifecycle });
         }
       }
-      const profile = await readProfile(token, cfg, fetchImpl);
       const subscription = await readSubscription(token, cfg, fetchImpl);
       if (!subscription.messages_account_subscribed) throw new Error('instagram_messages_permission_missing');
-      if (expiresIn !== null) await saveCredential(profile, token, REQUIRED_SCOPES, expiresIn, now());
+      if (refreshAttempted && refreshResult === 'PASS') {
+        await saveCredential(profile, token, REQUIRED_SCOPES, expiresIn, currentTime, {
+          tokenKind: 'LONG_LIVED',
+          issuedAt,
+          createdAt: record.created_at,
+          lastValidatedAt: currentTime,
+        });
+      } else {
+        await markValidated(record, currentTime);
+      }
       const sessionId = `durable:${profile.userId}`;
       sessions.set(sessionId, {
         token,
         profile,
         tokenType: 'Instagram User Access Token',
         scopes: [...REQUIRED_SCOPES],
-        createdAt: Date.parse(record.created_at) || now(),
-        expiresIn: expiresIn === null && Number.isFinite(expiresAtMs) ? Math.max(0, Math.floor((expiresAtMs - now()) / 1000)) : Number(expiresIn) || null,
+        createdAt: Date.parse(record.created_at) || currentTime,
+        expiresIn: expiresIn === null && Number.isFinite(expiresAtMs) ? Math.max(0, Math.floor((expiresAtMs - currentTime) / 1000)) : Number(expiresIn) || null,
       });
-      logEvent('instagram_credential_restored', { instagram_user_id: profile.userId, username: profile.username, messaging_permission: 'PASS' });
+      logEvent('instagram_credential_lifecycle', { ...lifecycle, instagram_token_valid: true, instagram_token_refresh_attempted: refreshAttempted, instagram_token_refresh_result: refreshResult });
+      logEvent('instagram_credential_restored', { instagram_user_id: profile.userId, username: profile.username, messaging_permission: 'PASS', token_kind: lifecycle.instagram_token_kind });
       return { restored: true, username: profile.username, instagram_user_id: profile.userId, messaging_permission: 'PASS' };
     } catch (error) {
-      logEvent('instagram_credential_restore_failed', { code: error?.message || 'credential_restore_failed' });
+      if (error?.message === 'profile_validation_failed' || error?.message === 'unexpected_instagram_account') {
+        sessions.delete(`durable:${cfg.expectedUserId}`);
+        logEvent('instagram_credential_marked_invalid', { status: 'INVALID_REAUTH_REQUIRED', reason: error.message });
+      }
+      logEvent('instagram_credential_restore_failed', { code: error?.message || 'credential_restore_failed', validated_at: new Date(currentTime).toISOString() });
       return { restored: false, reason: error?.message || 'credential_restore_failed' };
     }
+  }
+
+  function startCredentialMaintenance() {
+    if (maintenanceTimer) return true;
+    maintenanceTimer = setInterval(async () => {
+      if (maintenanceInFlight) return;
+      maintenanceInFlight = true;
+      try { await restoreCredentialOnBoot(); } finally { maintenanceInFlight = false; }
+    }, CREDENTIAL_VALIDATION_INTERVAL);
+    if (typeof maintenanceTimer.unref === 'function') maintenanceTimer.unref();
+    return true;
   }
 
   async function saveOAuthState(state, currentTime) {
@@ -497,28 +623,35 @@ function createInstagramOAuthHandler(options = {}) {
       let oauthStage = 'token_exchange';
       try {
         const tokenResponse = await exchangeCode(code, cfg, fetchImpl);
+        oauthStage = 'long_lived_token_exchange';
+        const longLivedToken = await exchangeLongLivedToken(tokenResponse.access_token, cfg, fetchImpl);
         oauthStage = 'identity_validation';
-        const profile = await readProfile(tokenResponse.access_token, cfg, fetchImpl);
+        const profile = await readProfile(longLivedToken.access_token, cfg, fetchImpl);
         oauthStage = 'account_subscription_query';
-        let subscription = await readSubscription(tokenResponse.access_token, cfg, fetchImpl);
+        let subscription = await readSubscription(longLivedToken.access_token, cfg, fetchImpl);
         let minimumSubscriptionFixApplied = false;
         if (!subscription.messages_account_subscribed) {
           oauthStage = 'minimum_subscription_fix';
-          await subscribeMessages(tokenResponse.access_token, cfg, fetchImpl);
+          await subscribeMessages(longLivedToken.access_token, cfg, fetchImpl);
           oauthStage = 'account_subscription_requery';
-          subscription = await readSubscriptionUntilMessages(tokenResponse.access_token, cfg, fetchImpl);
+          subscription = await readSubscriptionUntilMessages(longLivedToken.access_token, cfg, fetchImpl);
           minimumSubscriptionFixApplied = true;
         }
         if (!subscription.messages_account_subscribed) throw new Error('instagram_messages_subscription_missing');
-        await saveCredential(profile, tokenResponse.access_token, REQUIRED_SCOPES, tokenResponse.expires_in, now());
+        const issuedAt = now();
+        await saveCredential(profile, longLivedToken.access_token, REQUIRED_SCOPES, longLivedToken.expires_in, issuedAt, {
+          tokenKind: 'LONG_LIVED',
+          issuedAt,
+          lastValidatedAt: issuedAt,
+        });
         const sessionId = randomBytes(24).toString('base64url');
         sessions.set(sessionId, {
-          token: tokenResponse.access_token,
+          token: longLivedToken.access_token,
           profile,
           tokenType: 'Instagram User Access Token',
           scopes: [...REQUIRED_SCOPES],
-          createdAt: now(),
-          expiresIn: Number.isFinite(Number(tokenResponse.expires_in)) ? Number(tokenResponse.expires_in) : null,
+          createdAt: issuedAt,
+          expiresIn: longLivedToken.expires_in,
         });
         setCookie(res, SESSION_COOKIE, signedValue(sessionId, stateSecret), { maxAge: STATE_MAX_AGE });
         logEvent('instagram_oauth_token_acquired', { app_id: cfg.appId, instagram_user_id: profile.userId, username: profile.username, subscription_query: subscription.query, messages_account_subscribed: subscription.messages_account_subscribed, minimum_subscription_fix_applied: minimumSubscriptionFixApplied });
@@ -539,6 +672,7 @@ function createInstagramOAuthHandler(options = {}) {
         logEvent('instagram_oauth_failed', { stage: oauthStage, failure_code: failureCode });
         const failureStatus = {
           token_exchange: 520,
+          long_lived_token_exchange: 520,
           identity_validation: 521,
           account_subscription_query: 522,
           minimum_subscription_fix: 523,
@@ -582,10 +716,12 @@ function createInstagramOAuthHandler(options = {}) {
     return null;
   };
   handler.restoreCredentialOnBoot = restoreCredentialOnBoot;
+  handler.startCredentialMaintenance = startCredentialMaintenance;
   return handler;
 }
 
 module.exports = createInstagramOAuthHandler();
 module.exports.createInstagramOAuthHandler = createInstagramOAuthHandler;
 module.exports.REQUIRED_SCOPES = REQUIRED_SCOPES;
+module.exports.CREDENTIAL_REFRESH_THRESHOLD_DAYS = CREDENTIAL_REFRESH_THRESHOLD_DAYS;
 module.exports.paths = { START_PATH, CALLBACK_PATH, STATUS_PATH };
