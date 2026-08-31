@@ -3,7 +3,9 @@
 const crypto = require('crypto');
 const { buildHandoffContext } = require('../../handoff/omega-handoff-context');
 const { createHandoff } = require('../../handoff/omega-handoff-persistence');
-const { createSession, respondToMessage } = require('../../core/omega-concierge-core');
+const { createSession } = require('../../core/omega-concierge-core');
+const { resolveConversationalResponse } = require('../../core/omega-conversational-resolver');
+const { defaultRuntimeConversationStateStore } = require('./omega-conversation-state-store');
 const { captureCanonicalEvents } = require('./commercial-event-store');
 
 const MAX_SKEW_SECONDS = 300;
@@ -87,7 +89,16 @@ function createIngressHandler(options = {}) {
       return json(res, 200, { ...existing.response, deduplicated: true });
     }
     const session = createSession({ conversation_id: conversationId(payload.external_actor_id), started: true });
-    const result = respondToMessage(session, payload.text, { channel: 'whatsapp', channel_conversation_reference: hash(payload.external_actor_id).slice(0, 32), adapter_metadata: { provider: 'meta_cloud_api' }, handoff_id: `handoff-${idempotencyKey}` });
+    const result = await resolveConversationalResponse(session, payload.text, {
+      channel: 'whatsapp',
+      external_sender_id: payload.external_actor_id,
+      channel_conversation_reference: hash(payload.external_actor_id).slice(0, 32),
+      adapter_metadata: { provider: 'meta_cloud_api' },
+      handoff_id: `handoff-${idempotencyKey}`,
+      stateStore: options.stateStore || defaultRuntimeConversationStateStore,
+      sourceRetriever: options.sourceRetriever,
+      modelProvider: options.modelProvider,
+    });
     captureCanonicalEvents(result.events, {
       channel: 'whatsapp',
       conversation_id: session.conversation_id,

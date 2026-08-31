@@ -1,7 +1,9 @@
 'use strict';
 
 const crypto = require('crypto');
-const { createSession, respondToMessage } = require('../../core/omega-concierge-core');
+const { createSession } = require('../../core/omega-concierge-core');
+const { resolveConversationalResponse } = require('../../core/omega-conversational-resolver');
+const { defaultRuntimeConversationStateStore } = require('./omega-conversation-state-store');
 const { buildHandoffContext } = require('../../handoff/omega-handoff-context');
 const { captureCanonicalEvents } = require('./commercial-event-store');
 
@@ -202,7 +204,7 @@ function trace(message, response, duplicate = false) {
     normalized_channel: message.channel,
     normalized_message_hash: hash(JSON.stringify(message)),
     normalized_sender_ref: hash(message.sender.external_id).slice(0, 16),
-    core_execution: 'respondToMessage',
+    core_execution: 'resolveConversationalResponse',
     response_contract: response.schema_version,
     outbound_intent: response.response_type === 'no_reply' ? 'none' : 'created',
     duplicate_ignored: duplicate
@@ -274,11 +276,15 @@ function createInstagramIngressHandler(options = {}) {
         continue;
       }
       const session = createSession({ conversation_id: `instagram-${hash(message.sender.external_id).slice(0, 32)}`, started: true });
-      const coreResult = respondToMessage(session, message.message.text, {
+      const coreResult = await resolveConversationalResponse(session, message.message.text, {
         channel: CHANNEL,
+        external_sender_id: message.sender.external_id,
         channel_conversation_reference: hash(message.conversation.external_id).slice(0, 32),
         adapter_metadata: { provider: 'meta_instagram', instagram_user_id: event.instagram_user_id },
-        handoff_id: `handoff-${message.external_message_id}`
+        handoff_id: `handoff-${message.external_message_id}`,
+        stateStore: options.stateStore || defaultRuntimeConversationStateStore,
+        sourceRetriever: options.sourceRetriever,
+        modelProvider: options.modelProvider,
       });
       captureCanonicalEvents(coreResult.events, {
         channel: CHANNEL,
