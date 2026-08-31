@@ -78,3 +78,10 @@ en el header Authorization; la persistencia debe verificarse con GET posterior.
   fuente comercial válida es el catálogo verificado de
   `https://campusprofesionalenfermeria.com/`; la ausencia de objetivo explícito,
   oferta compatible o datos oficiales produce un estado seguro sin recomendación.
+
+## Semantic quality patch — Explore Options — 2026-08-31
+
+Para `EXPLORE_OPTIONS`, `VERIFIED` sólo es válido cuando el contexto contiene
+el catálogo actual solicitado. Se extraen en runtime los elementos
+`.curso-card-title` de la fuente primaria, sin hardcodear la respuesta ni
+modificar los recorridos de curso específico, canales o handoff.

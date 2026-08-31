@@ -117,3 +117,10 @@
   memoria o en datos históricos.
 - El evaluador excluye términos genéricos como `salud` para evitar matches
   comerciales amplios; si persisten fits iguales, devuelve `HUMAN_REVIEW`.
+
+## Semantic quality patch — Explore Options — 2026-08-31
+
+- La extracción depende de la estructura pública `.curso-card-title`; si el
+  sitio cambia esa estructura, el guard debe degradar a `INSUFFICIENT`.
+- La fuente es remota y cacheada por cinco minutos; los datos comerciales se
+  consideran vigentes sólo dentro de la evidencia recuperada en runtime.

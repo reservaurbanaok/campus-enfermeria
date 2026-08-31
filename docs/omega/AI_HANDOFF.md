@@ -150,3 +150,14 @@ La implementación final quedó Online en STAGING en el deployment
 rechazo 401 sin firma en ambos receptores, login/dashboard 200 y lectura
 sanitizada del Event Store: un único `intent_detected`, cero
 `course_completed`, estado real `PROSPECT / NOT_RETENTION_ELIGIBLE`.
+
+## 2026-08-31 — Explore Options semantic quality patch
+
+The first semantic gap was an empty catalog evidence chunk combined with a
+false `VERIFIED` status when `course=null`. The STAGING patch extracts the
+official catalog at runtime, requires relevant evidence for `EXPLORE_OPTIONS`,
+expands catalog-intent matching, and removes only unbalanced WhatsApp markers.
+
+Commit: `41efbce73f0f0a32c12c7b6d1a4bfb220d3cd182`.
+Deployment: `d59fc301-2dac-4451-b906-b30ef7901a87`.
+Validation: 7 catalog items, Explore Options 5/5, and regressions PASS.

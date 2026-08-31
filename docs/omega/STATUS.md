@@ -217,6 +217,19 @@ historical event reconstruction.
 `INSTAGRAM_MUTATIONS = 0`.
 `HANDOFF_MUTATIONS = 0`.
 `PROD_MUTATIONS = 0`.
+
+## Semantic quality patch — Explore Options — 2026-08-31
+
+Se corrigió únicamente la recuperación del catálogo para `EXPLORE_OPTIONS`.
+La fuente oficial se extrae en runtime y `VERIFIED` exige evidencia relevante.
+También se agregó un guard mínimo para marcadores `*` desbalanceados en
+respuestas WhatsApp.
+
+`OMEGA_EXPLORE_OPTIONS_FIX = PASS`.
+`CATALOG_ITEMS_EXTRACTED = 7`.
+`STAGING_DEPLOYMENT = d59fc301-2dac-4451-b906-b30ef7901a87`.
+`EXPLORE_OPTIONS_TESTS = 5/5 PASS`.
+`PROD_MUTATIONS = 0`.
 `NETROOM_MUTATIONS = 0`.
 `OMEGA_GATE_09_MVP = PASS`.
 `GATE_09_STATUS = MVP_READY`.

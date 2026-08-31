@@ -160,3 +160,16 @@
   login 200 and unsigned lifecycle requests 401.
 - Real validations: `READY_FOR_REAL_SIGNAL` for both onboarding and readiness;
   current real projection remains `NOT_RETENTION_ELIGIBLE / PROSPECT`.
+
+## 2026-08-31 — Explore Options false verified catalog
+
+- Symptom: the agent said the Campus catalog was unavailable although the
+  official homepage published current offer cards.
+- Root cause: `course=null` produced an empty Explore Options evidence chunk,
+  while page load alone was marked `VERIFIED`.
+- Fix: extract `.curso-card-title` items from official HTML and require
+  relevant catalog evidence before `VERIFIED`; add catalog intent phrases and
+  a minimal WhatsApp unbalanced-emphasis guard.
+- Evidence: 7 catalog items; STAGING deployment
+  `d59fc301-2dac-4451-b906-b30ef7901a87`; Explore Options 5/5 and regressions
+  PASS. No channel, Meta, NETROOM or PROD mutation.
