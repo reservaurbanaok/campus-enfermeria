@@ -12,7 +12,7 @@ function createConfiguredModelProvider(options = {}) {
       const response = await fetchImpl('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({ model, temperature: 0.2, messages: [
+        body: JSON.stringify({ model, messages: [
           { role: 'system', content: systemPrompt },
           { role: 'developer', content: developerPrompt },
           { role: 'user', content: userPrompt },
