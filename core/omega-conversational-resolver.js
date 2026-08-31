@@ -82,7 +82,7 @@ async function resolveConversationalResponse(session, text, options = {}) {
     await store.save(key, state);
     const handoffId = session?.handoff_id || options.handoff_id || `handoff-${state.conversation_id}-${Date.now()}`;
     events.push(event('handoff_created', { handoff_id: handoffId, trigger_code: handoffDecision.trigger_code || 'USER_REQUESTED_HUMAN' }));
-    console.log(JSON.stringify({ event: 'omega_semantic_response', channel, response_mode: 'HANDOFF', trigger_code: handoffDecision.trigger_code || 'USER_REQUESTED_HUMAN', handoff_id_present: true, selected_skill: null, skill_executed: false, grounding_status: 'INSUFFICIENT', source_used: false, source_url: null, source_timestamp_present: false, current_course: state.current_course, current_intent: state.current_intent, raw_turn_count: state.raw_recent_turns.length, model_provider: 'none', model_name: 'none' }));
+    console.log(JSON.stringify({ event: 'omega_semantic_response', channel, response_mode: 'HANDOFF', trigger_code: handoffDecision.trigger_code || 'USER_REQUESTED_HUMAN', handoff_id_present: true, selected_skill: null, skill_executed: false, grounding_status: 'INSUFFICIENT', source_used: false, source_url: null, source_timestamp: null, source_timestamp_present: false, current_course: state.current_course, current_intent: state.current_intent, raw_turn_count: state.raw_recent_turns.length, model_provider: 'none', model_name: 'none' }));
     return { response_type: 'handoff', text: 'Tu solicitud quedó preparada para atención humana.', events, response_mode: 'HANDOFF', selected_skill: null, skill_executed: false, grounding_status: 'INSUFFICIENT', source_used: false, source_url: null, source_timestamp: null, handoff_input: { conversation_id: state.conversation_id, channel, channel_conversation_reference: options.channel_conversation_reference || null, adapter_metadata: options.adapter_metadata || {}, active_course: course ? { course_id: course, slug: course } : null, detected_intent: 'handoff_request', questions_asked: [String(text || '').slice(0, 500)], objections: [] }, handoff_decision: handoffDecision, handoff_id: handoffId };
   }
   const sourceRetriever = options.sourceRetriever || defaultOfficialSourceRetriever;
@@ -117,6 +117,7 @@ async function resolveConversationalResponse(session, text, options = {}) {
     grounding_status: source.status,
     source_used: source.source_used === true,
     source_url: source.source_url || null,
+    source_timestamp: source.source_timestamp || null,
     source_timestamp_present: Boolean(source.source_timestamp),
     current_course: state.current_course,
     current_intent: state.current_intent,
