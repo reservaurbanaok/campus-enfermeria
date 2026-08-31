@@ -7,7 +7,7 @@ const { executeAdmissions } = require('./omega-admissions');
 const { SYSTEM_PROMPT, SYSTEM_PROMPT_SOURCE } = require('./omega-agent-system-prompt');
 const { createConfiguredModelProvider } = require('./omega-model-provider');
 
-const COMMERCIAL_INTENTS = new Set(['ASK_RECOMMENDATION', 'COMPARE_COURSES', 'EXPLORE_OPTIONS', 'ENROLLMENT_INTENT', 'COURSE_QUESTION', 'PRICE', 'DURATION', 'MODALITY', 'CERTIFICATION', 'OBJECTION']);
+const COMMERCIAL_INTENTS = new Set(['ASK_RECOMMENDATION', 'COMPARE_COURSES', 'EXPLORE_OPTIONS', 'ENROLLMENT_INTENT', 'COURSE_QUESTION', 'PRICE', 'DURATION', 'MODALITY', 'CERTIFICATION', 'REQUIREMENTS', 'PROMOTION', 'OBJECTION']);
 const COURSE_ALIASES = [
   { key: 'cuidados_criticos_emergencias', aliases: ['cuidados críticos', 'cuidados criticos', 'emergencias', 'terapia intensiva', 'cuidados'] },
   { key: 'anestesia', aliases: ['anestesia', 'cirugía', 'cirugia'] },
@@ -29,6 +29,8 @@ function detectIntent(text, state) {
   if (/durac|cuanto dura|cuánto dura/.test(q)) return 'DURATION';
   if (/modal|online|zoom|virtual|presencial/.test(q)) return 'MODALITY';
   if (/certif|aval|resolucion|resolución/.test(q)) return 'CERTIFICATION';
+  if (/requisit|dirigido a|quien puede|quién puede/.test(q)) return 'REQUIREMENTS';
+  if (/promoc|descuento|off|bonific|forma de pago/.test(q)) return 'PROMOTION';
   if (/caro|costos|costoso|mucho dinero|no puedo pagar/.test(q)) return 'OBJECTION';
   if (detectCourse(text) || state.current_course) return 'COURSE_QUESTION';
   return 'GENERAL';
@@ -36,7 +38,7 @@ function detectIntent(text, state) {
 
 function safeFallback(intent, state, admissions, source) {
   if (intent === 'PRICE' || intent === 'OBJECTION') return source.status === 'VERIFIED' && source.required_fact_found ? 'Puedo orientarte con el valor publicado en la fuente oficial. Si querés confirmar vigencia o medios de pago, corresponde completar el formulario oficial.' : 'No puedo confirmar el valor o una promoción porque no está disponible en la fuente oficial en este momento. Puedo derivarte al Campus para confirmarlo.';
-  if (intent === 'DURATION' || intent === 'MODALITY' || intent === 'CERTIFICATION') return source.status === 'VERIFIED' && source.required_fact_found ? 'Encontré información oficial sobre esa capacitación. Si querés, te indico el dato puntual publicado y el formulario oficial.' : 'No puedo confirmar ese dato porque no está disponible en la fuente oficial en este momento. Puedo derivarte al Campus para confirmarlo.';
+  if (intent === 'DURATION' || intent === 'MODALITY' || intent === 'CERTIFICATION' || intent === 'REQUIREMENTS' || intent === 'PROMOTION') return source.status === 'VERIFIED' && source.required_fact_found ? 'Encontré información oficial sobre esa capacitación. Si querés, te indico el dato puntual publicado y el formulario oficial.' : 'No puedo confirmar ese dato porque no está disponible en la fuente oficial en este momento. Puedo derivarte al Campus para confirmarlo.';
   if (admissions?.needs_clarification) return 'Para recomendarte una capacitación necesito conocer qué área te interesa, tu experiencia y qué objetivo buscás.';
   if (intent === 'ENROLLMENT_INTENT') return state.current_course ? 'Puedo acercarte el formulario oficial de la capacitación que estás evaluando. La apertura del formulario no confirma una inscripción completada.' : '¿Qué capacitación te interesa para acercarte el formulario oficial correspondiente?';
   if (intent === 'EXPLORE_OPTIONS') return source.status === 'VERIFIED' ? 'La oferta publicada está disponible para revisarla según tu área, experiencia y objetivo. ¿Qué te interesa desarrollar?' : 'Puedo orientarte sobre capacitaciones, pero necesito consultar la fuente oficial antes de afirmar qué opciones están vigentes. ¿Qué área te interesa?';

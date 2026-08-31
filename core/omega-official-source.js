@@ -44,6 +44,8 @@ function factPatterns(intent) {
   if (value === 'DURATION') return /duraci[oó]n total?\s*:?\s*[^.;|]{1,40}/i;
   if (value === 'MODALITY') return /modalidad\s*:?\s*[^.;|]{1,60}/i;
   if (value === 'CERTIFICATION') return /certificaci[oó]n[\s\S]{0,180}/i;
+  if (value === 'REQUIREMENTS') return /requisitos|dirigido a\s*:?\s*[^.;|]{1,180}/i;
+  if (value === 'PROMOTION') return /promoci[oó]n|descuento|bonific|\boff\b|forma de pago/i;
   if (value === 'ENROLLMENT_INTENT') return /inscrib|formulario oficial/i;
   return null;
 }
@@ -57,6 +59,7 @@ function extractEvidence(sourceText, course, intent) {
   const courseIndex = aliases.map((alias) => lower.lastIndexOf(alias)).find((index) => index >= 0);
   const pattern = factPatterns(intent);
   if (!pattern) return { found: Boolean(courseIndex >= 0), evidence: courseIndex >= 0 ? text.slice(courseIndex, courseIndex + 8000) : '' };
+  if (pattern && courseIndex < 0) return { found: false, evidence: '' };
   const start = courseIndex >= 0 ? Math.max(0, courseIndex - 50) : 0;
   // The Campus page contains summary cards before each full course block.
   // Stop at the next course marker so facts cannot bleed between courses.
