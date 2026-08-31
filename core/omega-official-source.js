@@ -29,6 +29,33 @@ function normalized(value) {
   return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
 
+function decodeEntities(value) {
+  return String(value || '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&#39;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/&oacute;/gi, 'ó')
+    .replace(/&iacute;/gi, 'í')
+    .replace(/&eacute;/gi, 'é')
+    .replace(/&aacute;/gi, 'á')
+    .replace(/&uacute;/gi, 'ú')
+    .replace(/&ntilde;/gi, 'ñ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function extractCatalogItems(sourceHtml) {
+  const html = String(sourceHtml || '');
+  const items = [];
+  const pattern = /class=["'][^"']*\bcurso-card-title\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi;
+  for (const match of html.matchAll(pattern)) {
+    const item = decodeEntities(String(match[1] || '').replace(/<[^>]+>/g, ' '));
+    if (item && !items.includes(item)) items.push(item);
+  }
+  return items;
+}
+
 function courseAliases(course) {
   const value = normalized(course);
   if (value.includes('cuidad') || value.includes('crit') || value.includes('emerg')) return ['cuidados criticos', 'cuidados críticos', 'emergencias'];
@@ -50,7 +77,7 @@ function factPatterns(intent) {
   return null;
 }
 
-function extractEvidence(sourceText, course, intent) {
+function extractEvidence(sourceText, course, intent, sourceHtml) {
   const text = String(sourceText || '');
   const lower = normalized(text);
   const aliases = courseAliases(course).map(normalized);
@@ -58,7 +85,15 @@ function extractEvidence(sourceText, course, intent) {
   // occurrence so a fact is taken from the detailed block, not another card.
   const courseIndex = aliases.map((alias) => lower.lastIndexOf(alias)).find((index) => index >= 0);
   const pattern = factPatterns(intent);
-  if (!pattern) return { found: Boolean(courseIndex >= 0), evidence: courseIndex >= 0 ? text.slice(courseIndex, courseIndex + 8000) : '' };
+  if (!pattern && String(intent || '').toUpperCase() === 'EXPLORE_OPTIONS') {
+    const catalogItems = extractCatalogItems(sourceHtml);
+    return {
+      found: catalogItems.length > 0,
+      evidence: catalogItems.length ? `Current official Campus catalog: ${catalogItems.join('; ')}` : '',
+      catalog_items: catalogItems,
+    };
+  }
+  if (!pattern) return { found: Boolean(courseIndex >= 0), evidence: courseIndex >= 0 ? text.slice(courseIndex, courseIndex + 8000) : '', catalog_items: [] };
   if (pattern && courseIndex < 0) return { found: false, evidence: '' };
   const start = courseIndex >= 0 ? Math.max(0, courseIndex - 50) : 0;
   // The Campus page contains summary cards before each full course block.
@@ -67,7 +102,7 @@ function extractEvidence(sourceText, course, intent) {
   const nextBoundary = COURSE_MARKERS.map((marker) => normalizedText.indexOf(marker, start + 200)).filter((index) => index > start).sort((a, b) => a - b)[0];
   const window = text.slice(start, Math.min(start + 16000, nextBoundary || start + 16000));
   const match = window.match(pattern);
-  return { found: Boolean(match), evidence: match ? window.slice(Math.max(0, match.index - 120), match.index + match[0].length + 220) : '' };
+  return { found: Boolean(match), evidence: match ? window.slice(Math.max(0, match.index - 120), match.index + match[0].length + 220) : '', catalog_items: [] };
 }
 
 function createOfficialSourceRetriever(options = {}) {
@@ -78,16 +113,17 @@ function createOfficialSourceRetriever(options = {}) {
   return async function retrieve(request = {}) {
     const now = Date.now();
     if (cache && now - cache.cached_at_ms < cacheTtlMs) {
-      const evidence = extractEvidence(cache.text, request.course, request.intent);
+      const evidence = extractEvidence(cache.text, request.course, request.intent, cache.html);
       return { ...evidenceResult(cache, request, evidence), source_cache_hit: true };
     }
     if (typeof fetchImpl !== 'function') return unavailable('source_fetch_unavailable');
     try {
       const response = await fetchImpl(sourceUrl, { method: 'GET', headers: { accept: 'text/html' } });
       if (!response || !response.ok) return unavailable(`source_http_${response?.status || 'error'}`);
-      const text = stripMarkup(await response.text());
-      cache = { text, source_timestamp: new Date().toISOString(), cached_at_ms: now };
-      const evidence = extractEvidence(text, request.course, request.intent);
+      const html = await response.text();
+      const text = stripMarkup(html);
+      cache = { html, text, source_timestamp: new Date().toISOString(), cached_at_ms: now };
+      const evidence = extractEvidence(text, request.course, request.intent, cache.html);
       return { ...evidenceResult(cache, request, evidence), source_cache_hit: false };
     } catch (error) {
       return unavailable(error && error.code ? String(error.code) : 'source_fetch_failed');
@@ -97,7 +133,8 @@ function createOfficialSourceRetriever(options = {}) {
 
 function evidenceResult(cache, request, evidence) {
   const requiredFact = Boolean(factPatterns(request.intent));
-  const sourceUsed = requiredFact ? evidence.found : Boolean(cache.text);
+  const catalogRequest = String(request.intent || '').toUpperCase() === 'EXPLORE_OPTIONS';
+  const sourceUsed = requiredFact || catalogRequest ? evidence.found : Boolean(cache.text);
   return {
     status: sourceUsed ? 'VERIFIED' : 'INSUFFICIENT',
     source_used: sourceUsed,
@@ -105,6 +142,7 @@ function evidenceResult(cache, request, evidence) {
     source_timestamp: cache.source_timestamp,
     evidence: evidence.evidence,
     required_fact_found: evidence.found,
+    catalog_items: evidence.catalog_items || [],
     course: request.course || null,
     intent: request.intent || null,
   };
@@ -116,4 +154,4 @@ function unavailable(code) {
 
 const defaultOfficialSourceRetriever = createOfficialSourceRetriever();
 
-module.exports = { PRIMARY_SOURCE_URL, DEFAULT_CACHE_TTL_MS, createOfficialSourceRetriever, defaultOfficialSourceRetriever, extractEvidence, stripMarkup };
+module.exports = { PRIMARY_SOURCE_URL, DEFAULT_CACHE_TTL_MS, createOfficialSourceRetriever, defaultOfficialSourceRetriever, extractEvidence, extractCatalogItems, stripMarkup };

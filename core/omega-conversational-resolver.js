@@ -17,13 +17,19 @@ const COURSE_ALIASES = [
 function event(name, detail) { return detail === undefined ? { name } : { name, detail }; }
 function normalize(value) { return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); }
 function detectCourse(text) { const q = normalize(text); return COURSE_ALIASES.find((course) => course.aliases.some((alias) => q.includes(normalize(alias))))?.key || null; }
+function sanitizeWhatsAppFormatting(text, channel) {
+  const value = String(text || '');
+  if (String(channel || '').toLowerCase() !== 'whatsapp') return value;
+  const markers = value.match(/\*/g) || [];
+  return markers.length % 2 === 0 ? value : value.replace(/\*/g, '');
+}
 
 function detectIntent(text, state) {
   const q = normalize(text);
   if (/hablar con (alguien|una persona|un humano)|persona real|operador|asesor/.test(q)) return 'HANDOFF_REQUEST';
   if (/recomend|que me conviene|qué me conviene|orient/.test(q)) return 'ASK_RECOMMENDATION';
   if (/compar|diferencia|entre .* y /.test(q)) return 'COMPARE_COURSES';
-  if (/que cursos|qué cursos|que capacit|qué capacit|opciones|oferta/.test(q)) return 'EXPLORE_OPTIONS';
+  if (/que cursos|que capacit|que diplomatur|opciones|oferta|que puedo estudiar|que podria estudiar|propuestas|tienen.*(?:curso|capacit|diplomatur|algo)/.test(q)) return 'EXPLORE_OPTIONS';
   if (/inscrib|anotar|cursar|formulario/.test(q)) return 'ENROLLMENT_INTENT';
   if (/precio|costo|valor|cuanto cuesta|cuánto cuesta|cuanto sale|cuánto sale|cuotas|pago/.test(q)) return 'PRICE';
   if (/durac|cuanto dura|cuánto dura/.test(q)) return 'DURATION';
@@ -105,6 +111,7 @@ async function resolveConversationalResponse(session, text, options = {}) {
   const guardFailed = responseMode === 'AGENT' && (COMMERCIAL_INTENTS.has(intent) && source.status !== 'VERIFIED' || containsUnsupportedCommercialClaim(responseText, source));
   if (!responseText || guardFailed) { responseMode = 'DETERMINISTIC_FALLBACK'; responseText = safeFallback(intent, state, admissions, source); events.push(event('grounding_guard_fallback', { reason: guardFailed ? 'unsupported_commercial_claim' : modelError || 'empty_model_response' })); }
   else events.push(event('grounding_guard_pass', { source_used: source.source_used, source_timestamp_present: Boolean(source.source_timestamp) }));
+  responseText = sanitizeWhatsAppFormatting(responseText, channel);
   state = appendTurn({ ...state, unresolved_question: admissions.needs_clarification ? String(text || '').slice(0, 500) : null }, 'assistant', responseText, options.timestamp);
   state.handoff_state = 'none';
   await store.save(key, state);
@@ -128,4 +135,4 @@ async function resolveConversationalResponse(session, text, options = {}) {
   return { response_type: 'text', text: responseText, events, action: null, response_mode: responseMode, selected_skill: admissions.selected_skill, skill_executed: admissions.skill_executed, grounding_status: source.status, source_used: source.source_used, source_url: source.source_url, source_timestamp: source.source_timestamp, model_provider: provider?.provider || 'none', model_name: provider?.model || 'none', system_prompt_source: SYSTEM_PROMPT_SOURCE, conversation_history_used: state.raw_recent_turns.length > 1, state_key: key };
 }
 
-module.exports = { COMMERCIAL_INTENTS, detectIntent, detectCourse, containsUnsupportedCommercialClaim, resolveConversationalResponse };
+module.exports = { COMMERCIAL_INTENTS, detectIntent, detectCourse, containsUnsupportedCommercialClaim, sanitizeWhatsAppFormatting, resolveConversationalResponse };
