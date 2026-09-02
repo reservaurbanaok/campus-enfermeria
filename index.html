@@ -477,6 +477,10 @@ section{padding-top:76px}
   .hero-content{padding:40px 24px}
 }
 @media(max-width:600px){
+  body{overflow-x:hidden}
+  .hero-title{font-size:clamp(2.2rem,10vw,3.2rem);max-width:100%;overflow-wrap:anywhere}
+  .hero-btns{flex-direction:column;align-items:stretch;max-width:100%}
+  .hero-btns>a,.hero-btns>button{width:100%;box-sizing:border-box;justify-content:center}
   #cursos,#quienes,#docentes,#aliados,#contacto{padding-left:20px;padding-right:20px}
   .cursos-grid{grid-template-columns:1fr 1fr}
 }
