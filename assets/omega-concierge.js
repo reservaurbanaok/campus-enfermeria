@@ -1,8 +1,26 @@
 (function(){
   'use strict';
-  var state={conversation_id:(window.crypto&&crypto.randomUUID?crypto.randomUUID():'omega-'+Date.now()+'-'+Math.random().toString(36).slice(2)),started:false},debugEnabled=new URLSearchParams(window.location.search).get('omega_debug')==='1',debugEvents=[];
+  var CONVERSATION_REF_KEY='omega_web_conversation_ref_v1';
+  function conversationRef(){
+    try{
+      var existing=window.sessionStorage.getItem(CONVERSATION_REF_KEY);
+      return existing&&/^omega_web_[a-f0-9-]{36}$/.test(existing)?existing:null;
+    }catch(_error){return null;}
+  }
+  function storeConversationRef(value){
+    if(typeof value!=='string'||!/^omega_web_[a-f0-9-]{36}$/.test(value))return;
+    try{window.sessionStorage.setItem(CONVERSATION_REF_KEY,value);}catch(_error){}
+  }
+  function webChatEndpoint(){
+    var configured=window.OMEGA_WEB_CHAT_ENDPOINT;
+    if(typeof configured==='string'&&configured.trim())return configured.trim();
+    var script=document.querySelector('script[src$="assets/omega-concierge.js"]');
+    var declared=script&&script.getAttribute('data-web-chat-endpoint');
+    return declared&&declared.trim()?declared.trim():'/api/omega/web-chat/v1';
+  }
+  var state={conversation_ref:conversationRef(),started:false},WEB_CHAT_ENDPOINT=webChatEndpoint(),debugEnabled=new URLSearchParams(window.location.search).get('omega_debug')==='1',debugEvents=[];
   function debugBridge(){if(!debugEnabled)return null;var bridge=document.getElementById('omega-event-debug');if(!bridge){bridge=document.createElement('div');bridge.id='omega-event-debug';bridge.hidden=true;bridge.dataset.eventCount='0';document.body.appendChild(bridge);}return bridge;}
-  function track(name,detail){var payload={event:name,timestamp:new Date().toISOString(),channel:'campus_web',schema_version:'omega-events-v1',conversation_id:state.conversation_id,course_id:state.active_course||undefined,detail:detail||undefined};window.dataLayer=window.dataLayer||[];window.dataLayer.push(payload);var events=Array.isArray(window.__omegaEvents)?window.__omegaEvents:[];window.__omegaEvents=events;events.push(payload);var bridge=debugBridge();if(bridge){debugEvents.push({event:payload.event,timestamp:payload.timestamp,channel:payload.channel,schema_version:payload.schema_version,conversation_id:payload.conversation_id,course_id:payload.course_id||null,detail:payload.detail||null});bridge.dataset.eventCount=String(debugEvents.length);bridge.dataset.lastEvent=payload.event;bridge.textContent=JSON.stringify({count:debugEvents.length,events:debugEvents});}}
+  function track(name,detail){var payload={event:name,timestamp:new Date().toISOString(),channel:'campus_web',schema_version:'omega-events-v1',conversation_ref:state.conversation_ref||undefined,course_id:state.active_course||undefined,detail:detail||undefined};window.dataLayer=window.dataLayer||[];window.dataLayer.push(payload);var events=Array.isArray(window.__omegaEvents)?window.__omegaEvents:[];window.__omegaEvents=events;events.push(payload);var bridge=debugBridge();if(bridge){debugEvents.push({event:payload.event,timestamp:payload.timestamp,channel:payload.channel,schema_version:payload.schema_version,conversation_ref:payload.conversation_ref||null,course_id:payload.course_id||null,detail:payload.detail||null});bridge.dataset.eventCount=String(debugEvents.length);bridge.dataset.lastEvent=payload.event;bridge.textContent=JSON.stringify({count:debugEvents.length,events:debugEvents});}}
   function publishHandoffDebug(context,decision){var bridge=debugBridge();if(!bridge)return;bridge.dataset.handoffActive='true';bridge.dataset.handoffId=context.handoff_id;bridge.dataset.handoffTrigger=decision.trigger_code;bridge.textContent=JSON.stringify({count:debugEvents.length,events:debugEvents,handoff:{active:true,handoff_id:context.handoff_id,trigger_code:decision.trigger_code,context:context}});}
   function el(tag,attrs,text){var n=document.createElement(tag);Object.keys(attrs||{}).forEach(function(k){n.setAttribute(k,attrs[k]);});if(text)n.textContent=text;return n;}
   function init(){
@@ -15,11 +33,12 @@
     async function reply(text){
       track('web_chat_request_started');
       try{
-        var response=await fetch('/api/omega/web-chat/v1',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,conversation_ref:state.conversation_id,page_url:window.location.href})});
+        var payload={message:text};if(state.conversation_ref)payload.conversation_ref=state.conversation_ref;
+        var response=await fetch(WEB_CHAT_ENDPOINT,{method:'POST',credentials:'omit',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
         var body=null;try{body=await response.json();}catch(_error){}
-        if(!response.ok||!body||body.ok!==true||!body.response||typeof body.response.text!=='string')throw new Error('web_chat_transport_failed');
-        (body.events||[]).forEach(function(item){if(item&&item.event)track(item.event);});
-        track('web_chat_response_received',{response_mode:body.runtime&&body.runtime.response_mode||null,grounding_status:body.grounding&&body.grounding.status||null});
+        if(!response.ok||!body||!body.response||typeof body.response.text!=='string'||typeof body.conversation_ref!=='string')throw new Error('web_chat_transport_failed');
+        state.conversation_ref=body.conversation_ref;storeConversationRef(body.conversation_ref);
+        track('web_chat_response_received',{response_type:body.response_type||null,handoff_state:body.handoff_state||null});
         add(body.response.text,'bot');
       }catch(_error){
         track('web_chat_transport_error');

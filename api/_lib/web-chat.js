@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const net = require('net');
 const { buildHandoffContext } = require('../../handoff/omega-handoff-context');
 const { createHandoff } = require('../../handoff/omega-handoff-persistence');
 const { createSession } = require('../../core/omega-concierge-core');
@@ -15,10 +16,12 @@ const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
 const MAX_BODY_BYTES = 16 * 1024;
 const MAX_MESSAGE_LENGTH = 1000;
 const MAX_REFERENCE_LENGTH = 160;
-const MAX_RATE_WINDOW_MS = 60 * 1000;
-const MAX_REQUESTS_PER_WINDOW = 30;
+const IP_RATE_WINDOW_MS = 5 * 60 * 1000;
+const IP_RATE_LIMIT = 30;
+const CONVERSATION_RATE_WINDOW_MS = 60 * 1000;
+const CONVERSATION_RATE_LIMIT = 12;
 const RESOLVER_TIMEOUT_MS = 15 * 1000;
-const PRIVILEGED_FIELDS = new Set(['verified_identity', 'privileged_context', 'permissions', 'user_id', 'identity', 'auth']);
+const CONVERSATION_REF_PATTERN = /^omega_web_[a-f0-9-]{36}$/;
 
 function json(res, status, body) {
   res.statusCode = status;
@@ -55,16 +58,13 @@ function allowedOrigins() {
 function originAllowed(req) {
   const origin = requestOrigin(req);
   if (!origin) return true;
-  const configured = allowedOrigins();
-  if (configured.includes(origin)) return true;
-  return requestBaseOrigin(req) === origin;
+  return allowedOrigins().includes(origin);
 }
 
 function setCorsHeaders(req, res) {
   const origin = requestOrigin(req);
   if (!origin || !originAllowed(req)) return;
   res.setHeader('Access-Control-Allow-Origin', origin);
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Vary', 'Origin');
 }
 
@@ -80,6 +80,14 @@ function readCookies(req) {
 
 function validSessionId(value) {
   return /^web_[a-f0-9-]{36}$/.test(String(value || ''));
+}
+
+function validConversationRef(value) {
+  return CONVERSATION_REF_PATTERN.test(String(value || ''));
+}
+
+function newConversationRef() {
+  return `omega_web_${crypto.randomUUID()}`;
 }
 
 function sessionCookie(sessionId, req) {
@@ -115,10 +123,8 @@ async function readRawBody(req) {
 
 function validatePayload(payload) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return { ok: false, code: 'invalid_json' };
-  for (const field of PRIVILEGED_FIELDS) if (Object.hasOwn(payload, field)) return { ok: false, code: 'privileged_context_not_allowed' };
   if (typeof payload.message !== 'string' || !payload.message.trim() || payload.message.length > MAX_MESSAGE_LENGTH) return { ok: false, code: 'invalid_message' };
-  if (payload.conversation_ref !== undefined && (typeof payload.conversation_ref !== 'string' || payload.conversation_ref.length > MAX_REFERENCE_LENGTH)) return { ok: false, code: 'invalid_conversation_ref' };
-  if (payload.page_url !== undefined && (typeof payload.page_url !== 'string' || payload.page_url.length > 2048)) return { ok: false, code: 'invalid_page_url' };
+  if (payload.conversation_ref !== undefined && (typeof payload.conversation_ref !== 'string' || payload.conversation_ref.length > MAX_REFERENCE_LENGTH || !validConversationRef(payload.conversation_ref))) return { ok: false, code: 'invalid_conversation_ref' };
   return { ok: true };
 }
 
@@ -126,15 +132,22 @@ function hash(value) {
   return crypto.createHash('sha256').update(String(value)).digest('hex');
 }
 
-function rateLimitOk(rateStore, sessionId, now) {
-  const current = rateStore.get(sessionId);
-  if (!current || now - current.started_at >= MAX_RATE_WINDOW_MS) {
-    rateStore.set(sessionId, { started_at: now, count: 1 });
-    return true;
+function trustedClientIp(req) {
+  const edge = String(header(req, 'x-railway-edge') || '').trim();
+  const realIp = String(header(req, 'x-real-ip') || '').trim();
+  if (!edge || !realIp || net.isIP(realIp) === 0) return null;
+  return realIp;
+}
+
+function rateLimitOk(rateStore, key, limit, windowMs, now) {
+  const current = rateStore.get(key);
+  if (!current || now - current.started_at >= windowMs) {
+    rateStore.set(key, { started_at: now, count: 1 });
+    return { ok: true };
   }
-  if (current.count >= MAX_REQUESTS_PER_WINDOW) return false;
+  if (current.count >= limit) return { ok: false, retryAfter: Math.max(1, Math.ceil((windowMs - (now - current.started_at)) / 1000)) };
   current.count += 1;
-  return true;
+  return { ok: true };
 }
 
 function withTimeout(promise, timeoutMs) {
@@ -145,32 +158,12 @@ function withTimeout(promise, timeoutMs) {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
-function publicResponse(result, correlationId, sessionId, handoff, trace = {}) {
+function publicResponse(result, conversationRef, handoff) {
   return {
-    schema_version: 'OMEGA_WEB_CHAT_RESPONSE_V1',
-    ok: true,
-    channel: 'web',
-    correlation_id: correlationId,
-    conversation_id: result.state_key ? `web-${hash(sessionId).slice(0, 32)}` : null,
     response: { type: result.response_type, text: result.text },
     response_type: result.response_type,
     handoff_state: handoff ? 'requested' : 'none',
-    events: (result.events || []).map((item) => ({ event: item.name, schema_version: 'omega-events-v1' })),
-    grounding: { status: result.grounding_status, source_used: result.source_used === true, source_url: result.source_url || null },
-    runtime: {
-      response_mode: result.response_mode,
-      selected_skill: result.selected_skill,
-      skill_executed: result.skill_executed,
-      conversation_history_used: result.conversation_history_used === true,
-      web_runtime_trace: {
-        resolver_called: trace.resolver_called === true,
-        model_provider_called: trace.model_provider_called === true,
-        source_retriever_called: trace.source_retriever_called === true,
-        state_store_used: trace.state_store_used === true,
-        admissions_reached: result.selected_skill === 'OMEGA_ADMISSIONS',
-      },
-    },
-    ...(handoff ? { handoff: { owner: 'OMEGA_GATE_05', handoff_id: result.handoff_id, status: handoff.status || 'WAITING_HUMAN' } } : {}),
+    conversation_ref: conversationRef,
   };
 }
 
@@ -206,15 +199,25 @@ function createWebChatHandler(options = {}) {
     const validation = validatePayload(payload);
     if (!validation.ok) return json(res, 400, { error: validation.code });
 
-    let session;
-    try { session = getOrCreateSessionId(req, res, idFactory); } catch { return json(res, 500, { error: 'session_unavailable' }); }
-    if (!rateLimitOk(rateStore, session.sessionId, now())) {
-      res.setHeader('Retry-After', '60');
+    const conversationRef = payload.conversation_ref || newConversationRef();
+    if (!validConversationRef(conversationRef)) return json(res, 400, { error: 'invalid_conversation_ref' });
+    const clientIp = trustedClientIp(req);
+    if (!clientIp) return json(res, 503, { error: 'client_ip_unavailable' });
+    const currentTime = now();
+    const ipLimit = rateLimitOk(rateStore, `ip:${clientIp}`, IP_RATE_LIMIT, IP_RATE_WINDOW_MS, currentTime);
+    if (!ipLimit.ok) {
+      res.setHeader('Retry-After', String(ipLimit.retryAfter));
+      return json(res, 429, { error: 'rate_limited' });
+    }
+    const conversationLimit = rateLimitOk(rateStore, `conversation:${hash(conversationRef)}`, CONVERSATION_RATE_LIMIT, CONVERSATION_RATE_WINDOW_MS, currentTime);
+    if (!conversationLimit.ok) {
+      res.setHeader('Retry-After', String(conversationLimit.retryAfter));
       return json(res, 429, { error: 'rate_limited' });
     }
 
     const correlationId = `web:${crypto.randomUUID()}`;
-    const conversationId = `web-${hash(session.sessionId).slice(0, 32)}`;
+    const conversationIdentity = `ref:${conversationRef}`;
+    const conversationId = `web-${hash(conversationIdentity).slice(0, 32)}`;
     const runtimeSession = createSession({ conversation_id: conversationId, started: true });
     const trace = { resolver_called: false, model_provider_called: false, source_retriever_called: false, state_store_used: false };
     const tracedStateStore = {
@@ -245,8 +248,8 @@ function createWebChatHandler(options = {}) {
       trace.resolver_called = true;
       result = await withTimeout(resolve(runtimeSession, payload.message.trim(), {
         channel: 'web',
-        external_sender_id: session.sessionId,
-        channel_conversation_reference: payload.conversation_ref ? hash(payload.conversation_ref).slice(0, 32) : hash(session.sessionId).slice(0, 32),
+        external_sender_id: conversationIdentity,
+        channel_conversation_reference: hash(conversationIdentity).slice(0, 32),
         adapter_metadata: { provider: 'campus_web', surface: 'omega_concierge' },
         handoff_id: `handoff-${correlationId}`,
         stateStore: tracedStateStore,
@@ -261,7 +264,7 @@ function createWebChatHandler(options = {}) {
       channel: 'campus_web',
       conversation_id: conversationId,
       correlation_id: correlationId,
-      person_or_anonymous_id: `web:${hash(session.sessionId)}`,
+      person_or_anonymous_id: `web:${hash(conversationRef)}`,
       source: 'omega_web_adapter',
     });
 
@@ -270,14 +273,14 @@ function createWebChatHandler(options = {}) {
       const context = buildHandoffContext({
         ...result.handoff_input,
         channel: 'campus_web',
-        channel_conversation_reference: hash(session.sessionId).slice(0, 32),
+        channel_conversation_reference: hash(conversationIdentity).slice(0, 32),
         adapter_metadata: { provider: 'campus_web', surface: 'omega_concierge' },
         excluded_data_domains: ['NETROOM_PRIVATE'],
       }, result.handoff_decision, { handoff_id: result.handoff_id });
       try { handoff = await persistHandoff(context); } catch { return json(res, 503, { error: 'handoff_storage_unavailable' }); }
     }
 
-    return json(res, 200, publicResponse(result, correlationId, session.sessionId, handoff, trace));
+    return json(res, 200, publicResponse(result, conversationRef, handoff));
   };
 }
 
