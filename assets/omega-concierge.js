@@ -6,12 +6,12 @@
   function publishHandoffDebug(context,decision){var bridge=debugBridge();if(!bridge)return;bridge.dataset.handoffActive='true';bridge.dataset.handoffId=context.handoff_id;bridge.dataset.handoffTrigger=decision.trigger_code;bridge.textContent=JSON.stringify({count:debugEvents.length,events:debugEvents,handoff:{active:true,handoff_id:context.handoff_id,trigger_code:decision.trigger_code,context:context}});}
   function el(tag,attrs,text){var n=document.createElement(tag);Object.keys(attrs||{}).forEach(function(k){n.setAttribute(k,attrs[k]);});if(text)n.textContent=text;return n;}
   function init(){
-    var root=el('div',{id:'omega-concierge'}),launcher=el('button',{id:'omega-concierge-launcher','aria-expanded':'false','aria-controls':'omega-concierge-panel'},'Hablar con Omeguín');
-    var panel=el('section',{id:'omega-concierge-panel','aria-label':'Asistente Omeguín'}),head=el('div',{class:'omega-head'}),title=el('strong',{},'Omeguín · Campus Profesional'),close=el('button',{'aria-label':'Cerrar conversación'},'×');
+    var root=el('div',{id:'omega-concierge'}),launcher=el('button',{id:'omega-concierge-launcher','aria-expanded':'false','aria-controls':'omega-concierge-panel'},'OMEGA');
+    var panel=el('section',{id:'omega-concierge-panel','aria-label':'Asistente OMEGA'}),head=el('div',{class:'omega-head'}),title=el('strong',{},'OMEGA · Campus Profesional'),close=el('button',{'aria-label':'Cerrar conversación'},'×');
     var messages=el('div',{class:'omega-messages'}),actions=el('div',{class:'omega-actions'}),form=el('form',{class:'omega-form'}),input=el('input',{type:'text',placeholder:'Escribí tu consulta…','aria-label':'Consulta'}),send=el('button',{type:'submit'},'Enviar');
     head.append(title,close);form.append(input,send);panel.append(head,messages,actions,form);root.append(panel,launcher);document.body.append(root);
     function add(text,who){messages.append(el('div',{class:'omega-msg '+who},text));messages.scrollTop=messages.scrollHeight;}
-    function open(){panel.classList.add('open');launcher.setAttribute('aria-expanded','true');if(!state.started){state.started=true;track('conversation_started');add('Hola, soy Omeguín. Puedo orientarte sobre la oferta del Campus, modalidad, duración, certificación e inscripción. ¿Qué te gustaría conocer?','bot');}}
+    function open(){panel.classList.add('open');launcher.setAttribute('aria-expanded','true');if(!state.started){state.started=true;track('conversation_started');add('Hola, soy OMEGA.\n¿En qué puedo orientarte?','bot');}}
     async function reply(text){
       track('web_chat_request_started');
       try{

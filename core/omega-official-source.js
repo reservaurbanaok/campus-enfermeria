@@ -81,9 +81,25 @@ function extractEvidence(sourceText, course, intent, sourceHtml) {
   const text = String(sourceText || '');
   const lower = normalized(text);
   const aliases = courseAliases(course).map(normalized);
-  // Course cards appear before their detailed sections; use the final title
-  // occurrence so a fact is taken from the detailed block, not another card.
-  const courseIndex = aliases.map((alias) => lower.lastIndexOf(alias)).find((index) => index >= 0);
+  const aliasCandidates = aliases.flatMap((alias) => {
+    const indexes = [];
+    let from = 0;
+    while (alias && (from = lower.indexOf(alias, from)) >= 0) {
+      indexes.push(from);
+      from += alias.length;
+    }
+    return indexes;
+  }).sort((left, right) => right - left);
+  const markerCandidates = COURSE_MARKERS.filter((marker) => aliases.some((alias) => marker.includes(alias)))
+    .map((marker) => lower.lastIndexOf(marker))
+    .filter((index) => index >= 0)
+    .sort((left, right) => right - left);
+  // Prefer the detailed course title over repeated card and legal/footer copy.
+  const courseCandidates = markerCandidates.length ? markerCandidates : aliasCandidates;
+  const courseIndex = courseCandidates.find((index) => !/todos los derechos reservados|avalado por instituto ferrer/.test(lower.slice(index, index + 240))) ?? -1;
+  const nextBoundary = COURSE_MARKERS.map((marker) => lower.indexOf(marker, Math.max(0, courseIndex + 200)))
+    .filter((index) => index > courseIndex)
+    .sort((left, right) => left - right)[0];
   const pattern = factPatterns(intent);
   if (!pattern && String(intent || '').toUpperCase() === 'EXPLORE_OPTIONS') {
     const catalogItems = extractCatalogItems(sourceHtml);
@@ -93,14 +109,14 @@ function extractEvidence(sourceText, course, intent, sourceHtml) {
       catalog_items: catalogItems,
     };
   }
-  if (!pattern) return { found: Boolean(courseIndex >= 0), evidence: courseIndex >= 0 ? text.slice(courseIndex, courseIndex + 8000) : '', catalog_items: [] };
+  if (!pattern) return { found: Boolean(courseIndex >= 0), evidence: courseIndex >= 0 ? text.slice(courseIndex, Math.min(courseIndex + 8000, nextBoundary || courseIndex + 8000)) : '', catalog_items: [] };
   if (pattern && courseIndex < 0) return { found: false, evidence: '' };
   const start = courseIndex >= 0 ? Math.max(0, courseIndex - 50) : 0;
   // The Campus page contains summary cards before each full course block.
   // Stop at the next course marker so facts cannot bleed between courses.
   const normalizedText = normalized(text);
-  const nextBoundary = COURSE_MARKERS.map((marker) => normalizedText.indexOf(marker, start + 200)).filter((index) => index > start).sort((a, b) => a - b)[0];
-  const window = text.slice(start, Math.min(start + 16000, nextBoundary || start + 16000));
+  const factBoundary = COURSE_MARKERS.map((marker) => normalizedText.indexOf(marker, start + 200)).filter((index) => index > start).sort((a, b) => a - b)[0];
+  const window = text.slice(start, Math.min(start + 16000, factBoundary || start + 16000));
   const match = window.match(pattern);
   return { found: Boolean(match), evidence: match ? window.slice(Math.max(0, match.index - 120), match.index + match[0].length + 220) : '', catalog_items: [] };
 }

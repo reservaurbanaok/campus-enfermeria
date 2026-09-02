@@ -29,6 +29,7 @@ function detectIntent(text, state) {
   if (/hablar con (alguien|una persona|un humano)|persona real|operador|asesor/.test(q)) return 'HANDOFF_REQUEST';
   if (/recomend|que me conviene|qué me conviene|orient/.test(q)) return 'ASK_RECOMMENDATION';
   if (/compar|diferencia|entre .* y /.test(q)) return 'COMPARE_COURSES';
+  if (/fuera del hospital|seguir ejerciendo|cambiar de area|otra alternativa|otra opcion|algo (?:para|de) (?:las )?escuelas|pediatr/.test(q)) return 'EXPLORE_OPTIONS';
   if (/que cursos|que capacit|que diplomatur|opciones|oferta|que puedo estudiar|que podria estudiar|propuestas|tienen.*(?:curso|capacit|diplomatur|algo)/.test(q)) return 'EXPLORE_OPTIONS';
   if (/inscrib|anotar|cursar|formulario/.test(q)) return 'ENROLLMENT_INTENT';
   if (/precio|costo|valor|cuanto cuesta|cuánto cuesta|cuanto sale|cuánto sale|cuotas|pago/.test(q)) return 'PRICE';
