@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
 const ingressHandler = require('../api/omega/channel-ingress/v1');
+const webChatHandler = require('../api/omega/web-chat/v1');
 const instagramSocialHandler = require('../api/omega/social/instagram');
 const instagramOAuthHandler = require('../api/omega/social/instagram-oauth');
 const commercialIntelligenceHandler = require('../api/dashboard/commercial-intelligence');
@@ -17,6 +18,7 @@ const dashboardAuthStatusHandler = require('../api/auth/status');
 
 const port = Number(process.env.PORT || 3000);
 const ingressPath = '/api/omega/channel-ingress/v1';
+const webChatPath = '/api/omega/web-chat/v1';
 const instagramSocialPath = '/webhook/gate08/instagram';
 const instagramOAuthPaths = new Set([
   '/oauth/gate08/instagram',
@@ -56,6 +58,9 @@ const server = http.createServer((req, res) => {
   if (requestUrl.pathname === retentionEligibilityApiPath) return retentionEligibilityHandler(req, res);
   if (requestUrl.pathname === enrollmentCompletedPath) return enrollmentCompletedHandler(req, res);
   if (requestUrl.pathname === lifecycleSignalsPath) return lifecycleSignalsHandler(req, res);
+  if (requestUrl.pathname === webChatPath) return Promise.resolve(webChatHandler(req, res)).catch(() => {
+    if (!res.writableEnded) json(res, 500, { error: 'internal_error' });
+  });
   if (requestUrl.pathname === instagramSocialPath) return instagramSocialHandler(req, res, requestUrl);
   if (instagramOAuthPaths.has(requestUrl.pathname)) return instagramOAuthHandler(req, res, requestUrl);
   if (requestUrl.pathname !== ingressPath) return json(res, 404, { error: 'not_found' });
