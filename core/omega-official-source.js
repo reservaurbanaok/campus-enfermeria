@@ -56,6 +56,30 @@ function extractCatalogItems(sourceHtml) {
   return items;
 }
 
+function extractCatalogEvidence(sourceText, sourceHtml) {
+  const text = String(sourceText || '');
+  const lower = normalized(text);
+  const catalogItems = extractCatalogItems(sourceHtml);
+  const blocks = COURSE_MARKERS.map((marker) => {
+    const candidates = [];
+    let from = 0;
+    while ((from = lower.indexOf(marker, from)) >= 0) {
+      candidates.push(from);
+      from += marker.length;
+    }
+    const start = candidates.reverse().find((index) => !/todos los derechos reservados|avalado por instituto ferrer/.test(lower.slice(index, index + 240)));
+    if (start === undefined) return null;
+    const next = COURSE_MARKERS.map((candidate) => lower.indexOf(candidate, start + 200))
+      .filter((index) => index > start)
+      .sort((left, right) => left - right)[0];
+    return text.slice(start, Math.min(start + 1200, next || start + 1200));
+  }).filter(Boolean);
+  return {
+    catalog_items: catalogItems,
+    evidence: blocks.length ? blocks.join('\n') : (catalogItems.length ? `Current official Campus catalog: ${catalogItems.join('; ')}` : ''),
+  };
+}
+
 function courseAliases(course) {
   const value = normalized(course);
   if (value.includes('cuidad') || value.includes('crit') || value.includes('emerg')) return ['cuidados criticos', 'cuidados críticos', 'emergencias'];
@@ -102,11 +126,11 @@ function extractEvidence(sourceText, course, intent, sourceHtml) {
     .sort((left, right) => left - right)[0];
   const pattern = factPatterns(intent);
   if (!pattern && String(intent || '').toUpperCase() === 'EXPLORE_OPTIONS') {
-    const catalogItems = extractCatalogItems(sourceHtml);
+    const catalog = extractCatalogEvidence(text, sourceHtml);
     return {
-      found: catalogItems.length > 0,
-      evidence: catalogItems.length ? `Current official Campus catalog: ${catalogItems.join('; ')}` : '',
-      catalog_items: catalogItems,
+      found: catalog.catalog_items.length > 0,
+      evidence: catalog.evidence,
+      catalog_items: catalog.catalog_items,
     };
   }
   if (!pattern) return { found: Boolean(courseIndex >= 0), evidence: courseIndex >= 0 ? text.slice(courseIndex, Math.min(courseIndex + 8000, nextBoundary || courseIndex + 8000)) : '', catalog_items: [] };
@@ -170,4 +194,4 @@ function unavailable(code) {
 
 const defaultOfficialSourceRetriever = createOfficialSourceRetriever();
 
-module.exports = { PRIMARY_SOURCE_URL, DEFAULT_CACHE_TTL_MS, createOfficialSourceRetriever, defaultOfficialSourceRetriever, extractEvidence, extractCatalogItems, stripMarkup };
+module.exports = { PRIMARY_SOURCE_URL, DEFAULT_CACHE_TTL_MS, createOfficialSourceRetriever, defaultOfficialSourceRetriever, extractEvidence, extractCatalogItems, extractCatalogEvidence, stripMarkup };
