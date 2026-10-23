@@ -47,7 +47,9 @@ body { margin: 0; background: var(--pulso-ivory); color: var(--pulso-black); fon
 .pulso-article h1 { max-width: 760px; margin: 14px 0 18px; font-size: clamp(2.8rem, 7vw, 5.8rem); line-height: .94; letter-spacing: -.06em; }
 .pulso-summary { max-width: 690px; margin: 0 0 14px; color: #374141; font-size: 1.3rem; line-height: 1.35; }
 .pulso-article-image { display: block; width: 100%; max-height: 520px; margin: 34px 0; object-fit: cover; }
-.pulso-body { max-width: 720px; font-size: 1.15rem; }
+.pulso-body { max-width: 690px; font-size: 18px; line-height: 1.68; text-align: justify; text-align-last: left; hyphens: auto; -webkit-hyphens: auto; }
+.pulso-body p { margin: 0 0 1.15em; }
+.pulso-body p:last-child { margin-bottom: 0; }
 .pulso-sources { max-width: 720px; margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--pulso-line); font-size: .94rem; }
 .pulso-sources h2 { color: var(--pulso-petroleo); font: 700 .75rem/1.2 Arial, sans-serif; letter-spacing: .16em; text-transform: uppercase; }
 @media (max-width: 720px) {
