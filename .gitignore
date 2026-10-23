@@ -1,2 +1,5 @@
 .vercel
 .env*
+.pulso-local/
+__pycache__/
+*.pyc
