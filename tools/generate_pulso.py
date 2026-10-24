@@ -225,7 +225,11 @@ def main() -> int:
             shutil.copy2(item["_image_source"], assets / Path(item["image"]).name)
         render_article(item, template_path.read_text(encoding="utf-8"), output_dir)
     render_index(articles, output_dir)
-    render_home_section(articles, repo_root)
+    # A private preview may use the same generator with a separate source/output
+    # directory. Never let preview-only or demo content rewrite Campus' public
+    # home block; only the canonical public output may update that region.
+    if output_dir == public_dir:
+        render_home_section(articles, repo_root)
     print(f"PULSO OK: {len(articles)} publicación(es), salida {output_dir}")
     return 0
 

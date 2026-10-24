@@ -52,6 +52,7 @@ body { margin: 0; background: var(--pulso-ivory); color: var(--pulso-black); fon
 .pulso-body p:last-child { margin-bottom: 0; }
 .pulso-sources { max-width: 720px; margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--pulso-line); font-size: .94rem; }
 .pulso-sources h2 { color: var(--pulso-petroleo); font: 700 .75rem/1.2 Arial, sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+.pulso-sources li { overflow-wrap: anywhere; }
 @media (max-width: 720px) {
   .pulso-header { min-height: 52px; padding: 13px 18px; }
   .pulso-shell { padding: 34px 18px 56px; }
