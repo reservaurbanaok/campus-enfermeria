@@ -26,7 +26,11 @@ body { margin: 0; background: var(--pulso-ivory); color: var(--pulso-black); fon
 .pulso-section-heading::after { content: ''; flex: 1; height: 1px; background: var(--pulso-terracota); }
 .pulso-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
 .pulso-card { background: #fffaf2; border: 1px solid var(--pulso-line); }
-.pulso-card > img { display: block; width: 100%; height: 190px; object-fit: cover; }
+.pulso-cover { margin: 0; }
+.pulso-card .pulso-cover { border-bottom: 1px solid var(--pulso-line); }
+.pulso-card .pulso-cover .pulso-article-image { display: block; width: 100%; height: 190px; max-height: none; margin: 0; object-fit: cover; }
+.pulso-cover figcaption { padding: 7px 12px 8px; color: var(--pulso-muted); font: .72rem/1.35 Arial, sans-serif; }
+.pulso-cover-credit { white-space: nowrap; }
 .pulso-card-body { padding: 22px 24px 24px; }
 .pulso-kicker, .pulso-eyebrow { margin: 0; color: var(--pulso-terracota); font: 700 .72rem/1.3 Arial, sans-serif; letter-spacing: .16em; text-transform: uppercase; }
 .pulso-card h2 { margin: 10px 0 12px; font-size: clamp(1.55rem, 3vw, 2.15rem); line-height: 1.05; letter-spacing: -.035em; }
@@ -46,6 +50,8 @@ body { margin: 0; background: var(--pulso-ivory); color: var(--pulso-black); fon
 .pulso-article .pulso-back { display: inline-block; margin-bottom: 28px; }
 .pulso-article h1 { max-width: 760px; margin: 14px 0 18px; font-size: clamp(2.8rem, 7vw, 5.8rem); line-height: .94; letter-spacing: -.06em; }
 .pulso-summary { max-width: 690px; margin: 0 0 14px; color: #374141; font-size: 1.3rem; line-height: 1.35; }
+.pulso-article .pulso-cover { margin: 34px 0; }
+.pulso-article .pulso-cover .pulso-article-image { margin: 0; }
 .pulso-article-image { display: block; width: 100%; max-height: 520px; margin: 34px 0; object-fit: cover; }
 .pulso-body { max-width: 690px; font-size: 18px; line-height: 1.68; text-align: justify; text-align-last: left; hyphens: auto; -webkit-hyphens: auto; }
 .pulso-body p { margin: 0 0 1.15em; }

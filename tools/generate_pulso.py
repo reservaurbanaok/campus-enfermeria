@@ -24,6 +24,33 @@ def esc(value: object) -> str:
     return html.escape(str(value), quote=True)
 
 
+def load_cover(item: dict, source_dir: Path) -> dict | None:
+    cover_image = item.get("cover_image") or item.get("image")
+    if not cover_image:
+        return None
+    if not isinstance(cover_image, str) or cover_image != cover_image.strip():
+        fail(f"cover_image inválida en {item.get('slug', '<sin-slug>')}")
+    cover_path = source_dir / cover_image
+    if not cover_path.is_file():
+        fail(f"imagen de portada local referenciada inexistente: {cover_path}")
+    cover_alt = item.get("cover_alt")
+    if not isinstance(cover_alt, str) or not cover_alt.strip():
+        fail(f"cover_alt obligatorio cuando existe cover_image en {item.get('slug', '<sin-slug>')}")
+    cover_credit = item.get("cover_credit")
+    if not isinstance(cover_credit, str) or not cover_credit.strip():
+        fail(f"cover_credit obligatorio cuando existe cover_image en {item.get('slug', '<sin-slug>')}")
+    cover_caption = item.get("cover_caption", "")
+    if cover_caption and not isinstance(cover_caption, str):
+        fail(f"cover_caption inválido en {item.get('slug', '<sin-slug>')}")
+    return {
+        "filename": cover_path.name,
+        "source": cover_path,
+        "alt": cover_alt,
+        "credit": cover_credit,
+        "caption": cover_caption,
+    }
+
+
 def load_articles(source_dir: Path, include_demo: bool) -> list[dict]:
     files = sorted(source_dir.rglob("*.json")) if source_dir.exists() else []
     articles: list[dict] = []
@@ -57,11 +84,7 @@ def load_articles(source_dir: Path, include_demo: bool) -> list[dict]:
             fail(f"body contiene párrafos vacíos o inválidos en {path}")
         if not isinstance(item["sources"], list) or not item["sources"]:
             fail(f"sources debe ser una lista no vacía en {path}")
-        if item.get("image"):
-            image = source_dir / item["image"]
-            if not image.is_file():
-                fail(f"imagen local referenciada inexistente: {image}")
-            item["_image_source"] = image
+        item["_cover"] = load_cover(item, source_dir)
         item["_source"] = path
         articles.append(item)
     articles.sort(key=lambda item: (item["date"], item["slug"]), reverse=True)
@@ -72,10 +95,8 @@ def render_article(item: dict, template: str, output_dir: Path) -> None:
     slug = item["slug"]
     body = "\n".join(f"<p>{esc(paragraph)}</p>" for paragraph in item["body"])
     sources = "\n".join(f"<li>{esc(source)}</li>" for source in item["sources"])
-    image = ""
-    if item.get("image"):
-        filename = Path(item["image"]).name
-        image = f'<img class="pulso-article-image" src="../assets/{esc(filename)}" alt="">'
+    cover = item.get("_cover")
+    image = render_cover(cover, "../assets/")
     updated = f'<p class="pulso-updated">Actualizado: {esc(item["updated"])}</p>' if item.get("updated") else ""
     values = {
         "TITLE": esc(item["title"]),
@@ -97,12 +118,25 @@ def render_article(item: dict, template: str, output_dir: Path) -> None:
     target.write_text(rendered, encoding="utf-8")
 
 
+def render_cover(cover: dict | None, asset_prefix: str) -> str:
+    if not cover:
+        return ""
+    caption = []
+    if cover["caption"]:
+        caption.append(esc(cover["caption"]))
+    caption.append(f'<span class="pulso-cover-credit">Crédito: {esc(cover["credit"])}</span>')
+    figcaption = f'<figcaption>{" · ".join(caption)}</figcaption>'
+    return (
+        f'<figure class="pulso-cover"><img class="pulso-article-image" '
+        f'src="{esc(asset_prefix + cover["filename"])}" alt="{esc(cover["alt"])}" loading="lazy">'
+        f'{figcaption}</figure>'
+    )
+
+
 def render_index(articles: list[dict], output_dir: Path) -> None:
     cards = []
     for item in articles:
-        image = ""
-        if item.get("image"):
-            image = f'<img src="assets/{esc(Path(item["image"]).name)}" alt="">'
+        image = render_cover(item.get("_cover"), "assets/")
         demo = '<span class="pulso-demo">DEMOSTRACIÓN LOCAL</span>' if item.get("status") == "demo" else ""
         cards.append(
             f'<article class="pulso-card">{image}<div class="pulso-card-body">'
@@ -219,10 +253,10 @@ def main() -> int:
     (output_dir / "assets").mkdir(parents=True, exist_ok=True)
     shutil.copy2(logo_source, output_dir / "assets" / "pulso-isotipo.png")
     for item in articles:
-        if item.get("image"):
+        if item.get("_cover"):
             assets = output_dir / "assets"
             assets.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(item["_image_source"], assets / Path(item["image"]).name)
+            shutil.copy2(item["_cover"]["source"], assets / item["_cover"]["filename"])
         render_article(item, template_path.read_text(encoding="utf-8"), output_dir)
     render_index(articles, output_dir)
     # A private preview may use the same generator with a separate source/output
