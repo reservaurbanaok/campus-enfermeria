@@ -12,6 +12,8 @@ from pathlib import Path
 
 
 REQUIRED = ("type", "title", "summary", "author", "date", "body", "sources", "slug")
+HOME_START = "<!-- PULSO_HOME_START -->"
+HOME_END = "<!-- PULSO_HOME_END -->"
 
 
 def fail(message: str) -> None:
@@ -119,6 +121,71 @@ def render_index(articles: list[dict], output_dir: Path) -> None:
     )
 
 
+def latest_dated_article(articles: list[dict]) -> dict | None:
+    dated = []
+    for item in articles:
+        try:
+            parsed = date.fromisoformat(str(item["date"]))
+        except ValueError:
+            continue
+        dated.append((parsed, str(item["slug"]), item))
+    if not dated:
+        return None
+    dated.sort(key=lambda entry: (entry[0], entry[1]), reverse=True)
+    return dated[0][2]
+
+
+def render_home_section(articles: list[dict], repo_root: Path) -> None:
+    index_path = repo_root / "index.html"
+    if not index_path.is_file():
+        fail(f"no existe la portada de Campus: {index_path}")
+    source = index_path.read_text(encoding="utf-8")
+    start = source.find(HOME_START)
+    end = source.find(HOME_END)
+    if start < 0 or end < 0 or end < start:
+        fail("no se encontraron los marcadores delimitados del bloque PULSO en index.html")
+
+    item = latest_dated_article(articles)
+    if item is None:
+        feature = '<p class="pulso-home-empty">Todavía no hay publicaciones aprobadas con fecha de publicación.</p>'
+    else:
+        feature = (
+            f'<p class="pulso-home-kicker">{esc(item["type"])} · {esc(item["date"])}</p>'
+            f'<h3>{esc(item["title"])}</h3>'
+            f'<p class="pulso-home-summary">{esc(item["summary"])}</p>'
+            f'<p class="pulso-home-byline">Por {esc(item["author"])}</p>'
+            f'<a class="pulso-home-read" href="pulso/publicaciones/{esc(item["slug"])}.html">Leer artículo <span aria-hidden="true">→</span></a>'
+        )
+
+    block = f'''{HOME_START}
+<section id="pulso-home" aria-labelledby="pulso-home-title">
+  <div class="pulso-home-inner">
+    <div class="pulso-home-lockup">
+      <img src="pulso/assets/pulso-isotipo.png" alt="" class="pulso-home-isotipo">
+      <div>
+        <h2 id="pulso-home-title">PULSO</h2>
+        <p>Salud desde adentro</p>
+      </div>
+    </div>
+    <div class="pulso-home-content">
+      <div>
+        <p class="pulso-home-description">Voces, ideas y evidencia para pensar nuestra profesión.</p>
+        <p class="pulso-home-label">Publicación destacada</p>
+      </div>
+      <article class="pulso-home-feature">
+        {feature}
+      </article>
+    </div>
+    <a class="pulso-home-explore" href="pulso/">Explorar PULSO <span aria-hidden="true">→</span></a>
+  </div>
+</section>
+{HOME_END}'''
+    replacement_end = end + len(HOME_END)
+    updated = source[:start] + block + source[replacement_end:]
+    if updated != source:
+        index_path.write_text(updated, encoding="utf-8")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Genera y valida PULSO desde archivos JSON.")
     parser.add_argument("--source-dir", type=Path, default=Path("content/pulso"))
@@ -158,6 +225,7 @@ def main() -> int:
             shutil.copy2(item["_image_source"], assets / Path(item["image"]).name)
         render_article(item, template_path.read_text(encoding="utf-8"), output_dir)
     render_index(articles, output_dir)
+    render_home_section(articles, repo_root)
     print(f"PULSO OK: {len(articles)} publicación(es), salida {output_dir}")
     return 0
 
