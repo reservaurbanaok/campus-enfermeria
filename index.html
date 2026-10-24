@@ -64,24 +64,26 @@ h1,h2,h3,h4{font-family:'Sora',sans-serif}
 section{padding-top:76px}
 
 /* ── PULSO HOME ── */
-#pulso-home{padding:72px 24px;background:#f2ede3;color:#101314}
-#pulso-home .pulso-home-inner{max-width:1180px;margin:0 auto}
+#pulso-home{position:relative;overflow:hidden;padding:72px 24px;background:linear-gradient(135deg,#071022 0%,#0a1932 56%,#103f43 100%);color:#fff;border-top:1px solid rgba(0,200,200,.22);border-bottom:1px solid rgba(0,200,200,.18)}
+#pulso-home::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,200,200,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,200,.055) 1px,transparent 1px);background-size:56px 56px;opacity:.55;pointer-events:none}
+#pulso-home::after{content:'';position:absolute;top:-220px;right:-120px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(0,200,200,.16) 0%,transparent 70%);pointer-events:none}
+#pulso-home .pulso-home-inner{position:relative;z-index:1;max-width:1180px;margin:0 auto}
 #pulso-home .pulso-home-lockup{display:flex;align-items:center;gap:18px;margin-bottom:44px}
 #pulso-home .pulso-home-isotipo{display:block;width:72px;height:auto;max-height:72px;object-fit:contain}
-#pulso-home .pulso-home-lockup h2{margin:0;color:#101314;font-family:Georgia,'Times New Roman',serif;font-size:clamp(3rem,6vw,5rem);line-height:.86;letter-spacing:-.07em}
-#pulso-home .pulso-home-lockup p{margin:9px 0 0;color:#103f43;font-family:Arial,sans-serif;font-size:14px;letter-spacing:.08em}
+#pulso-home .pulso-home-lockup h2{margin:0;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(3rem,6vw,5rem);line-height:.86;letter-spacing:-.07em}
+#pulso-home .pulso-home-lockup p{margin:9px 0 0;color:#9ae7e6;font-family:Arial,sans-serif;font-size:14px;letter-spacing:.08em}
 #pulso-home .pulso-home-content{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr);gap:56px;align-items:start}
-#pulso-home .pulso-home-description{max-width:300px;margin:0;color:#103f43;font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.55rem,2.5vw,2.3rem);line-height:1.12}
+#pulso-home .pulso-home-description{max-width:300px;margin:0;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.55rem,2.5vw,2.3rem);line-height:1.12}
 #pulso-home .pulso-home-label{margin:34px 0 0;color:#c9573d;font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
-#pulso-home .pulso-home-feature{padding:30px 34px;border-top:1px solid #c9573d;border-bottom:1px solid #cfc7b9}
+#pulso-home .pulso-home-feature{padding:30px 34px;background:rgba(4,13,31,.26);border-top:1px solid #00c8c8;border-bottom:1px solid rgba(154,231,230,.32);box-shadow:0 18px 50px rgba(0,0,0,.12)}
 #pulso-home .pulso-home-kicker{margin:0 0 12px;color:#c9573d;font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
-#pulso-home .pulso-home-feature h3{max-width:700px;margin:0 0 14px;color:#101314;font-family:Georgia,'Times New Roman',serif;font-size:clamp(2rem,4vw,3.6rem);line-height:.98;letter-spacing:-.05em}
-#pulso-home .pulso-home-summary{max-width:620px;margin:0 0 14px;color:#374141;font-family:Georgia,'Times New Roman',serif;font-size:1.1rem;line-height:1.45}
-#pulso-home .pulso-home-byline{margin:0 0 22px;color:#66706f;font-family:Arial,sans-serif;font-size:13px}
-#pulso-home .pulso-home-read,#pulso-home .pulso-home-explore{color:#103f43;font-family:Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-decoration:none;text-transform:uppercase}
+#pulso-home .pulso-home-feature h3{max-width:700px;margin:0 0 14px;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(2rem,4vw,3.6rem);line-height:.98;letter-spacing:-.05em}
+#pulso-home .pulso-home-summary{max-width:620px;margin:0 0 14px;color:rgba(255,255,255,.82);font-family:Georgia,'Times New Roman',serif;font-size:1.1rem;line-height:1.45}
+#pulso-home .pulso-home-byline{margin:0 0 22px;color:rgba(255,255,255,.62);font-family:Arial,sans-serif;font-size:13px}
+#pulso-home .pulso-home-read,#pulso-home .pulso-home-explore{color:#9ae7e6;font-family:Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-decoration:none;text-transform:uppercase}
 #pulso-home .pulso-home-read:hover,#pulso-home .pulso-home-explore:hover{color:#c9573d}
 #pulso-home .pulso-home-explore{display:inline-block;margin-top:34px;padding-bottom:7px;border-bottom:2px solid #c9573d}
-#pulso-home .pulso-home-empty{margin:0;color:#66706f;font-family:Arial,sans-serif}
+#pulso-home .pulso-home-empty{margin:0;color:rgba(255,255,255,.72);font-family:Arial,sans-serif}
 @media (max-width:720px){
   #pulso-home{padding:52px 20px}
   #pulso-home .pulso-home-lockup{gap:13px;margin-bottom:32px}
