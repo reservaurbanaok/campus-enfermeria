@@ -95,6 +95,19 @@ def render_article(item: dict, template: str, output_dir: Path) -> None:
     slug = item["slug"]
     body = "\n".join(f"<p>{esc(paragraph).replace(chr(10), '<br>')}</p>" for paragraph in item["body"])
     sources = "\n".join(f"<li>{esc(source)}</li>" for source in item["sources"])
+    privacy_items = item.get("privacy_notice", [])
+    if privacy_items and (not isinstance(privacy_items, list) or not all(isinstance(value, str) and value.strip() for value in privacy_items)):
+        fail(f"privacy_notice inválido en {item.get('slug', '<sin-slug>')}")
+    privacy = ""
+    if privacy_items:
+        privacy = '<aside class="pulso-privacy"><h2>Antes de enviar</h2>' + "".join(f"<p>{esc(value)}</p>" for value in privacy_items) + "</aside>"
+    contact_email = item.get("contact_email", "")
+    if contact_email:
+        if not isinstance(contact_email, str) or "@" not in contact_email or any(char.isspace() for char in contact_email):
+            fail(f"contact_email inválido en {item.get('slug', '<sin-slug>')}")
+        contact = f'<p class="pulso-contact">Contacto: <a href="mailto:{esc(contact_email)}">{esc(contact_email)}</a></p>'
+    else:
+        contact = ""
     cover = item.get("_cover")
     image = render_cover(cover, "../assets/")
     updated = f'<p class="pulso-updated">Actualizado: {esc(item["updated"])}</p>' if item.get("updated") else ""
@@ -106,6 +119,8 @@ def render_article(item: dict, template: str, output_dir: Path) -> None:
         "DATE": esc(item["date"]) if item["date"] else "",
         "DATE_LABEL": f' · {esc(item["date"])}' if item["date"] else "",
         "SUBHEADING": f'<h2 class="pulso-subheading">{esc(item["subheading"])}</h2>' if item.get("subheading") else "",
+        "PRIVACY": privacy,
+        "CONTACT": contact,
         "IMAGE": image,
         "BODY": body,
         "SOURCES": sources,
