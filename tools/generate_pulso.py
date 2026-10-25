@@ -93,7 +93,7 @@ def load_articles(source_dir: Path, include_demo: bool) -> list[dict]:
 
 def render_article(item: dict, template: str, output_dir: Path) -> None:
     slug = item["slug"]
-    body = "\n".join(f"<p>{esc(paragraph)}</p>" for paragraph in item["body"])
+    body = "\n".join(f"<p>{esc(paragraph).replace(chr(10), '<br>')}</p>" for paragraph in item["body"])
     sources = "\n".join(f"<li>{esc(source)}</li>" for source in item["sources"])
     cover = item.get("_cover")
     image = render_cover(cover, "../assets/")
@@ -103,7 +103,9 @@ def render_article(item: dict, template: str, output_dir: Path) -> None:
         "TYPE": esc(item["type"]),
         "SUMMARY": esc(item["summary"]),
         "AUTHOR": esc(item["author"]),
-        "DATE": esc(item["date"]),
+        "DATE": esc(item["date"]) if item["date"] else "",
+        "DATE_LABEL": f' · {esc(item["date"])}' if item["date"] else "",
+        "SUBHEADING": f'<h2 class="pulso-subheading">{esc(item["subheading"])}</h2>' if item.get("subheading") else "",
         "IMAGE": image,
         "BODY": body,
         "SOURCES": sources,
@@ -140,7 +142,7 @@ def render_index(articles: list[dict], output_dir: Path) -> None:
         demo = '<span class="pulso-demo">DEMOSTRACIÓN LOCAL</span>' if item.get("status") == "demo" else ""
         cards.append(
             f'<article class="pulso-card">{image}<div class="pulso-card-body">'
-            f'<p class="pulso-kicker">{esc(item["type"])} · {esc(item["date"])}</p>'
+            f'<p class="pulso-kicker">{esc(item["type"])}{(" · " + esc(item["date"])) if item["date"] else ""}</p>'
             f'<h2><a href="publicaciones/{esc(item["slug"])}.html">{esc(item["title"])}</a></h2>'
             f'<p>{esc(item["summary"])}</p><p class="pulso-byline">{esc(item["author"])}</p>{demo}'
             "</div></article>"
