@@ -93,7 +93,18 @@ def load_articles(source_dir: Path, include_demo: bool) -> list[dict]:
 
 def render_article(item: dict, template: str, output_dir: Path) -> None:
     slug = item["slug"]
-    body = "\n".join(f"<p>{esc(paragraph).replace(chr(10), '<br>')}</p>" for paragraph in item["body"])
+    if item.get("sections"):
+        sections = []
+        for section in item["sections"]:
+            if not isinstance(section, dict) or not isinstance(section.get("heading"), str) or not isinstance(section.get("paragraphs"), list):
+                fail(f"sections inválidas en {item.get('slug', '<sin-slug>')}")
+            if not section["heading"].strip() or not section["paragraphs"] or not all(isinstance(value, str) and value.strip() for value in section["paragraphs"]):
+                fail(f"sections contiene encabezado o párrafo vacío en {item.get('slug', '<sin-slug>')}")
+            sections.append(f'<h2 class="pulso-section-title">{esc(section["heading"])}</h2>')
+            sections.extend(f"<p>{esc(paragraph).replace(chr(10), '<br>')}</p>" for paragraph in section["paragraphs"])
+        body = "\n".join(sections)
+    else:
+        body = "\n".join(f"<p>{esc(paragraph).replace(chr(10), '<br>')}</p>" for paragraph in item["body"])
     sources = "\n".join(f"<li>{esc(source)}</li>" for source in item["sources"])
     privacy_items = item.get("privacy_notice", [])
     if privacy_items and (not isinstance(privacy_items, list) or not all(isinstance(value, str) and value.strip() for value in privacy_items)):

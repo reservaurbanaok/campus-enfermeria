@@ -62,6 +62,7 @@ body { margin: 0; background: var(--pulso-ivory); color: var(--pulso-black); fon
 .pulso-body { max-width: 690px; font-size: 18px; line-height: 1.68; text-align: justify; text-align-last: left; hyphens: auto; -webkit-hyphens: auto; }
 .pulso-body p { margin: 0 0 1.15em; }
 .pulso-body p:last-child { margin-bottom: 0; }
+.pulso-section-title { max-width: 690px; margin: 2.25em 0 .75em; color: var(--pulso-petroleo); font-size: 1.45rem; line-height: 1.18; }
 .pulso-sources { max-width: 720px; margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--pulso-line); font-size: .94rem; }
 .pulso-sources h2 { color: var(--pulso-petroleo); font: 700 .75rem/1.2 Arial, sans-serif; letter-spacing: .16em; text-transform: uppercase; }
 .pulso-sources li { overflow-wrap: anywhere; }
