@@ -63,6 +63,59 @@ h1,h2,h3,h4{font-family:'Sora',sans-serif}
 /* ── SECTIONS ── */
 section{padding-top:76px}
 
+/* ── THREE CAMPUS PILLARS ── */
+#campus-pillars{padding:68px 24px;background:#080f28;border-top:1px solid rgba(0,212,212,.12);border-bottom:1px solid rgba(0,212,212,.12)}
+.campus-pillars-inner{max-width:1180px;margin:0 auto}
+.campus-pillars-heading{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:28px}
+.campus-pillars-kicker{margin:0;color:#00d4d4;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.campus-pillars-heading h2{max-width:520px;margin:0;color:#fff;font-family:'Sora',sans-serif;font-size:clamp(1.7rem,3vw,2.5rem);line-height:1.1;text-align:right}
+.campus-pillars-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.campus-pillar{display:flex;min-height:214px;flex-direction:column;padding:24px;background:rgba(13,30,78,.42);border:1px solid rgba(0,212,212,.16);border-radius:14px;color:#fff;text-decoration:none;transition:border-color .2s,transform .2s,background .2s}
+.campus-pillar:hover,.campus-pillar:focus-visible{border-color:rgba(0,212,212,.62);background:rgba(13,30,78,.68);transform:translateY(-3px)}
+.campus-pillar:focus-visible{outline:3px solid rgba(249,115,22,.8);outline-offset:3px}
+.campus-pillar-number{color:#f97316;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em}
+.campus-pillar h3{margin:28px 0 9px;color:#fff;font-family:'Sora',sans-serif;font-size:16px;letter-spacing:.08em}
+.campus-pillar p{margin:0;color:rgba(255,255,255,.68);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.55}
+.campus-pillar-link{margin-top:auto;padding-top:20px;color:#00d4d4;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+
+@media (max-width:720px){
+  #campus-pillars{padding:52px 20px}
+  .campus-pillars-heading{display:block}
+  .campus-pillars-heading h2{margin-top:12px;text-align:left}
+  .campus-pillars-grid{grid-template-columns:1fr}
+  .campus-pillar{min-height:0}
+}
+
+/* ── THREE CAMPUS PILLARS · EDITORIAL CARDS ── */
+#campus-pillars{padding:30px 24px 72px}
+.campus-pillars-inner{max-width:1280px}
+.campus-pillars-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.campus-pillar{position:relative;display:flex;min-height:390px;flex-direction:column;justify-content:flex-end;overflow:hidden;padding:28px;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.14);border-radius:22px;background:#101d3d;isolation:isolate;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.campus-pillar::before{content:'';position:absolute;inset:0;z-index:-2;background-position:center;background-size:cover;transition:transform .35s ease,filter .35s ease}
+.campus-pillar::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(5,12,31,.04) 16%,rgba(5,12,31,.36) 45%,rgba(5,12,31,.96) 100%)}
+.campus-pillar:hover,.campus-pillar:focus-visible{transform:translateY(-4px);border-color:rgba(0,212,212,.78);box-shadow:0 18px 42px rgba(0,0,0,.26)}
+.campus-pillar:hover::before,.campus-pillar:focus-visible::before{transform:scale(1.035);filter:saturate(1.08)}
+.campus-pillar:focus-visible{outline:3px solid rgba(249,115,22,.88);outline-offset:4px}
+.campus-pillar-formation::before{background-image:url('assets/cuidados-criticos-emergencias-2026.jpg');filter:saturate(.78) contrast(1.04)}
+.campus-pillar-pulso{background:linear-gradient(135deg,#071022 0%,#0a1932 58%,#103f43 100%)}
+.campus-pillar-pulso::before{inset:18%;background-image:url('pulso/assets/pulso-isotipo.png');background-repeat:no-repeat;background-size:min(55%,240px);background-position:78% 18%;opacity:.78;filter:drop-shadow(0 18px 28px rgba(0,200,200,.22))}
+.campus-pillar-pulso::after{background:linear-gradient(180deg,rgba(7,16,34,.02) 0%,rgba(7,16,34,.26) 42%,rgba(7,16,34,.97) 100%)}
+.campus-pillar-comunidad{background:linear-gradient(135deg,#102c48 0%,#123f55 48%,#1b5b5a 100%)}
+.campus-pillar-comunidad::before{inset:0;background-image:radial-gradient(circle at 18% 20%,rgba(0,212,212,.72) 0 2px,transparent 3px),radial-gradient(circle at 74% 28%,rgba(249,115,22,.85) 0 3px,transparent 4px),radial-gradient(circle at 52% 56%,rgba(255,255,255,.72) 0 2px,transparent 3px),linear-gradient(135deg,transparent 0 32%,rgba(154,231,230,.3) 32% 32.5%,transparent 32.5% 59%,rgba(154,231,230,.22) 59% 59.5%,transparent 59.5%);opacity:.7}
+.campus-pillar-content{position:relative;z-index:1}
+.campus-pillar-eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:18px;color:#9ae7e6;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.campus-pillar-eyebrow::before{content:'';display:inline-block;width:22px;height:2px;background:#f97316}
+.campus-pillar h2{margin:0 0 10px;color:#fff;font-family:'Sora',sans-serif;font-size:clamp(2rem,3.8vw,3.35rem);font-weight:800;letter-spacing:-.055em;line-height:.94}
+.campus-pillar p{max-width:290px;margin:0;color:rgba(255,255,255,.86);font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.18rem,1.8vw,1.45rem);line-height:1.15}
+.campus-pillar-link{display:inline-flex;align-items:center;gap:8px;margin-top:26px;color:#fff;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.campus-pillar-link::after{content:'→';color:#f97316;font-size:18px;line-height:0}
+@media (max-width:820px){
+  #campus-pillars{padding:24px 20px 56px}
+  .campus-pillars-grid{grid-template-columns:1fr;gap:14px}
+  .campus-pillar{min-height:300px;padding:24px}
+  .campus-pillar-pulso::before{inset:8%;background-size:180px;background-position:88% 12%}
+}
+
 /* ── PULSO HOME ── */
 #pulso-home{position:relative;overflow:hidden;padding:72px 24px;background:linear-gradient(135deg,#071022 0%,#0a1932 56%,#103f43 100%);color:#fff;border-top:1px solid rgba(0,200,200,.22);border-bottom:1px solid rgba(0,200,200,.18)}
 #pulso-home::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,200,200,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,200,.055) 1px,transparent 1px);background-size:56px 56px;opacity:.55;pointer-events:none}
@@ -973,6 +1026,63 @@ button:hover .neon-icon-gold svg {
   </div>
 </section>
 
+<!-- THREE PILLARS -->
+<section id="campus-pillars" aria-label="Accesos principales del Campus Profesional">
+  <div class="campus-pillars-inner">
+    <div class="campus-pillars-grid">
+      <a class="campus-pillar campus-pillar-formation" href="#cursos">
+        <div class="campus-pillar-content">
+          <span class="campus-pillar-eyebrow">Campus Profesional</span>
+          <h2>FORMACIÓN</h2>
+          <p>Capacitate. Especializate. Crecé.</p>
+          <span class="campus-pillar-link">VER CAPACITACIONES</span>
+        </div>
+      </a>
+      <a class="campus-pillar campus-pillar-pulso" href="pulso/">
+        <div class="campus-pillar-content">
+          <span class="campus-pillar-eyebrow">PULSO · SALUD DESDE ADENTRO</span>
+          <h2>PULSO</h2>
+          <p>La salud, desde adentro.</p>
+          <span class="campus-pillar-link">DESCUBRIR PULSO</span>
+        </div>
+      </a>
+      <a class="campus-pillar campus-pillar-comunidad" href="#beneficios">
+        <div class="campus-pillar-content">
+          <span class="campus-pillar-eyebrow">Campus Profesional</span>
+          <h2>COMUNIDAD</h2>
+          <p>Conocimiento que nos conecta.</p>
+          <span class="campus-pillar-link">CONOCER EL CAMPUS</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- PULSO_HOME_START -->
+<section id="pulso-home" aria-labelledby="pulso-home-title">
+  <div class="pulso-home-inner">
+    <div class="pulso-home-lockup">
+      <img src="pulso/assets/pulso-isotipo.png" alt="" class="pulso-home-isotipo">
+      <div>
+        <h2 id="pulso-home-title">PULSO</h2>
+        <p>SALUD DESDE ADENTRO</p>
+      </div>
+    </div>
+    <div class="pulso-home-content">
+      <div class="pulso-home-intro">
+        <p class="pulso-home-description">LA SALUD TAMBIÉN NECESITA SER CONTADA.</p>
+        <p class="pulso-home-support">Historias, investigación, evidencia y voces que nos invitan a comprender la salud desde adentro.</p>
+        <p class="pulso-home-label">Publicación destacada</p>
+      </div>
+      <article class="pulso-home-feature">
+        <p class="pulso-home-kicker">Entrevista · 2026-10-25</p><h3>Nadie debería atravesarlo solo</h3><p class="pulso-home-summary">Carla Scaramella cuenta cómo una experiencia familiar dio origen a una red de acompañamiento para familias vinculadas con la enfermedad de Hirschsprung.</p><p class="pulso-home-byline">Por Carla Scaramella · Hirschsprung Argentina</p><a class="pulso-home-read" href="pulso/publicaciones/carla-scaramella.html">Leer artículo <span aria-hidden="true">→</span></a>
+      </article>
+    </div>
+    <a class="pulso-home-explore" href="pulso/">CONOCER PULSO <span aria-hidden="true">→</span></a>
+  </div>
+</section>
+<!-- PULSO_HOME_END -->
+
 <!-- PAGE 2: CURSOS -->
 <section id="cursos">
   <div style="max-width:1400px;margin:0 auto;">
@@ -1070,30 +1180,6 @@ button:hover .neon-icon-gold svg {
 
 
 
-
-<!-- PULSO_HOME_START -->
-<section id="pulso-home" aria-labelledby="pulso-home-title">
-  <div class="pulso-home-inner">
-    <div class="pulso-home-lockup">
-      <img src="pulso/assets/pulso-isotipo.png" alt="" class="pulso-home-isotipo">
-      <div>
-        <h2 id="pulso-home-title">PULSO</h2>
-        <p>Salud desde adentro</p>
-      </div>
-    </div>
-    <div class="pulso-home-content">
-      <div>
-        <p class="pulso-home-description">Voces, ideas y evidencia para pensar nuestra profesión.</p>
-        <p class="pulso-home-label">Publicación destacada</p>
-      </div>
-      <article class="pulso-home-feature">
-        <p class="pulso-home-kicker">Entrevista · 2026-10-25</p><h3>Nadie debería atravesarlo solo</h3><p class="pulso-home-summary">Carla Scaramella cuenta cómo una experiencia familiar dio origen a una red de acompañamiento para familias vinculadas con la enfermedad de Hirschsprung.</p><p class="pulso-home-byline">Por Carla Scaramella · Hirschsprung Argentina</p><a class="pulso-home-read" href="pulso/publicaciones/carla-scaramella.html">Leer artículo <span aria-hidden="true">→</span></a>
-      </article>
-    </div>
-    <a class="pulso-home-explore" href="pulso/">Explorar PULSO <span aria-hidden="true">→</span></a>
-  </div>
-</section>
-<!-- PULSO_HOME_END -->
 
 <!-- ══════════════════════════════════════════════════
      AVAL ACADÉMICO — Instituto Ferrer
