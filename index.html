@@ -121,12 +121,15 @@ section{padding-top:76px}
 #pulso-home::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,200,200,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,200,.055) 1px,transparent 1px);background-size:56px 56px;opacity:.55;pointer-events:none}
 #pulso-home::after{content:'';position:absolute;top:-220px;right:-120px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(0,200,200,.16) 0%,transparent 70%);pointer-events:none}
 #pulso-home .pulso-home-inner{position:relative;z-index:1;max-width:1180px;margin:0 auto}
+#pulso-home .pulso-home-cover{margin:0 0 34px}
+#pulso-home .pulso-home-cover img{display:block;width:100%;max-height:520px;object-fit:contain;background:#071022}
 #pulso-home .pulso-home-lockup{display:flex;align-items:center;gap:18px;margin-bottom:44px}
 #pulso-home .pulso-home-isotipo{display:block;width:72px;height:auto;max-height:72px;object-fit:contain}
 #pulso-home .pulso-home-lockup h2{margin:0;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(3rem,6vw,5rem);line-height:.86;letter-spacing:-.07em}
 #pulso-home .pulso-home-lockup p{margin:9px 0 0;color:#9ae7e6;font-family:Arial,sans-serif;font-size:14px;letter-spacing:.08em}
 #pulso-home .pulso-home-content{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr);gap:56px;align-items:start}
 #pulso-home .pulso-home-description{max-width:300px;margin:0;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.55rem,2.5vw,2.3rem);line-height:1.12}
+#pulso-home .pulso-home-support{max-width:360px;margin:18px 0 0;color:rgba(255,255,255,.82);font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;line-height:1.45}
 #pulso-home .pulso-home-label{margin:34px 0 0;color:#c9573d;font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
 #pulso-home .pulso-home-feature{padding:30px 34px;background:rgba(4,13,31,.26);border-top:1px solid #00c8c8;border-bottom:1px solid rgba(154,231,230,.32);box-shadow:0 18px 50px rgba(0,0,0,.12)}
 #pulso-home .pulso-home-kicker{margin:0 0 12px;color:#c9573d;font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
@@ -143,6 +146,7 @@ section{padding-top:76px}
   #pulso-home .pulso-home-isotipo{width:58px;max-height:58px}
   #pulso-home .pulso-home-content{grid-template-columns:1fr;gap:28px}
   #pulso-home .pulso-home-description{max-width: none;font-size:1.6rem}
+  #pulso-home .pulso-home-cover{margin-bottom:26px}
   #pulso-home .pulso-home-label{margin-top:0}
   #pulso-home .pulso-home-feature{padding:24px 0}
   #pulso-home .pulso-home-feature h3{font-size:clamp(2rem,10vw,3rem)}
@@ -924,7 +928,7 @@ button:hover .neon-icon-gold svg {
       <span class="nav-sep">|</span>
       <span class="nav-link" onclick="showCurso('webinar-factores')">Webinar</span>
       <span class="nav-sep">|</span>
-      <a class="nav-link nav-link-pulso" href="pulso/">PULSO</a>
+      <a class="nav-link nav-link-pulso" href="pulso/">SALUD DESDE ADENTRO</a>
       <span class="nav-sep">|</span>
       <a class="nav-link nav-link-bolsa" href="bolsa.html">
         <span class="neon-icon neon-icon-teal">
@@ -956,7 +960,7 @@ button:hover .neon-icon-gold svg {
   <a class="nav-link" onclick="scrollToSection('quienes');closeMobile();" href="#quienes">Nosotros</a>
   <a class="nav-link" onclick="scrollToSection('cursos');closeMobile();" href="#cursos">Oferta Académica</a>
   <span class="nav-link" onclick="showCurso('webinar-factores')">Webinar</span>
-  <a class="nav-link nav-link-pulso" href="pulso/">PULSO</a>
+  <a class="nav-link nav-link-pulso" href="pulso/">SALUD DESDE ADENTRO</a>
   <a class="nav-link nav-link-bolsa-mobile" href="bolsa.html">
     <span class="neon-icon neon-icon-teal">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00c8c8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -1040,10 +1044,10 @@ button:hover .neon-icon-gold svg {
       </a>
       <a class="campus-pillar campus-pillar-pulso" href="pulso/">
         <div class="campus-pillar-content">
-          <span class="campus-pillar-eyebrow">PULSO · SALUD DESDE ADENTRO</span>
-          <h2>PULSO</h2>
+          <span class="campus-pillar-eyebrow">SALUD DESDE ADENTRO</span>
+          <h2>SALUD<br>DESDE<br>ADENTRO</h2>
           <p>La salud, desde adentro.</p>
-          <span class="campus-pillar-link">DESCUBRIR PULSO</span>
+          <span class="campus-pillar-link">INGRESAR A SALUD DESDE ADENTRO</span>
         </div>
       </a>
       <a class="campus-pillar campus-pillar-comunidad" href="#beneficios">
@@ -1061,24 +1065,18 @@ button:hover .neon-icon-gold svg {
 <!-- PULSO_HOME_START -->
 <section id="pulso-home" aria-labelledby="pulso-home-title">
   <div class="pulso-home-inner">
-    <div class="pulso-home-lockup">
-      <img src="pulso/assets/pulso-isotipo.png" alt="" class="pulso-home-isotipo">
-      <div>
-        <h2 id="pulso-home-title">PULSO</h2>
-        <p>SALUD DESDE ADENTRO</p>
-      </div>
-    </div>
+    <div class="pulso-home-cover"><img src="pulso/assets/salud-desde-adentro-portada.png" alt="Portada de SALUD DESDE ADENTRO: periodismo, evidencia y pensamiento crítico." loading="lazy"></div>
     <div class="pulso-home-content">
-      <div class="pulso-home-intro">
-        <p class="pulso-home-description">LA SALUD TAMBIÉN NECESITA SER CONTADA.</p>
-        <p class="pulso-home-support">Historias, investigación, evidencia y voces que nos invitan a comprender la salud desde adentro.</p>
+      <div>
+        <p class="pulso-home-description" id="pulso-home-title">LA SALUD TAMBIÉN NECESITA SER CONTADA.</p>
+        <p class="pulso-home-support">Historias, investigación, evidencia y voces para comprender la salud desde adentro.</p>
         <p class="pulso-home-label">Publicación destacada</p>
       </div>
       <article class="pulso-home-feature">
         <p class="pulso-home-kicker">Entrevista · 2026-10-25</p><h3>Nadie debería atravesarlo solo</h3><p class="pulso-home-summary">Carla Scaramella cuenta cómo una experiencia familiar dio origen a una red de acompañamiento para familias vinculadas con la enfermedad de Hirschsprung.</p><p class="pulso-home-byline">Por Carla Scaramella · Hirschsprung Argentina</p><a class="pulso-home-read" href="pulso/publicaciones/carla-scaramella.html">Leer artículo <span aria-hidden="true">→</span></a>
       </article>
     </div>
-    <a class="pulso-home-explore" href="pulso/">CONOCER PULSO <span aria-hidden="true">→</span></a>
+    <a class="pulso-home-explore" href="pulso/">INGRESAR A SALUD DESDE ADENTRO <span aria-hidden="true">→</span></a>
   </div>
 </section>
 <!-- PULSO_HOME_END -->

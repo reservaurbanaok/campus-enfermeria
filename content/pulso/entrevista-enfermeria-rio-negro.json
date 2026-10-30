@@ -1,0 +1,21 @@
+{
+  "status": "approved",
+  "type": "Entrevistas",
+  "title": "La enfermería escolar en Río Negro",
+  "summary": "Natalia Narváez comparte su experiencia en la enfermería escolar.",
+  "author": "Natalia Narváez",
+  "date": "",
+  "slug": "entrevista-enfermeria-rio-negro",
+  "editorial_order": 5,
+  "external_url": "https://www.instagram.com/reel/DeiLAG5jhWR/",
+  "card_summary": "Natalia Narváez comparte su experiencia en la enfermería escolar.",
+  "card_author": "Natalia Narváez",
+  "cta": "Ver entrevista",
+  "cover_image": "assets/entrevista-enfermeria-rio-negro.jpg",
+  "cover_fit": "contain",
+  "cover_alt": "Portada original del reel sobre enfermería escolar en Río Negro.",
+  "cover_credit": "Portada recuperada de la publicación original de Instagram.",
+  "cover_caption": "Portada del reel; el enlace abre la publicación original.",
+  "body": ["Entrevista publicada originalmente en Instagram."],
+  "sources": ["Publicación original: https://www.instagram.com/reel/DeiLAG5jhWR/"]
+}

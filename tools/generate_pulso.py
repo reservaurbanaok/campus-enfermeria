@@ -1,4 +1,4 @@
-"""Generate the static PULSO editorial section from approved JSON content."""
+"""Generate the static SALUD DESDE ADENTRO editorial section from approved JSON content."""
 
 from __future__ import annotations
 
@@ -48,6 +48,7 @@ def load_cover(item: dict, source_dir: Path) -> dict | None:
         "alt": cover_alt,
         "credit": cover_credit,
         "caption": cover_caption,
+        "fit": item.get("cover_fit", "cover"),
     }
 
 
@@ -87,11 +88,13 @@ def load_articles(source_dir: Path, include_demo: bool) -> list[dict]:
         item["_cover"] = load_cover(item, source_dir)
         item["_source"] = path
         articles.append(item)
-    articles.sort(key=lambda item: (item["date"], item["slug"]), reverse=True)
+    articles.sort(key=lambda item: (item.get("editorial_order", 999), item["date"], item["slug"]))
     return articles
 
 
 def render_article(item: dict, template: str, output_dir: Path) -> None:
+    if item.get("external_url"):
+        return
     slug = item["slug"]
     if item.get("sections"):
         sections = []
@@ -154,8 +157,9 @@ def render_cover(cover: dict | None, asset_prefix: str) -> str:
         caption.append(esc(cover["caption"]))
     caption.append(f'<span class="pulso-cover-credit">Crédito: {esc(cover["credit"])}</span>')
     figcaption = f'<figcaption>{" · ".join(caption)}</figcaption>'
+    fit_class = " pulso-cover--contain" if cover.get("fit") == "contain" else ""
     return (
-        f'<figure class="pulso-cover"><img class="pulso-article-image" '
+        f'<figure class="pulso-cover{fit_class}"><img class="pulso-article-image" '
         f'src="{esc(asset_prefix + cover["filename"])}" alt="{esc(cover["alt"])}" loading="lazy">'
         f'{figcaption}</figure>'
     )
@@ -166,17 +170,24 @@ def render_index(articles: list[dict], output_dir: Path) -> None:
     for item in articles:
         image = render_cover(item.get("_cover"), "assets/")
         demo = '<span class="pulso-demo">DEMOSTRACIÓN LOCAL</span>' if item.get("status") == "demo" else ""
+        href = item.get("external_url") or f'publicaciones/{esc(item["slug"])}.html'
+        target = ' target="_blank" rel="noopener noreferrer"' if item.get("external_url") else ""
+        card_title = item.get("card_title", item["title"])
+        card_summary = item.get("card_summary", item["summary"])
+        card_author = item.get("card_author", item["author"])
+        cta = item.get("cta", "Leer artículo")
         cards.append(
             f'<article class="pulso-card">{image}<div class="pulso-card-body">'
             f'<p class="pulso-kicker">{esc(item["type"])}{(" · " + esc(item["date"])) if item["date"] else ""}</p>'
-            f'<h2><a href="publicaciones/{esc(item["slug"])}.html">{esc(item["title"])}</a></h2>'
-            f'<p>{esc(item["summary"])}</p><p class="pulso-byline">{esc(item["author"])}</p>{demo}'
+            f'<h2>{esc(card_title)}</h2>'
+            f'<p>{esc(card_summary)}</p><p class="pulso-byline">{esc(card_author)}</p>{demo}'
+            f'<a class="pulso-card-cta" href="{esc(href)}"{target}>{esc(cta)} <span aria-hidden="true">→</span></a>'
             "</div></article>"
         )
     listing = "\n".join(cards) or '<p class="pulso-empty">Todavía no hay publicaciones aprobadas.</p>'
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "index.html").write_text(
-        """<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PULSO · Campus Profesional</title><link rel="stylesheet" href="styles.css"></head><body><header class="pulso-header"><a href="../index.html">← Campus Profesional</a></header><main class="pulso-shell"><div class="pulso-main-brand pulso-lockup" aria-label="PULSO"><img class="pulso-isotipo" src="assets/pulso-isotipo.png" alt=""><span class="pulso-wordmark"><strong>PULSO</strong><span>Salud desde adentro</span></span></div><p class="pulso-intro">Artículos, entrevistas e investigaciones para comprender y transformar la práctica profesional.</p><div class="pulso-section-heading">Publicaciones</div><section class="pulso-grid" aria-label="Publicaciones">"""
+        """<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SALUD DESDE ADENTRO · Campus Profesional</title><meta name="description" content="Periodismo, evidencia y pensamiento crítico para comprender la salud desde adentro."><link rel="stylesheet" href="styles.css"></head><body><header class="pulso-header"><a href="../index.html">← Campus Profesional</a></header><main class="pulso-shell"><div class="pulso-main-brand salud-lockup" aria-label="SALUD DESDE ADENTRO"><span class="salud-wordmark">SALUD<br>DESDE ADENTRO</span><span class="salud-tagline">Periodismo, evidencia y pensamiento crítico</span></div><p class="pulso-intro">Historias, entrevistas e investigaciones para comprender y transformar la práctica profesional.</p><div class="pulso-section-heading">Publicaciones</div><section class="pulso-grid" aria-label="Publicaciones de SALUD DESDE ADENTRO">"""
         + listing
         + """</section></main></body></html>""",
         encoding="utf-8",
@@ -222,23 +233,18 @@ def render_home_section(articles: list[dict], repo_root: Path) -> None:
     block = f'''{HOME_START}
 <section id="pulso-home" aria-labelledby="pulso-home-title">
   <div class="pulso-home-inner">
-    <div class="pulso-home-lockup">
-      <img src="pulso/assets/pulso-isotipo.png" alt="" class="pulso-home-isotipo">
-      <div>
-        <h2 id="pulso-home-title">PULSO</h2>
-        <p>Salud desde adentro</p>
-      </div>
-    </div>
+    <div class="pulso-home-cover"><img src="pulso/assets/salud-desde-adentro-portada.png" alt="Portada de SALUD DESDE ADENTRO: periodismo, evidencia y pensamiento crítico." loading="lazy"></div>
     <div class="pulso-home-content">
       <div>
-        <p class="pulso-home-description">Voces, ideas y evidencia para pensar nuestra profesión.</p>
+        <p class="pulso-home-description" id="pulso-home-title">LA SALUD TAMBIÉN NECESITA SER CONTADA.</p>
+        <p class="pulso-home-support">Historias, investigación, evidencia y voces para comprender la salud desde adentro.</p>
         <p class="pulso-home-label">Publicación destacada</p>
       </div>
       <article class="pulso-home-feature">
         {feature}
       </article>
     </div>
-    <a class="pulso-home-explore" href="pulso/">Explorar PULSO <span aria-hidden="true">→</span></a>
+    <a class="pulso-home-explore" href="pulso/">INGRESAR A SALUD DESDE ADENTRO <span aria-hidden="true">→</span></a>
   </div>
 </section>
 {HOME_END}'''
@@ -280,6 +286,10 @@ def main() -> int:
         fail(f"no existe el isotipo canónico: {logo_source}")
     (output_dir / "assets").mkdir(parents=True, exist_ok=True)
     shutil.copy2(logo_source, output_dir / "assets" / "pulso-isotipo.png")
+    home_cover_source = repo_root / "content" / "pulso" / "assets" / "salud-desde-adentro-portada.png"
+    if not home_cover_source.is_file():
+        fail(f"no existe la portada canónica de SALUD DESDE ADENTRO: {home_cover_source}")
+    shutil.copy2(home_cover_source, output_dir / "assets" / "salud-desde-adentro-portada.png")
     for item in articles:
         if item.get("_cover"):
             assets = output_dir / "assets"
