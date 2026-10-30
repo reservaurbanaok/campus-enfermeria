@@ -14,6 +14,13 @@ from pathlib import Path
 REQUIRED = ("type", "title", "summary", "author", "date", "body", "sources", "slug")
 HOME_START = "<!-- PULSO_HOME_START -->"
 HOME_END = "<!-- PULSO_HOME_END -->"
+PULSO_GROUPS = (
+    ("Historias y entrevistas", ("cuidar-tambien-transformar", "carla-scaramella", "entrevista-diabetes-escuela", "entrevista-enfermeria-rio-negro")),
+    ("Ciencia y evidencia", ("seguridad-paciente-cultura-justa",)),
+    ("Salud y sociedad", ("mas-alla-del-timbre",)),
+    ("Opinión", ("carta-del-director", "la-buena-compania-un-bien-no-negociable")),
+)
+PULSO_PARTICIPATION = ("Participación", ("queremos-saber-que-esta-pasando-donde-vos-estas",))
 
 
 def fail(message: str) -> None:
@@ -166,8 +173,12 @@ def render_cover(cover: dict | None, asset_prefix: str) -> str:
 
 
 def render_index(articles: list[dict], output_dir: Path) -> None:
-    cards = []
-    for item in articles:
+    by_slug = {item["slug"]: item for item in articles}
+    expected_slugs = [slug for _, slugs in PULSO_GROUPS for slug in slugs] + list(PULSO_PARTICIPATION[1])
+    if set(by_slug) != set(expected_slugs) or len(expected_slugs) != len(set(expected_slugs)):
+        fail("la agrupación editorial no cubre exactamente cada tarjeta una sola vez")
+
+    def render_card(item: dict) -> str:
         image = render_cover(item.get("_cover"), "assets/")
         demo = '<span class="pulso-demo">DEMOSTRACIÓN LOCAL</span>' if item.get("status") == "demo" else ""
         href = item.get("external_url") or f'publicaciones/{esc(item["slug"])}.html'
@@ -176,7 +187,7 @@ def render_index(articles: list[dict], output_dir: Path) -> None:
         card_summary = item.get("card_summary", item["summary"])
         card_author = item.get("card_author", item["author"])
         cta = item.get("cta", "Leer artículo")
-        cards.append(
+        return (
             f'<article class="pulso-card">{image}<div class="pulso-card-body">'
             f'<p class="pulso-kicker">{esc(item["type"])}{(" · " + esc(item["date"])) if item["date"] else ""}</p>'
             f'<h2>{esc(card_title)}</h2>'
@@ -184,10 +195,20 @@ def render_index(articles: list[dict], output_dir: Path) -> None:
             f'<a class="pulso-card-cta" href="{esc(href)}"{target}>{esc(cta)} <span aria-hidden="true">→</span></a>'
             "</div></article>"
         )
-    listing = "\n".join(cards) or '<p class="pulso-empty">Todavía no hay publicaciones aprobadas.</p>'
+
+    groups = []
+    for group_index, (section, slugs) in enumerate(PULSO_GROUPS + (PULSO_PARTICIPATION,)):
+        cards = "\n".join(render_card(by_slug[slug]) for slug in slugs)
+        heading_style = ' style="margin-top:44px"' if group_index else ""
+        groups.append(
+            f'<section class="pulso-group" aria-labelledby="pulso-group-{esc(slugs[0])}">'
+            f'<div id="pulso-group-{esc(slugs[0])}" class="pulso-section-heading"{heading_style}>{esc(section)}</div>'
+            f'<div class="pulso-grid">{cards}</div></section>'
+        )
+    listing = "\n".join(groups)
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "index.html").write_text(
-        """<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SALUD DESDE ADENTRO · Campus Profesional</title><meta name="description" content="Periodismo, evidencia y pensamiento crítico para comprender la salud desde adentro."><link rel="stylesheet" href="styles.css?v=20261030"></head><body><header class="pulso-header"><a href="../index.html">← Campus Profesional</a></header><main class="pulso-shell"><div class="pulso-main-brand salud-lockup" aria-label="SALUD DESDE ADENTRO"><span class="salud-wordmark">SALUD<br>DESDE ADENTRO</span><span class="salud-tagline">Periodismo, evidencia y pensamiento crítico</span></div><p class="pulso-intro">Historias, entrevistas e investigaciones para comprender y transformar la práctica profesional.</p><div class="pulso-section-heading">Publicaciones</div><section class="pulso-grid" aria-label="Publicaciones de SALUD DESDE ADENTRO">"""
+        """<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SALUD DESDE ADENTRO · Campus Profesional</title><meta name="description" content="Periodismo, evidencia y pensamiento crítico para comprender la salud desde adentro."><link rel="stylesheet" href="styles.css?v=20261030"></head><body><header class="pulso-header"><a href="../index.html">← Campus Profesional</a></header><main class="pulso-shell"><div class="pulso-main-brand salud-lockup" aria-label="SALUD DESDE ADENTRO"><span class="salud-wordmark">SALUD<br>DESDE ADENTRO</span><span class="salud-tagline">Periodismo, evidencia y pensamiento crítico</span></div><p class="pulso-intro">Historias, entrevistas e investigaciones para comprender y transformar la práctica profesional.</p><section aria-label="Publicaciones de SALUD DESDE ADENTRO">"""
         + listing
         + """</section></main></body></html>""",
         encoding="utf-8",
