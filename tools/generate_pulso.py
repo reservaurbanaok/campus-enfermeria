@@ -15,12 +15,13 @@ REQUIRED = ("type", "title", "summary", "author", "date", "body", "sources", "sl
 HOME_START = "<!-- PULSO_HOME_START -->"
 HOME_END = "<!-- PULSO_HOME_END -->"
 PULSO_GROUPS = (
-    ("Historias y entrevistas", ("cuidar-tambien-transformar", "carla-scaramella", "entrevista-diabetes-escuela", "entrevista-enfermeria-rio-negro")),
-    ("Ciencia y evidencia", ("seguridad-paciente-cultura-justa",)),
-    ("Salud y sociedad", ("mas-alla-del-timbre",)),
-    ("Opinión", ("carta-del-director", "la-buena-compania-un-bien-no-negociable")),
+    ("Historias y entrevistas", "historias-y-entrevistas", ("cuidar-tambien-transformar", "carla-scaramella", "entrevista-diabetes-escuela", "entrevista-enfermeria-rio-negro")),
+    ("Ciencia y evidencia", "ciencia-y-evidencia", ("seguridad-paciente-cultura-justa",)),
+    ("Salud y sociedad", "salud-y-sociedad", ("mas-alla-del-timbre",)),
+    ("Opinión", "opinion", ("carta-del-director", "la-buena-compania-un-bien-no-negociable")),
 )
-PULSO_PARTICIPATION = ("Participación", ("queremos-saber-que-esta-pasando-donde-vos-estas",))
+PULSO_PARTICIPATION = ("Participación", "participacion", ("queremos-saber-que-esta-pasando-donde-vos-estas",))
+GA4_MEASUREMENT_ID = "G-6PH85PZTXC"
 
 
 def fail(message: str) -> None:
@@ -174,7 +175,7 @@ def render_cover(cover: dict | None, asset_prefix: str) -> str:
 
 def render_index(articles: list[dict], output_dir: Path) -> None:
     by_slug = {item["slug"]: item for item in articles}
-    expected_slugs = [slug for _, slugs in PULSO_GROUPS for slug in slugs] + list(PULSO_PARTICIPATION[1])
+    expected_slugs = [slug for _, _, slugs in PULSO_GROUPS for slug in slugs] + list(PULSO_PARTICIPATION[2])
     if set(by_slug) != set(expected_slugs) or len(expected_slugs) != len(set(expected_slugs)):
         fail("la agrupación editorial no cubre exactamente cada tarjeta una sola vez")
 
@@ -196,21 +197,40 @@ def render_index(articles: list[dict], output_dir: Path) -> None:
             "</div></article>"
         )
 
+    nav_groups = PULSO_GROUPS + (PULSO_PARTICIPATION,)
+    nav_links = "\n".join(
+        f'<a class="pulso-section-nav-link" href="#{esc(section_id)}" data-section-id="{esc(section_id)}" data-section-name="{esc(section)}">{esc(section)}</a>'
+        for section, section_id, _ in nav_groups
+    )
     groups = []
-    for group_index, (section, slugs) in enumerate(PULSO_GROUPS + (PULSO_PARTICIPATION,)):
+    for group_index, (section, section_id, slugs) in enumerate(nav_groups):
         cards = "\n".join(render_card(by_slug[slug]) for slug in slugs)
         heading_style = ' style="margin-top:44px"' if group_index else ""
         groups.append(
-            f'<section class="pulso-group" aria-labelledby="pulso-group-{esc(slugs[0])}">'
-            f'<h2 id="pulso-group-{esc(slugs[0])}" class="pulso-section-heading"{heading_style}>{esc(section)}</h2>'
+            f'<section class="pulso-group" aria-labelledby="{esc(section_id)}">'
+            f'<h2 id="{esc(section_id)}" class="pulso-section-heading"{heading_style}>{esc(section)}</h2>'
             f'<div class="pulso-grid">{cards}</div></section>'
         )
     listing = "\n".join(groups)
+    analytics_script = """<script>
+document.addEventListener('click', function (event) {
+  const link = event.target.closest('a[data-section-id]');
+  if (!link) return;
+  const navigationLocation = window.matchMedia('(max-width: 720px)').matches ? 'header_mobile' : 'header_right';
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'editorial_section_click', {
+      section_id: link.dataset.sectionId,
+      section_name: link.dataset.sectionName,
+      navigation_location: navigationLocation
+    });
+  }
+});
+</script>"""
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "index.html").write_text(
-        """<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SALUD DESDE ADENTRO · Campus Profesional</title><meta name="description" content="Periodismo, evidencia y pensamiento crítico para comprender la salud desde adentro."><link rel="stylesheet" href="styles.css?v=20261030"></head><body><header class="pulso-header"><a href="../index.html">← Campus Profesional</a></header><main class="pulso-shell"><div class="pulso-main-brand salud-lockup" aria-label="SALUD DESDE ADENTRO"><span class="salud-wordmark">SALUD<br>DESDE ADENTRO</span><span class="salud-tagline">Periodismo, evidencia y pensamiento crítico</span></div><p class="pulso-intro">Historias, entrevistas e investigaciones para comprender y transformar la práctica profesional.</p><section aria-label="Publicaciones de SALUD DESDE ADENTRO">"""
+        f"""<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SALUD DESDE ADENTRO · Campus Profesional</title><meta name="description" content="Periodismo, evidencia y pensamiento crítico para comprender la salud desde adentro."><link rel="stylesheet" href="styles.css?v=20261030"><script async src="https://www.googletagmanager.com/gtag/js?id={GA4_MEASUREMENT_ID}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());gtag('config','{GA4_MEASUREMENT_ID}');</script></head><body><header class="pulso-header"><a href="../index.html">← Campus Profesional</a></header><main class="pulso-shell"><div class="pulso-content-head"><div class="pulso-content-copy"><div class="pulso-main-brand salud-lockup" aria-label="SALUD DESDE ADENTRO"><span class="salud-wordmark">SALUD<br>DESDE ADENTRO</span><span class="salud-tagline">Periodismo, evidencia y pensamiento crítico</span></div><p class="pulso-intro">Historias, entrevistas e investigaciones para comprender y transformar la práctica profesional.</p></div><nav class="pulso-section-nav" aria-label="Navegar por secciones">{nav_links}</nav></div><section aria-label="Publicaciones de SALUD DESDE ADENTRO">"""
         + listing
-        + """</section></main></body></html>""",
+        + f"""</section></main>{analytics_script}</body></html>""",
         encoding="utf-8",
     )
 
