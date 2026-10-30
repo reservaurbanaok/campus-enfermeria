@@ -28,7 +28,7 @@ body { margin: 0; overflow-x: hidden; background: var(--pulso-ivory); color: var
 .pulso-wordmark strong { color: var(--pulso-black); font-size: clamp(3.7rem, 8vw, 6.6rem); font-weight: 700; letter-spacing: -.075em; }
 .pulso-wordmark span { color: var(--pulso-petroleo); font-size: clamp(1.05rem, 2vw, 1.45rem); letter-spacing: .02em; }
 .pulso-intro { max-width: 690px; margin: 0 0 40px; color: #374141; font-size: clamp(1.2rem, 2.2vw, 1.5rem); line-height: 1.35; overflow-wrap: anywhere; }
-.pulso-section-heading { display: flex; align-items: center; gap: 18px; margin: 0 0 20px; color: var(--pulso-petroleo); font: 700 .76rem/1.2 Arial, sans-serif; letter-spacing: .18em; text-transform: uppercase; }
+.pulso-section-heading { display: flex; align-items: center; gap: 18px; margin: 0 0 24px; color: var(--pulso-petroleo); font: 700 2rem/1.1 Georgia, 'Times New Roman', serif; letter-spacing: -.02em; }
 .pulso-section-heading::after { content: ''; flex: 1; height: 1px; background: var(--pulso-terracota); }
 .pulso-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; align-items: stretch; }
 .pulso-card { min-width: 0; background: #fffaf2; border: 1px solid var(--pulso-line); }
@@ -88,6 +88,7 @@ body { margin: 0; overflow-x: hidden; background: var(--pulso-ivory); color: var
   .pulso-wordmark span { font-size: .92rem; }
   .pulso-main-brand { margin-bottom: 20px; }
   .pulso-intro { margin-bottom: 32px; font-size: 1.12rem; }
+  .pulso-section-heading { margin-bottom: 20px; font-size: 1.625rem; line-height: 1.15; }
   .pulso-grid { grid-template-columns: 1fr; }
   .pulso-card-body { padding: 20px; }
   .pulso-card-body { min-height: 0; }

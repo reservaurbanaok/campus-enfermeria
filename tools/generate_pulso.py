@@ -202,7 +202,7 @@ def render_index(articles: list[dict], output_dir: Path) -> None:
         heading_style = ' style="margin-top:44px"' if group_index else ""
         groups.append(
             f'<section class="pulso-group" aria-labelledby="pulso-group-{esc(slugs[0])}">'
-            f'<div id="pulso-group-{esc(slugs[0])}" class="pulso-section-heading"{heading_style}>{esc(section)}</div>'
+            f'<h2 id="pulso-group-{esc(slugs[0])}" class="pulso-section-heading"{heading_style}>{esc(section)}</h2>'
             f'<div class="pulso-grid">{cards}</div></section>'
         )
     listing = "\n".join(groups)
