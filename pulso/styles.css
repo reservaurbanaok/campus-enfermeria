@@ -34,6 +34,7 @@ body { margin: 0; overflow-x: hidden; background: var(--pulso-ivory); color: var
 .pulso-section-nav { display: grid; gap: 10px; align-self: start; padding-top: 6px; }
 .pulso-section-nav-link { display: block; min-height: 44px; padding: 10px 14px; border: 1px solid var(--pulso-line); background: rgba(255, 250, 242, .72); color: var(--pulso-petroleo); font: 700 .82rem/1.2 Arial, sans-serif; letter-spacing: .04em; text-decoration: none; overflow-wrap: anywhere; }
 .pulso-section-nav-link:hover, .pulso-section-nav-link:focus-visible { border-color: var(--pulso-terracota); color: var(--pulso-terracota); outline: none; }
+.pulso-anchor-compat { display: block; height: 0; scroll-margin-top: 78px; }
 .pulso-section-heading { display: flex; align-items: center; gap: 18px; margin: 0 0 24px; color: var(--pulso-petroleo); font: 700 2rem/1.1 Georgia, 'Times New Roman', serif; letter-spacing: -.02em; }
 .pulso-section-heading { scroll-margin-top: 78px; }
 .pulso-section-heading::after { content: ''; flex: 1; height: 1px; background: var(--pulso-terracota); }

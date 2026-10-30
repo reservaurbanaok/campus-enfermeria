@@ -4,9 +4,11 @@ La página `/pulso/` emite el evento GA4 `editorial_section_click` sólo cuando 
 
 Parámetros del evento:
 
-- `section_id`: `historias-y-entrevistas`, `ciencia-y-evidencia`, `salud-y-sociedad`, `opinion` o `participacion`.
+- `section_id`: `historias-y-entrevistas`, `enfermeria-escolar`, `ciencia-y-evidencia`, `salud-y-sociedad`, `opinion` o `participacion`.
 - `section_name`: nombre visible de la sección.
 - `navigation_location`: `header_right` en escritorio o `header_mobile` en móvil.
+
+La navegación visible usa `ciencia-e-investigacion` como ancla nueva, pero conserva `ciencia-y-evidencia` como identificador analítico para mantener continuidad histórica. La sección `Salud y sociedad` puede estar visible y vacía mientras no tenga publicaciones aprobadas.
 
 Para consultar los resultados en GA4: Informes → Interacción → Eventos → `editorial_section_click`. Agregar `section_id`, `section_name` y `navigation_location` como dimensiones secundarias, seleccionar el período y usar el conteo de eventos para comparar las secciones. La proporción de cada sección se obtiene dividiendo sus eventos por el total del evento en el mismo período y filtro.
 

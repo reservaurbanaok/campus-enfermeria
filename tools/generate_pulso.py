@@ -15,12 +15,13 @@ REQUIRED = ("type", "title", "summary", "author", "date", "body", "sources", "sl
 HOME_START = "<!-- PULSO_HOME_START -->"
 HOME_END = "<!-- PULSO_HOME_END -->"
 PULSO_GROUPS = (
-    ("Historias y entrevistas", "historias-y-entrevistas", ("cuidar-tambien-transformar", "carla-scaramella", "entrevista-diabetes-escuela", "entrevista-enfermeria-rio-negro")),
-    ("Ciencia y evidencia", "ciencia-y-evidencia", ("seguridad-paciente-cultura-justa",)),
-    ("Salud y sociedad", "salud-y-sociedad", ("mas-alla-del-timbre",)),
-    ("Opinión", "opinion", ("carta-del-director", "la-buena-compania-un-bien-no-negociable")),
+    ("Historias y entrevistas", "historias-y-entrevistas", ("cuidar-tambien-transformar", "carla-scaramella"), "historias-y-entrevistas"),
+    ("Enfermería escolar", "enfermeria-escolar", ("entrevista-diabetes-escuela", "entrevista-enfermeria-rio-negro", "mas-alla-del-timbre"), "enfermeria-escolar"),
+    ("Ciencia e investigación", "ciencia-e-investigacion", ("seguridad-paciente-cultura-justa",), "ciencia-y-evidencia"),
+    ("Salud y sociedad", "salud-y-sociedad", (), "salud-y-sociedad"),
+    ("Opinión", "opinion", ("carta-del-director", "la-buena-compania-un-bien-no-negociable"), "opinion"),
 )
-PULSO_PARTICIPATION = ("Participación", "participacion", ("queremos-saber-que-esta-pasando-donde-vos-estas",))
+PULSO_PARTICIPATION = ("Participación", "participacion", ("queremos-saber-que-esta-pasando-donde-vos-estas",), "participacion")
 GA4_MEASUREMENT_ID = "G-6PH85PZTXC"
 
 
@@ -175,7 +176,7 @@ def render_cover(cover: dict | None, asset_prefix: str) -> str:
 
 def render_index(articles: list[dict], output_dir: Path) -> None:
     by_slug = {item["slug"]: item for item in articles}
-    expected_slugs = [slug for _, _, slugs in PULSO_GROUPS for slug in slugs] + list(PULSO_PARTICIPATION[2])
+    expected_slugs = [slug for _, _, slugs, _ in PULSO_GROUPS for slug in slugs] + list(PULSO_PARTICIPATION[2])
     if set(by_slug) != set(expected_slugs) or len(expected_slugs) != len(set(expected_slugs)):
         fail("la agrupación editorial no cubre exactamente cada tarjeta una sola vez")
 
@@ -199,17 +200,20 @@ def render_index(articles: list[dict], output_dir: Path) -> None:
 
     nav_groups = PULSO_GROUPS + (PULSO_PARTICIPATION,)
     nav_links = "\n".join(
-        f'<a class="pulso-section-nav-link" href="#{esc(section_id)}" data-section-id="{esc(section_id)}" data-section-name="{esc(section)}">{esc(section)}</a>'
-        for section, section_id, _ in nav_groups
+        f'<a class="pulso-section-nav-link" href="#{esc(section_id)}" data-section-id="{esc(analytics_id)}" data-section-name="{esc(section)}">{esc(section)}</a>'
+        for section, section_id, _, analytics_id in nav_groups
     )
     groups = []
-    for group_index, (section, section_id, slugs) in enumerate(nav_groups):
+    for group_index, (section, section_id, slugs, _) in enumerate(nav_groups):
         cards = "\n".join(render_card(by_slug[slug]) for slug in slugs)
+        content = cards or '<p class="pulso-empty">Próximamente encontrarás publicaciones en esta sección.</p>'
         heading_style = ' style="margin-top:44px"' if group_index else ""
+        analytics_id = nav_groups[group_index][3]
+        compat_anchor = f'<span id="{esc(analytics_id)}" class="pulso-anchor-compat" aria-hidden="true"></span>' if analytics_id != section_id else ""
         groups.append(
-            f'<section class="pulso-group" aria-labelledby="{esc(section_id)}">'
+            f'<section class="pulso-group" aria-labelledby="{esc(section_id)}">{compat_anchor}'
             f'<h2 id="{esc(section_id)}" class="pulso-section-heading"{heading_style}>{esc(section)}</h2>'
-            f'<div class="pulso-grid">{cards}</div></section>'
+            f'<div class="pulso-grid">{content}</div></section>'
         )
     listing = "\n".join(groups)
     analytics_script = """<script>

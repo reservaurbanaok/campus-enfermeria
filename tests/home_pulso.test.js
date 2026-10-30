@@ -40,6 +40,23 @@ assert.ok(fs.existsSync(path.join(repo, 'pulso', 'assets', 'pulso-isotipo.png'))
 assert.ok(pulsoIndex.includes('href="publicaciones/carla-scaramella.html"'));
 assert.equal((pulsoIndex.match(/class="pulso-card"/g) || []).length, 9);
 assert.equal((pulsoIndex.match(/class="pulso-article-image"/g) || []).length, 9);
+assert.equal((pulsoIndex.match(/class="pulso-section-nav-link"/g) || []).length, 6);
+assert.deepEqual(
+  [...pulsoIndex.matchAll(/<h2 id="([^"]+)" class="pulso-section-heading"[^>]*>([^<]+)<\/h2>/g)].map(match => [match[1], match[2]]),
+  [
+    ['historias-y-entrevistas', 'Historias y entrevistas'],
+    ['enfermeria-escolar', 'Enfermería escolar'],
+    ['ciencia-e-investigacion', 'Ciencia e investigación'],
+    ['salud-y-sociedad', 'Salud y sociedad'],
+    ['opinion', 'Opinión'],
+    ['participacion', 'Participación'],
+  ],
+);
+assert.ok(pulsoIndex.includes('href="#ciencia-e-investigacion"'));
+assert.ok(pulsoIndex.includes('id="ciencia-y-evidencia"'));
+assert.ok(pulsoIndex.includes('data-section-id="ciencia-y-evidencia"'));
+assert.ok(pulsoIndex.includes('Próximamente encontrarás publicaciones en esta sección.'));
+assert.equal((pulsoIndex.match(/editorial_section_click/g) || []).length, 1);
 assert.ok(pulsoIndex.includes('https://www.instagram.com/reel/DecfqN4DrRC/'));
 assert.ok(pulsoIndex.includes('https://www.instagram.com/reel/DeiLAG5jhWR/'));
 assert.ok(!pulsoIndex.includes('PULSO</strong>'));
