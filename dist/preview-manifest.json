@@ -1,0 +1,154 @@
+[
+  {
+    "slug": "carta-del-director",
+    "title": "Hay una parte de la salud que nunca entra en una historia clínica.",
+    "type": "Editorial",
+    "date": "",
+    "author": "El Catalán",
+    "external_url": null,
+    "primary_section": "Opinión",
+    "tags": [
+      "cuidado",
+      "comunicación en salud"
+    ],
+    "listing": "article",
+    "featured": null,
+    "attribution_note": "Contenido editorial firmado por El Catalán."
+  },
+  {
+    "slug": "cuidar-tambien-transformar",
+    "title": "Cuidar también es transformar",
+    "type": "Entrevista",
+    "date": "2026-10-24",
+    "author": "Natalia Spallino · entrevistada",
+    "external_url": null,
+    "primary_section": "Historias y entrevistas",
+    "tags": [
+      "enfermería",
+      "transformación",
+      "práctica profesional"
+    ],
+    "listing": "article",
+    "featured": null,
+    "attribution_note": "Natalia Spallino figura como entrevistada; no se informa una autoría editorial separada."
+  },
+  {
+    "slug": "carla-scaramella",
+    "title": "Nadie debería atravesarlo solo",
+    "type": "Entrevista",
+    "date": "2026-10-25",
+    "author": "Carla Scaramella · Hirschsprung Argentina",
+    "external_url": null,
+    "primary_section": "Historias y entrevistas",
+    "tags": [
+      "familias",
+      "acompañamiento",
+      "enfermedades poco frecuentes"
+    ],
+    "listing": "article",
+    "featured": true,
+    "attribution_note": "Entrevistada y participante principal; la autoría editorial de la pieza no está separada en el contenido canónico."
+  },
+  {
+    "slug": "entrevista-diabetes-escuela",
+    "title": "La diabetes en la escuela en primera persona",
+    "type": "Entrevistas",
+    "date": "",
+    "author": "Reel original de Instagram",
+    "external_url": "https://www.instagram.com/reel/DecfqN4DrRC/",
+    "primary_section": "Historias y entrevistas",
+    "tags": [
+      "diabetes",
+      "enfermería escolar",
+      "educación"
+    ],
+    "listing": "external",
+    "featured": null,
+    "attribution_note": "Reel externo de Instagram; autoría editorial no indicada en el registro canónico."
+  },
+  {
+    "slug": "entrevista-enfermeria-rio-negro",
+    "title": "La enfermería escolar en Río Negro",
+    "type": "Entrevistas",
+    "date": "",
+    "author": "Natalia Narváez",
+    "external_url": "https://www.instagram.com/reel/DeiLAG5jhWR/",
+    "primary_section": "Historias y entrevistas",
+    "tags": [
+      "enfermería escolar",
+      "comunidad",
+      "experiencia profesional"
+    ],
+    "listing": "external",
+    "featured": null,
+    "attribution_note": "Natalia Narváez figura como participante; reel externo de Instagram."
+  },
+  {
+    "slug": "seguridad-paciente-cultura-justa",
+    "title": "Seguridad del paciente, gestión del error y cultura justa",
+    "type": "Evidencia",
+    "date": "2026-10-24",
+    "author": "Natalia Spallino",
+    "external_url": null,
+    "primary_section": "Ciencia y evidencia",
+    "tags": [
+      "seguridad del paciente",
+      "cultura justa",
+      "gestión del error"
+    ],
+    "listing": "article",
+    "featured": null,
+    "attribution_note": "Artículo de divulgación y análisis con fuentes identificadas; no es un estudio original."
+  },
+  {
+    "slug": "mas-alla-del-timbre",
+    "title": "Más allá del timbre: la urgencia de integrar la enfermería escolar en el sistema educativo argentino",
+    "type": "Voces",
+    "date": "2026-10-24",
+    "author": "Natalia Spallino",
+    "external_url": null,
+    "primary_section": "Salud y sociedad",
+    "tags": [
+      "enfermería escolar",
+      "educación",
+      "políticas sanitarias"
+    ],
+    "listing": "article",
+    "featured": null,
+    "attribution_note": "Pieza firmada por Natalia Spallino; enfoque de análisis y opinión, no estudio científico."
+  },
+  {
+    "slug": "la-buena-compania-un-bien-no-negociable",
+    "title": "La buena compañía: un bien no negociable",
+    "type": "Reflexión",
+    "date": "2026-10-23",
+    "author": "El Catalán",
+    "external_url": null,
+    "primary_section": "Opinión",
+    "tags": [
+      "acompañamiento",
+      "bienestar",
+      "cuidado"
+    ],
+    "listing": "article",
+    "featured": null,
+    "attribution_note": "Reflexión firmada por El Catalán."
+  },
+  {
+    "slug": "queremos-saber-que-esta-pasando-donde-vos-estas",
+    "title": "Queremos saber qué está pasando donde vos estás",
+    "type": "Convocatoria",
+    "date": "",
+    "author": "SALUD DESDE ADENTRO",
+    "external_url": null,
+    "primary_section": "Historias y entrevistas",
+    "tags": [
+      "participación",
+      "comunidades",
+      "experiencias de cuidado"
+    ],
+    "listing": "convocatoria",
+    "featured": null,
+    "attribution_note": "Acceso de participación editorial; no es un artículo ni una publicación fechada."
+  }
+]
