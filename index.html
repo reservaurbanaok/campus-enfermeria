@@ -122,7 +122,7 @@ section{padding-top:76px}
 #pulso-home::after{content:'';position:absolute;top:-220px;right:-120px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(0,200,200,.16) 0%,transparent 70%);pointer-events:none}
 #pulso-home .pulso-home-inner{position:relative;z-index:1;max-width:1180px;margin:0 auto}
 #pulso-home .pulso-home-cover{margin:0 0 34px}
-#pulso-home .pulso-home-cover img{display:block;width:100%;max-height:520px;object-fit:contain;background:#071022}
+#pulso-home .pulso-home-cover img{display:block;width:100%;height:auto;max-height:none;object-fit:initial;background:transparent}
 #pulso-home .pulso-home-lockup{display:flex;align-items:center;gap:18px;margin-bottom:44px}
 #pulso-home .pulso-home-isotipo{display:block;width:72px;height:auto;max-height:72px;object-fit:contain}
 #pulso-home .pulso-home-lockup h2{margin:0;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(3rem,6vw,5rem);line-height:.86;letter-spacing:-.07em}
@@ -130,7 +130,9 @@ section{padding-top:76px}
 #pulso-home .pulso-home-content{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr);gap:56px;align-items:start}
 #pulso-home .pulso-home-description{max-width:300px;margin:0;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.55rem,2.5vw,2.3rem);line-height:1.12}
 #pulso-home .pulso-home-support{max-width:360px;margin:18px 0 0;color:rgba(255,255,255,.82);font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;line-height:1.45}
-#pulso-home .pulso-home-label{margin:34px 0 0;color:#c9573d;font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
+#pulso-home .pulso-home-label{display:inline-flex;align-items:center;gap:8px;margin:34px 0 0;padding:12px 14px;border:1px solid rgba(154,231,230,.62);color:#9ae7e6;font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-decoration:none;text-transform:uppercase;transition:background-color .18s ease,color .18s ease,border-color .18s ease}
+#pulso-home .pulso-home-label:hover{background:#9ae7e6;color:#071022;border-color:#9ae7e6}
+#pulso-home .pulso-home-label:focus-visible{outline:3px solid #fff;outline-offset:4px}
 #pulso-home .pulso-home-feature{padding:30px 34px;background:rgba(4,13,31,.26);border-top:1px solid #00c8c8;border-bottom:1px solid rgba(154,231,230,.32);box-shadow:0 18px 50px rgba(0,0,0,.12)}
 #pulso-home .pulso-home-kicker{margin:0 0 12px;color:#c9573d;font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
 #pulso-home .pulso-home-feature h3{max-width:700px;margin:0 0 14px;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(2rem,4vw,3.6rem);line-height:.98;letter-spacing:-.05em}
@@ -1070,7 +1072,7 @@ button:hover .neon-icon-gold svg {
       <div>
         <p class="pulso-home-description" id="pulso-home-title">LA SALUD TAMBIÉN NECESITA SER CONTADA.</p>
         <p class="pulso-home-support">Historias, investigación, evidencia y voces para comprender la salud desde adentro.</p>
-        <p class="pulso-home-label">Publicación destacada</p>
+        <a class="pulso-home-label" href="pulso/publicaciones/carla-scaramella.html">PUBLICACIÓN DESTACADA <span aria-hidden="true">→</span></a>
       </div>
       <article class="pulso-home-feature">
         <p class="pulso-home-kicker">Entrevista · 2026-10-25</p><h3>Nadie debería atravesarlo solo</h3><p class="pulso-home-summary">Carla Scaramella cuenta cómo una experiencia familiar dio origen a una red de acompañamiento para familias vinculadas con la enfermedad de Hirschsprung.</p><p class="pulso-home-byline">Por Carla Scaramella · Hirschsprung Argentina</p><a class="pulso-home-read" href="pulso/publicaciones/carla-scaramella.html">Leer artículo <span aria-hidden="true">→</span></a>

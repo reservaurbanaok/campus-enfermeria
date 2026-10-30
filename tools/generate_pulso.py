@@ -221,14 +221,22 @@ def render_home_section(articles: list[dict], repo_root: Path) -> None:
     item = latest_dated_article(articles)
     if item is None:
         feature = '<p class="pulso-home-empty">Todavía no hay publicaciones aprobadas con fecha de publicación.</p>'
+        feature_href = None
     else:
+        feature_href = f'pulso/publicaciones/{esc(item["slug"])}.html'
         feature = (
             f'<p class="pulso-home-kicker">{esc(item["type"])} · {esc(item["date"])}</p>'
             f'<h3>{esc(item["title"])}</h3>'
             f'<p class="pulso-home-summary">{esc(item["summary"])}</p>'
             f'<p class="pulso-home-byline">Por {esc(item["author"])}</p>'
-            f'<a class="pulso-home-read" href="pulso/publicaciones/{esc(item["slug"])}.html">Leer artículo <span aria-hidden="true">→</span></a>'
+            f'<a class="pulso-home-read" href="{feature_href}">Leer artículo <span aria-hidden="true">→</span></a>'
         )
+
+    featured_cta = (
+        f'<a class="pulso-home-label" href="{feature_href}">PUBLICACIÓN DESTACADA <span aria-hidden="true">→</span></a>'
+        if feature_href else
+        '<span class="pulso-home-label">PUBLICACIÓN DESTACADA</span>'
+    )
 
     block = f'''{HOME_START}
 <section id="pulso-home" aria-labelledby="pulso-home-title">
@@ -238,7 +246,7 @@ def render_home_section(articles: list[dict], repo_root: Path) -> None:
       <div>
         <p class="pulso-home-description" id="pulso-home-title">LA SALUD TAMBIÉN NECESITA SER CONTADA.</p>
         <p class="pulso-home-support">Historias, investigación, evidencia y voces para comprender la salud desde adentro.</p>
-        <p class="pulso-home-label">Publicación destacada</p>
+        {featured_cta}
       </div>
       <article class="pulso-home-feature">
         {feature}

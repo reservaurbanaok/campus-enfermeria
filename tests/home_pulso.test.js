@@ -11,6 +11,8 @@ assert.equal((home.match(/PULSO_HOME_END/g) || []).length, 1);
 assert.ok(home.includes('LA SALUD TAMBIÉN NECESITA SER CONTADA.'));
 assert.ok(home.includes('Historias, investigación, evidencia y voces para comprender la salud desde adentro.'));
 assert.ok(home.includes('INGRESAR A SALUD DESDE ADENTRO'));
+assert.match(home, /<a class="pulso-home-label" href="pulso\/publicaciones\/carla-scaramella\.html">PUBLICACIÓN DESTACADA/);
+assert.ok(home.includes('PUBLICACIÓN DESTACADA <span aria-hidden="true">→</span>'));
 assert.ok(home.includes('href="pulso/"'));
 assert.ok(home.includes('href="pulso/publicaciones/carla-scaramella.html"'));
 assert.ok(home.includes('href="#cursos"'));
