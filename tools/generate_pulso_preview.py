@@ -59,7 +59,7 @@ def main() -> None:
             raise SystemExit(f"Clasificación inválida: {item.get('slug')}")
         if not isinstance(item.get("tags"), list) or not item["tags"]:
             raise SystemExit(f"Faltan etiquetas: {item.get('slug')}")
-        if item.get("listing") == "article" and not item.get("external_url"):
+        if item.get("listing") in {"article", "convocatoria"} and not item.get("external_url"):
             render_article(item, (repo / "pulso/templates/article.html").read_text(encoding="utf-8"), output)
     shutil.copy2(repo / "pulso/styles.css", output / "styles.css")
     for asset in (repo / "content/pulso/assets").iterdir():
