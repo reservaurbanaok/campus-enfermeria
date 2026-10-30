@@ -15,7 +15,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { margin: 0; background: var(--pulso-ivory); color: var(--pulso-black); font-family: Georgia, 'Times New Roman', serif; line-height: 1.6; }
+body { margin: 0; overflow-x: hidden; background: var(--pulso-ivory); color: var(--pulso-black); font-family: Georgia, 'Times New Roman', serif; line-height: 1.6; }
 .pulso-header { display: flex; align-items: center; min-height: 58px; padding: 14px max(22px, calc((100% - 1180px) / 2)); border-bottom: 1px solid var(--pulso-line); }
 .pulso-header a, .pulso-back { color: var(--pulso-petroleo); font: 700 .76rem/1.2 Arial, sans-serif; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; }
 .pulso-header a:hover, .pulso-back:hover { color: var(--pulso-terracota); }
@@ -79,7 +79,8 @@ body { margin: 0; background: var(--pulso-ivory); color: var(--pulso-black); fon
 #pulso-home .pulso-home-support { max-width: 360px; margin: 18px 0 0; color: rgba(255,255,255,.82); font: 1.05rem/1.45 Georgia, 'Times New Roman', serif; }
 @media (max-width: 720px) {
   .pulso-header { min-height: 52px; padding: 13px 18px; }
-  .pulso-shell { padding: 34px 18px 56px; }
+  .pulso-shell { width: 100%; min-width: 0; padding: 34px 18px 56px; }
+  .pulso-main-brand, .pulso-intro, .pulso-section-heading, .pulso-grid { width: 100%; min-width: 0; }
   .pulso-lockup { gap: 12px; }
   .pulso-isotipo { width: 70px; max-height: 64px; }
   .pulso-wordmark { gap: 5px; }
